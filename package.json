@@ -8,7 +8,11 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "start": "rm -rf ./node_modules/.cache/babel-loader && nodemon --exec babel-node -- src/index.js"
+        "start": "rm -rf ./node_modules/.cache/babel-loader && nodemon --exec babel-node -- src/index.js",
+        "build-server": "babel -d ./build ./src -s --copy-files",
+        "clean": "rm -rf build && mkdir build",
+        "build": "yarn clean && yarn build-server",
+        "start-production": "NODE_ENV=production node ./build/index.js"
     },
     "dependencies": {
         "axios": "^0.18.0",
