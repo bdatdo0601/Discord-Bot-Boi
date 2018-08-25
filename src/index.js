@@ -24,6 +24,11 @@ client.on("ready", async () => {
     setInterval(() => getLewlImages(client), 60000 * 15);
 });
 
+client.on("error", error => {
+    console.log("I'm ded");
+    console.log(error);
+});
+
 client.on("message", message => {
     message.mentions.roles.array().forEach(role => {
         const notifyingMembers = role.members

@@ -14,4 +14,15 @@ export default {
             .map((letter, index) => (index % 2 === 0 ? letter.toLowerCase() : letter.toUpperCase()));
         message.channel.send(`<@${message.author.id}>: ${response.join("")}`);
     },
+    "~mock": (message, query) => {
+        message.mentions.users.array().forEach(user => {
+            if (user.lastMessage) {
+                const mockMessage = user.lastMessage.content
+                    .split("")
+                    .map((letter, index) => (index % 2 === 0 ? letter.toLowerCase() : letter.toUpperCase()))
+                    .join("");
+                message.channel.send(`<@${user.id}>: ${mockMessage}`);
+            }
+        });
+    },
 };
