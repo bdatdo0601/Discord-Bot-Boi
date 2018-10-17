@@ -1,1 +1,1 @@
-worker: yarn && yarn deploy
+worker: yarn deploy
