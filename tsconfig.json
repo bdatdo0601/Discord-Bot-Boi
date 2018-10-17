@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "lib": ["es2015"],
+        "outDir": "./build/", // path to output directory
+        "sourceMap": true, // allow sourcemap support
+        "strictNullChecks": true, // enable strict null checks as a best practice
+        "module": "commonjs", // specify module code generation
+        "target": "es6", // specify ECMAScript target version
+        "allowJs": false, // allow a partial TypeScript and JavaScript codebase
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true
+    },
+    "include": ["src/**/*.ts", "src/**/*.json"]
+}

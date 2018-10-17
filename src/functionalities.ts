@@ -1,6 +1,6 @@
-import parser from "xml2json";
-import _ from "lodash";
-import rule34Keywords from "./data/rule34Keywords";
+import * as parser from "xml2json";
+import * as _ from "lodash";
+import rule34Keywords from "./data/rule34Keywords.json";
 import API from "./api";
 
 export const getLewlImages = async (
@@ -15,8 +15,6 @@ export const getLewlImages = async (
             const nsfwChannel = guild.channels.array().find(channel => channel.nsfw);
             nsfwChannel.send(`The topic is ${query}`);
         });
-    } else {
-        receiver.send(`The topic is ${query}`);
     }
     const data = JSON.parse(parser.toJson(rawData.data));
     const receivedData = data.posts.post ? data.posts.post : [];
@@ -27,8 +25,6 @@ export const getLewlImages = async (
                 const nsfwChannel = guild.channels.array().find(channel => channel.nsfw);
                 nsfwChannel.send("My DB does not have dis");
             });
-        } else {
-            receiver.send("My DB does not have dis");
         }
     } else {
         const sendingData = dataToPost instanceof Array ? dataToPost : [dataToPost];
@@ -39,8 +35,6 @@ export const getLewlImages = async (
                         const nsfwChannel = guild.channels.array().find(channel => channel.nsfw);
                         nsfwChannel.send(item.file_url);
                     });
-                } else {
-                    receiver.send(item.file_url);
                 }
             }
         });

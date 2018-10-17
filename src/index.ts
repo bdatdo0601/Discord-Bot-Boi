@@ -1,14 +1,14 @@
-import Discord from "discord.js";
-
+/// <reference path="../node_modules/discord.js/typings/index.d.ts" />
+import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 dotenv.config();
 
 import { getLewlImages } from "./functionalities";
 import requestCommand from "./command";
 
-const client = new Discord.Client();
+const client = new Client();
 const token = process.env.BOT_TOKEN;
 
 client.on("ready", async () => {
@@ -30,17 +30,6 @@ client.on("error", error => {
 });
 
 client.on("message", message => {
-    message.mentions.roles.array().forEach(role => {
-        const notifyingMembers = role.members
-            .array()
-            .filter(
-                member =>
-                    member.user.id !== message.author.id &&
-                    (member.presence.status === "online" || member.presence.status === "idle")
-            );
-        const notifyingMembersToMentions = notifyingMembers.reduce((result, member) => (result += `<@${member.id}> `));
-        message.channel.send(`Hey ${notifyingMembersToMentions}! <@${message.author.id}> wanna play some ${role.name}`);
-    });
     if (message.content[0] === "~") {
         const [command, ...rest] = message.content.split(" ");
         const query = rest.join(" ");
