@@ -18,18 +18,18 @@ If you know what you are doing, feel free to use your own tools
 
 _Ensure you can run these programs from your terminal/shell_
 
--   [Node (v10.12.0 or higher)](https://nodejs.org/en/): Allow running JavaScript code to run directly on computer instead of just through browser
--   [Yarn Package Manager](https://yarnpkg.com/en/): Manage Node's libraries
+- [Node (v10.12.0 or higher)](https://nodejs.org/en/): Allow running JavaScript code to run directly on computer instead of just through browser
+- [Yarn Package Manager](https://yarnpkg.com/en/): Manage Node's libraries
 
 ## Development
 
 _The Project is developed using [TypeScript](https://www.typescriptlang.org/), basically JavaScript with some twist_
 
--   [Visual Studio Code](https://code.visualstudio.com/): IDE to develop. Have a tons of package to support writing ~~good~~ code
+- [Visual Studio Code](https://code.visualstudio.com/): IDE to develop. Have a tons of package to support writing ~~good~~ code
 
 ## Contribution
 
--   [Git](https://git-scm.com/): Version control, allow seamless collaboration on projects
+- [Git](https://git-scm.com/): Version control, allow seamless collaboration on projects
 
 # Installation
 
@@ -74,32 +74,32 @@ $ yarn deploy # build the project and start it in production mode
 ├── LICENSE                                 # License for the project
 ├── Procfile                                # Heroku configuration (use for deployment)
 ├── README.md
-├── build                                   # Storing the production (compiled) version of the project
-├── coverage                                # Coverage Report (How well-tested the project is)
+├── build/                                  # Storing the production (compiled) version of the project
+├── coverage/                               # Coverage Report (How well-tested the project is)
 ├── package.json                            # Project Configuration (declare dependencies, scripts, etc)
-├── src                                     # Source code folder
-│   ├── commands                            # commands that are available to use
+├── src/                                    # Source code folder
+│   ├── commands/                           # commands that are available to use
 │   │   ├── command.interface.ts            # Interfaces to ensure static typings
 │   │   ├── index.ts                        # Starting point of this (sub)directory
-│   │   ├── mock                            # Example command
+│   │   ├── mock/                           # Example command
 │   │   │   └── index.ts
-│   ├── events                              # Discord event management
+│   ├── events/                             # Discord event management
 │   │   ├── event.interface.ts
 │   │   ├── index.ts
-│   │   ├── message                         # Example event
+│   │   ├── message/                        # Example event
 │   │   │   └── index.ts
-│   ├── lib                                 # Utility functions
-│   │   └── api
-│   │       └── reddit                      # Example utility for RedditAPI
+│   ├── lib/                                # Utility functions
+│   │   └── api/
+│   │       └── reddit/                     # Example utility for RedditAPI
 │   │           ├── index.ts
 │   │           └── reddit.interface.ts
-│   ├── res                                 # Static Resources
-│   ├─── typings                            # TypeScript Typings for external, untyped JS Module
-│   │  └── declarations                     # Declaration Files
+│   ├── res/                                # Static Resources
+│   ├─── typings/                           # TypeScript Typings for external, untyped JS Module
+│   │  └── declarations/                    # Declaration Files
 │   │       └── json.d.ts
 │   └─── index.ts                           # Starting point of the entire project
-├── test
-├── tsconfig.json
+├── test/                                   # Automated testing
+├── tsconfig.json                           # TypeScript Configuration
 └── yarn.lock
 ```
 
