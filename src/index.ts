@@ -2,7 +2,7 @@
 import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
-import * as dotenv from "dotenv";
+import dotenv from "dotenv";
 import { Event } from "./events/event.interface";
 import botEventList from "./events";
 
