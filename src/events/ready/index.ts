@@ -1,7 +1,7 @@
-import { Event } from "./event.interface";
+import { Event } from "../event.interface";
 import { Client } from "discord.js";
 
-import commandList, { COMMANDS } from "../commands";
+import commandList, { COMMANDS } from "../../commands";
 
 const debug = require("debug")("BotBoi:onReadyEvent");
 

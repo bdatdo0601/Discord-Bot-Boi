@@ -1,5 +1,5 @@
-import { Command } from "./command.interface";
-import { toMockSentence } from "./sayMock";
+import { Command } from "../command.interface";
+import { toMockSentence } from "../sayMock";
 import { Client, Message, User } from "discord.js";
 
 const mockCommand: Command = {

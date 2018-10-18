@@ -1,4 +1,4 @@
-import { Event } from "./event.interface";
+import { Event } from "../event.interface";
 import { Client } from "discord.js";
 
 const debug = require("debug")("BotBoi:onErrorEvent");

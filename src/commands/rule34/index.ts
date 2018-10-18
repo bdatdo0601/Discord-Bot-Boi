@@ -1,9 +1,9 @@
 import _ from "lodash";
-import rule34Keywords from "../res/rule34Keywords.json";
-import rule34xxxAPI from "../lib/api/rule34xxx";
+import rule34Keywords from "../../res/rule34Keywords.json";
+import rule34xxxAPI from "../../lib/api/rule34xxx";
 import { Command } from "src/commands/command.interface.js";
 import { Message, Client, Channel, TextChannel, Guild } from "discord.js";
-import { Rule34XXXImage } from "src/lib/api/rule34xxx.interface.js";
+import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
 
 /**
  *

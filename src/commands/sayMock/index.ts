@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Command } from "./command.interface";
+import { Command } from "../command.interface";
 import { Client, Message } from "discord.js";
 
 export const toMockSentence = (sentence: string): string => {
