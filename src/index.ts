@@ -8,17 +8,18 @@ import botEventList from "./events";
 
 dotenv.config();
 const debug = require("debug")("BotBoi:Main");
-const TOKEN = process.env.BOT_TOKEN;
+const TOKEN: string = <string>process.env.BOT_TOKEN;
 
-const main = async (): Promise<void> => {
+const main = async (token: string): Promise<Client> => {
     debug("Initializing Bot Boi");
     const client: Client = new Client();
     botEventList.forEach((event: Event) => {
         client.on(event.eventName, event.eventActionCallback(client));
     });
-    client.login(TOKEN);
+    await client.login(token);
+    return client;
 };
 
-main().catch(error => {
+main(TOKEN).catch(error => {
     debug(error);
 });
