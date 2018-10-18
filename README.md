@@ -46,6 +46,8 @@ $ cd Discord-Bot-Boi/
 $ yarn
 ```
 
+3. setup `.env` at the root of the project to set required environment variable(refer to `.sample-env` for example)
+
 # Usage
 
 Below are availabe command for the project. Checkout `package.json` to see the exact command executed:
