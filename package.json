@@ -11,7 +11,7 @@
         "node": "10.12.0"
     },
     "scripts": {
-        "start": "rm -rf ./node_modules/.cache/babel-loader && nodemon --exec ts-node -- src/index.ts",
+        "start": "DEBUG=BotBoi:* nodemon --exec ts-node -- src/index.ts",
         "build-server": "tsc",
         "clean": "rm -rf build && mkdir build",
         "build": "yarn clean && yarn build-server",
@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "axios": "^0.18.0",
+        "debug": "^4.1.0",
         "discord.js": "^11.4.2",
         "dotenv": "^6.0.0",
         "ffmpeg-binaries": "^4.0.0",
@@ -29,6 +30,7 @@
     },
     "devDependencies": {
         "@types/axios": "^0.14.0",
+        "@types/debug": "^0.0.31",
         "@types/dotenv": "^4.0.3",
         "@types/lodash": "^4.14.117",
         "@types/node": "^10.12.0",

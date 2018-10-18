@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
         "lib": ["es2015"],
         "outDir": "./build/", // path to output directory
         "sourceMap": true, // allow sourcemap support
@@ -11,5 +12,6 @@
         "resolveJsonModule": true,
         "esModuleInterop": true
     },
-    "include": ["src/**/*.ts", "src/**/*.json"]
+    "include": ["src/**/*.ts", "src/**/*.json"],
+    "exclude": ["node_modules"]
 }

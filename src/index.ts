@@ -5,38 +5,21 @@ import { Client } from "discord.js";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { getLewlImages } from "./functionalities";
-import requestCommand from "./command";
+import { Event } from "./events/event.interface";
+import botEventList from "./events";
+import rule34API from "./lib/api/rule34xxx";
+const debug = require("debug")("BotBoi:Main");
+const TOKEN = process.env.BOT_TOKEN;
 
-const client = new Client();
-const token = process.env.BOT_TOKEN;
-
-client.on("ready", async () => {
-    console.log("Me Me Ready");
-    client.guilds.array().forEach(guild => {
-        // guild.channels
-        //     .array()
-        //     .find(channel => channel.type === "text")
-        //     .send("Me Me Alive & Ready");
+const main = async (): Promise<void> => {
+    debug("Initializing Bot Boi");
+    const client: Client = new Client();
+    botEventList.forEach((event: Event) => {
+        client.on(event.eventName, event.eventActionCallback(client));
     });
+    client.login(TOKEN);
+};
 
-    await getLewlImages(client);
-    setInterval(() => getLewlImages(client), 60000 * 15);
+main().catch(error => {
+    debug(error);
 });
-
-client.on("error", error => {
-    console.log("I'm ded");
-    console.log(error);
-});
-
-client.on("message", message => {
-    if (message.content[0] === "~") {
-        const [command, ...rest] = message.content.split(" ");
-        const query = rest.join(" ");
-        if (requestCommand[command]) {
-            requestCommand[command](message, query);
-        }
-    }
-});
-
-client.login(token);
