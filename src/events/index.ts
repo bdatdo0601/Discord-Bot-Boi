@@ -1,4 +1,4 @@
-import { Event } from "../typings/interfaces/event";
+import { Event } from "./event.interface";
 import errorEvent from "./error";
 import messageEvent from "./message";
 import readyEvent from "./ready";
