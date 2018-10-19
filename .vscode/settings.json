@@ -1,5 +1,9 @@
 {
-    "eslint.packageManager": "yarn",
-    "eslint.autoFixOnSave": true,
-    "editor.formatOnSave": true
+  "eslint.packageManager": "yarn",
+  "eslint.autoFixOnSave": true,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "tslint.packageManager": "yarn",
+  "prettier.tslintIntegration": true,
+  "prettier.printWidth": 120
 }
