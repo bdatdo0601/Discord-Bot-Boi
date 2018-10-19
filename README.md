@@ -53,6 +53,8 @@ $ yarn
 Below are availabe command for the project. Checkout `package.json` to see the exact command executed:
 
 ```shell
+$ yarn data-initialization # one time work script for development mode
+$ yarn data-initialize-production # one time work script for production mode
 $ yarn start # start the project in development mode
 $ yarn test # run test against the project
 $ yarn build-server # compile project into production version
