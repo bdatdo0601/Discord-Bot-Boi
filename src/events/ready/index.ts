@@ -17,7 +17,10 @@ const ready: Event = {
       }
     );
     // recurring
-    setInterval(() => commandList[COMMANDS.RULE34](client), 60000 * 15);
+    setInterval(
+      () => commandList[COMMANDS.RULE34.RULE34_SEARCH](client),
+      60000 * 15
+    );
     debug("Me Me Ready");
   }
 };

@@ -1,15 +1,12 @@
-import rule34Command from "./rule34";
-import sayMockCommand from "./sayMock";
-import mockCommand from "./mock";
+import rule34CommandList, { rule34CommandKeyList } from "./rule34";
+import mockCommandList, { mockCommandKeyList } from "./mock";
 
 export const COMMANDS = {
-    RULE34: "~rule34",
-    SAY_MOCK: "~sayMock",
-    MOCK: "~MOCK",
+  RULE34: rule34CommandKeyList,
+  MOCK: mockCommandKeyList
 };
 
 export default {
-    [COMMANDS.RULE34]: rule34Command.commandCallback,
-    [COMMANDS.SAY_MOCK]: sayMockCommand.commandCallback,
-    [COMMANDS.MOCK]: mockCommand.commandCallback,
+  ...rule34CommandList,
+  ...mockCommandList
 };
