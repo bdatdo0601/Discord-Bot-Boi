@@ -13,18 +13,18 @@ import {
 
 dotenv.config();
 
-const { NODE_ENV, BASE_MY_JSON_STORE, BASE_MY_JSON_STORE_TEST } = process.env;
-
 const MYJSON_URL = "https://api.myjson.com/bins";
 
-const MYJSON_BASE_STORE = `${MYJSON_URL}/${
-  NODE_ENV === "development" ? BASE_MY_JSON_STORE_TEST : BASE_MY_JSON_STORE
-}`;
+let MYJSON_BASE_STORE = `${MYJSON_URL}/${process.env.BASE_MY_JSON_STORE}`;
 
 const configOptions = {
   headers: {
     "Content-type": "application/json"
   }
+};
+
+const setNewBaseStoreID = (baseStoreID: string) => {
+  MYJSON_BASE_STORE = `${MYJSON_URL}/${baseStoreID}`;
 };
 
 const initBaseStore = async (): Promise<BaseJSONStore> => {
@@ -148,6 +148,7 @@ const updateGuildBaseJSONStore = async (
 };
 
 export default {
+  setNewBaseStoreID,
   initBaseStore,
   getBaseStore,
   updateBaseStore,
