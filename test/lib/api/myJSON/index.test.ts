@@ -1,6 +1,5 @@
 import chai, { expect } from "chai";
 import axios from "axios";
-import dotenv from "dotenv";
 import Util from "../../../../src/lib/util";
 import MyJSONAPI from "../../../../src/lib/api/myJson";
 import {
@@ -8,9 +7,9 @@ import {
   BaseJSONStoreInput,
   GuildBaseJSONStore,
   GuildBaseJSONStoreData,
-  GuildBaseJSONStoreInput
+  GuildBaseJSONStoreInput,
+  InitGuildBaseJSONStoreResponse
 } from "../../../../src/lib/api/myJson/myJson.interface";
-dotenv.config();
 
 chai.use(require("chai-like"));
 
@@ -24,17 +23,15 @@ describe("MyJSON API Functionalities", () => {
   const initBaseStoreData: BaseJSONStore = {
     guildStores: []
   };
+  let binID = "";
   before(async () => {
-    const response = await axios.put(
-      `https://api.myjson.com/bins/${process.env.BASE_MY_JSON_STORE_TEST}`,
+    const response = await axios.post<InitGuildBaseJSONStoreResponse>(
+      `https://api.myjson.com/bins`,
       {},
       configOptions
     );
-    MyJSONAPI.setNewBaseStoreID(
-      process.env.BASE_MY_JSON_STORE_TEST
-        ? process.env.BASE_MY_JSON_STORE_TEST
-        : "ybcv4"
-    );
+    binID = response.data.uri.split("/")[4];
+    MyJSONAPI.setNewBaseStoreID(binID);
   });
   describe("Base Store Functions", () => {
     describe("Initialization", () => {
@@ -82,7 +79,7 @@ describe("MyJSON API Functionalities", () => {
       });
       it("should initialize data if the returned format is corrupted", async () => {
         await axios.put(
-          `https://api.myjson.com/bins/${process.env.BASE_MY_JSON_STORE_TEST}`,
+          `https://api.myjson.com/bins/${binID}`,
           {},
           configOptions
         );
@@ -165,12 +162,5 @@ describe("MyJSON API Functionalities", () => {
         });
       });
     });
-  });
-  after(async () => {
-    await axios.put(
-      `https://api.myjson.com/bins/${process.env.BASE_MY_JSON_STORE_TEST}`,
-      {},
-      configOptions
-    );
   });
 });
