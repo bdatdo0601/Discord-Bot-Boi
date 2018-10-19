@@ -9,8 +9,8 @@ const initialize = async (): Promise<void> => {
 };
 
 initialize().catch((error: Error) => {
-  console.log("Initialize fail!!");
-  console.log(error.message);
+  debug("Initialize fail!!");
+  debug(error.message);
   debug(error);
 });
 

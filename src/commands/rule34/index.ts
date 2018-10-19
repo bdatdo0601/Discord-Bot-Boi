@@ -4,7 +4,7 @@ import MyJSONAPI from "../../lib/api/myJson";
 import { Command } from "src/commands/command.interface.js";
 import { Message, Client, Channel, TextChannel, Guild } from "discord.js";
 import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
-import { getRandomElementFromArray } from "../../lib/util";
+import Util from "../../lib/util";
 
 /**
  *
@@ -56,7 +56,9 @@ const rule34Command: Command = {
         if (nsfwChannel) {
           const searchString = query
             ? query
-            : getRandomElementFromArray(await getRule34XXXKeywords(guild.id));
+            : Util.getRandomElementFromArray(
+                await getRule34XXXKeywords(guild.id)
+              );
           await getLewlImagesFromRule34XXX(
             searchString,
             10,
@@ -70,7 +72,7 @@ const rule34Command: Command = {
     } else {
       const searchString = query
         ? query
-        : getRandomElementFromArray(
+        : Util.getRandomElementFromArray(
             await getRule34XXXKeywords(message.guild.id)
           );
       await getLewlImagesFromRule34XXX(

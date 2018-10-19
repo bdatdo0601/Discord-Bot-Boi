@@ -11,6 +11,7 @@
     "node": "^10.12.0"
   },
   "scripts": {
+    "lint": "tslint --project .",
     "data-initialize": "cross-env DEBUG=BotBoi:* NODE_ENV=development ts-node src/init.ts",
     "start": "cross-env DEBUG=BotBoi:* NODE_ENV=development nodemon --exec ts-node src/index.ts",
     "test": "nyc --reporter=html mocha -r ts-node/register test/**/*.ts",
@@ -68,6 +69,7 @@
     "nodemon": "^1.17.3",
     "nyc": "^13.1.0",
     "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
     "typescript": "^3.1.3"
   }
 }
