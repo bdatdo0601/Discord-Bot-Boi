@@ -5,6 +5,7 @@ import { Command } from "src/commands/command.interface.js";
 import { Message, Client, Channel, TextChannel, Guild } from "discord.js";
 import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
 import Util from "../../lib/util";
+import { Rule34CommandList, Rule34CommandKeyList } from "./rule34.interface";
 
 /**
  *
@@ -41,6 +42,7 @@ const getRule34XXXKeywords = async (guildID: string): Promise<string[]> => {
 };
 
 const rule34Command: Command = {
+  commandName: "rule 34 search",
   commandCallback: async (
     client: Client,
     query?: string,
@@ -85,4 +87,10 @@ const rule34Command: Command = {
   }
 };
 
-export default rule34Command;
+export const rule34CommandKeyList: Rule34CommandKeyList = {
+  RULE34_SEARCH: "~rule34"
+};
+
+export default {
+  [rule34CommandKeyList.RULE34_SEARCH]: rule34Command.commandCallback
+};
