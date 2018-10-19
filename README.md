@@ -53,6 +53,9 @@ $ yarn
 Below are availabe command for the project. Checkout `package.json` to see the exact command executed:
 
 ```shell
+$ yarn lint # cleaning up source code
+$ yarn data-initialization # one time work script for development mode
+$ yarn data-initialize-production # one time work script for production mode
 $ yarn start # start the project in development mode
 $ yarn test # run test against the project
 $ yarn build-server # compile project into production version
@@ -62,6 +65,10 @@ $ yarn build # clear build folder and compile project to production version
 $ yarn start-production # start the project in production mode
 $ yarn deploy # build the project and start it in production mode
 ```
+
+# Testing
+
+To get coverage status for the project from local machine, setup `.coveralls.yml` with `repo_token` from [coveralls.io](https://coveralls.io)
 
 # Testing Area
 
