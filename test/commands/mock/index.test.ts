@@ -10,7 +10,6 @@ import {
 import mockCommandList, {
   mockCommandKeyList
 } from "../../../src/commands/mock";
-import { stringify } from "querystring";
 
 describe("Mock Commands", () => {
   describe("Mock Command", () => {

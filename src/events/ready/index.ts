@@ -4,6 +4,8 @@ import { Client } from "discord.js";
 import commandList, { COMMANDS } from "../../commands";
 import MyJSONAPI from "../../lib/api/myJson";
 
+export const RULE34_INTERVAL = 1;
+
 const debug = require("debug")("BotBoi:onReadyEvent");
 
 const ready: Event = {
@@ -17,10 +19,9 @@ const ready: Event = {
       }
     );
     // recurring
-    setInterval(
-      () => commandList[COMMANDS.RULE34.RULE34_SEARCH](client),
-      60000 * 15
-    );
+    client.setInterval(function() {
+      commandList[COMMANDS.RULE34.RULE34_SEARCH](client);
+    }, RULE34_INTERVAL);
     debug("Me Me Ready");
   }
 };

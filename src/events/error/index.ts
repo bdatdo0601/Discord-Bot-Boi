@@ -6,7 +6,7 @@ const debug = require("debug")("BotBoi:onErrorEvent");
 const error: Event = {
   eventName: "error",
   eventActionCallback: (client: Client) => async (error: Error) => {
-    console.error(error.message);
+    debug(error.message);
     debug(error);
   }
 };
