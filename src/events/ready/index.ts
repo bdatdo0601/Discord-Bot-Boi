@@ -4,7 +4,7 @@ import { Client } from "discord.js";
 import commandList, { COMMANDS } from "../../commands";
 import MyJSONAPI from "../../lib/api/myJson";
 
-export const RULE34_INTERVAL = 1;
+export const RULE34_INTERVAL = 60000 * 15;
 
 const debug = require("debug")("BotBoi:onReadyEvent");
 
