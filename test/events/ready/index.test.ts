@@ -3,15 +3,9 @@ import readyEvent, { RULE34_INTERVAL } from "../../../src/events/ready";
 import { Client, Collection, Guild } from "discord.js";
 import lolex from "lolex";
 
-// import dotenv from "dotenv";
-// dotenv.config();
-
 describe("Ready Event", () => {
   const client: Client = new Client();
-  let clock;
-  before(() => {
-    clock = lolex.install({ shouldAdvanceTime: true, target: global });
-  });
+  const clock = lolex.install({ shouldAdvanceTime: true, target: global });
   it("should trigger when ready event got emitted", done => {
     client.on(readyEvent.eventName, () => {
       client.guilds = new Collection<string, Guild>().set(
