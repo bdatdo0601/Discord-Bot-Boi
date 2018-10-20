@@ -92,7 +92,7 @@ describe("MyJSON API Functionalities", () => {
     });
   });
   describe("Guild Store Functions", () => {
-    const validGuildStoreIDs: string[] = ["bar"];
+    const validGuildStoreIDs: string[] = ["bar", "bas"];
     const initGuildStoreData: GuildBaseJSONStoreData = {
       rule34Keywords: []
     };

@@ -10,7 +10,6 @@ import {
 import mockCommandList, {
   mockCommandKeyList
 } from "../../../src/commands/mock";
-import { stringify } from "querystring";
 
 describe("Mock Commands", () => {
   describe("Mock Command", () => {
@@ -25,7 +24,7 @@ describe("Mock Commands", () => {
       });
     });
 
-    it("should send a mock version of command with user id attached", done => {
+    it("should send a mock message based on mentioned user last message", done => {
       const users = new Collection<string, User>();
       const newUser = new User(client, { id: 1 });
       newUser.lastMessage = new Message(
@@ -43,6 +42,23 @@ describe("Mock Commands", () => {
         channel: {
           send: result => {
             expect(result).to.equal("<@1>: tEsT yOlO");
+            done();
+          }
+        },
+        mentions: {
+          users
+        }
+      };
+      client.emit("message", input);
+    });
+    it("should send a warning message if mentions user does not have last message", done => {
+      const users = new Collection<string, User>();
+      const newUser = new User(client, { id: 1 });
+      users.set("foo", newUser);
+      const input = {
+        channel: {
+          send: result => {
+            expect(result).to.equal("I don't see any previous message of <@1>");
             done();
           }
         },

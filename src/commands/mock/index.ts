@@ -6,7 +6,7 @@ import { MockCommandKeyList } from "./mock.interace";
 const toMockSentence = (sentence: string): string => {
   const response: string[] = sentence.split("");
   let lowerCaseToggle = true;
-  const mockSentence: string | undefined = _.reduce(
+  const mockSentence: string = _.reduce(
     response,
     (result: string, currentChar: string) => {
       if (!currentChar.match(/[A-Za-z]/)) {
@@ -22,7 +22,7 @@ const toMockSentence = (sentence: string): string => {
     },
     ""
   );
-  return mockSentence ? mockSentence : "";
+  return mockSentence;
 };
 
 const sayMockCommand: Command = {
@@ -40,6 +40,10 @@ const mockCommand: Command = {
       if (user.lastMessage) {
         const mockMessage = toMockSentence(user.lastMessage.cleanContent);
         message.channel.send(`<@${user.id}>: ${mockMessage}`);
+      } else {
+        message.channel.send(
+          `I don't see any previous message of <@${user.id}>`
+        );
       }
     });
   }
