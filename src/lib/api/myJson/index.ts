@@ -93,7 +93,10 @@ const initGuildBaseJSONStore = async (
   guildStoreData?: GuildBaseJSONStoreInput
 ): Promise<GuildBaseJSONStore | undefined> => {
   const initData: GuildBaseJSONStoreInput = {
-    rule34Keywords: [],
+    rule34Store: {
+      recurringNSFWChannelID: undefined,
+      rule34Keywords: []
+    },
     ...(guildStoreData ? guildStoreData : {})
   };
   const response = await axios.post<InitGuildBaseJSONStoreResponse>(
