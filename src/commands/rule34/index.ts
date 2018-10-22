@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, Message, TextChannel } from "discord.js";
+import { Client, Guild, Message, TextChannel } from "discord.js";
 import _ from "lodash";
 import { Command } from "src/commands/command.interface.js";
 import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
@@ -61,7 +61,7 @@ const getRule34XXXKeywords = async (
 
 const getRule34RecurringChannel = async (
   guildID: string,
-): Promise<String | null> => {
+): Promise<string | null> => {
   const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
   if (
     !guildBaseStore ||
@@ -114,14 +114,36 @@ const addRule34Keyword = async (
           word: keyword,
         },
       ];
+  const updatedKeywords = guildBase.data.rule34Store.rule34Keywords
+    ? [...guildBase.data.rule34Store.rule34Keywords, ...addedKeywords]
+    : addedKeywords;
   await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
     rule34Store: {
-      rule34Keywords: [
-        ...(guildBase.data.rule34Store.rule34Keywords
-          ? guildBase.data.rule34Store.rule34Keywords
-          : []),
-        ...addedKeywords,
-      ],
+      rule34Keywords: updatedKeywords,
+    },
+  });
+  return await getRule34XXXKeywords(guildID);
+};
+
+const deleteRule34Keyword = async (
+  guildID: string,
+  keyword: string,
+): Promise<Rule34KeywordList> => {
+  const guildBase = await MyJSONAPI.getGuildBaseJSONStore(guildID);
+  if (!guildBase) {
+    return {
+      rule34xxx: [""],
+    };
+  }
+  const updatedKeywordsList: Rule34Keyword[] = guildBase.data.rule34Store
+    .rule34Keywords
+    ? guildBase.data.rule34Store.rule34Keywords.filter(
+        (item) => item.word !== keyword,
+      )
+    : [];
+  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
+    rule34Store: {
+      rule34Keywords: updatedKeywordsList,
     },
   });
   return await getRule34XXXKeywords(guildID);
@@ -185,7 +207,6 @@ const rule34ListCommand: Command = {
       await message.channel.send("Lewd stuff don't belong here");
     } else {
       const rule34KeywordList = await getRule34XXXKeywords(message.guild.id);
-      console.log(rule34KeywordList);
       Object.keys(rule34KeywordList).forEach((source) => {
         message.channel.send(
           `${source}: [ ${rule34KeywordList[source].join(" ")} ]`,
@@ -243,7 +264,6 @@ const rule34SearchCommand: Command = {
 };
 
 const rule34addKeywordCommand: Command = {
-  commandName: "rule 34 add keyword command",
   commandCallback: async (
     client: Client,
     query: string,
@@ -261,9 +281,35 @@ const rule34addKeywordCommand: Command = {
       });
     }
   },
+  commandName: "rule 34 add keyword command",
+};
+
+const rule34deleteKeywordCommand: Command = {
+  commandCallback: async (
+    client: Client,
+    query: string,
+    message: Message,
+  ): Promise<void> => {
+    if (!(message.channel as TextChannel).nsfw) {
+      await message.channel.send("Lewd stuff don't belong here");
+    } else {
+      const newKeywordsList = await deleteRule34Keyword(
+        message.guild.id,
+        query,
+      );
+      message.channel.send("Updated List");
+      Object.keys(newKeywordsList).forEach((source) => {
+        message.channel.send(
+          `${source}: [ ${newKeywordsList[source].join(" ")} ]`,
+        );
+      });
+    }
+  },
+  commandName: "Rule 34 delete keyword command",
 };
 
 export const rule34CommandKeyList: Rule34CommandKeyList = {
+  RULE_34_DELETE_KEYWORD: "~rule34deleteKeyword",
   RULE_34_ADD_KEYWORD: "~rule34addKeyword",
   RULE34_SEARCH: "~rule34",
   RULE34_LIST: "~rule34list",
@@ -273,6 +319,8 @@ export const rule34CommandKeyList: Rule34CommandKeyList = {
 };
 
 export default {
+  [rule34CommandKeyList.RULE_34_DELETE_KEYWORD]:
+    rule34deleteKeywordCommand.commandCallback,
   [rule34CommandKeyList.RULE_34_ADD_KEYWORD]:
     rule34addKeywordCommand.commandCallback,
   [rule34CommandKeyList.RULE34_SEARCH]: rule34SearchCommand.commandCallback,

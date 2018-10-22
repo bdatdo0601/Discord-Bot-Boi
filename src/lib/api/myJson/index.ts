@@ -8,7 +8,7 @@ import {
   GuildBaseJSONStoreData,
   GuildBaseJSONStoreInput,
   GuildStoreObject,
-  InitGuildBaseJSONStoreResponse
+  InitGuildBaseJSONStoreResponse,
 } from "./myJson.interface";
 
 dotenv.config();
@@ -19,8 +19,8 @@ let MYJSON_BASE_STORE = `${MYJSON_URL}/${process.env.BASE_MY_JSON_STORE}`;
 
 const configOptions = {
   headers: {
-    "Content-type": "application/json"
-  }
+    "Content-type": "application/json",
+  },
 };
 
 const setNewBaseStoreID = (baseStoreID: string) => {
@@ -29,12 +29,12 @@ const setNewBaseStoreID = (baseStoreID: string) => {
 
 const initBaseStore = async (): Promise<BaseJSONStore> => {
   const initData: BaseJSONStore = {
-    guildStores: []
+    guildStores: [],
   };
   const response = await axios.put<BaseJSONStore>(
     MYJSON_BASE_STORE,
     initData,
-    configOptions
+    configOptions,
   );
   return response.data;
 };
@@ -42,7 +42,7 @@ const initBaseStore = async (): Promise<BaseJSONStore> => {
 const getBaseStore = async (): Promise<BaseJSONStore> => {
   const response = await axios.get<BaseJSONStore>(
     MYJSON_BASE_STORE,
-    configOptions
+    configOptions,
   );
   const data = response.data;
   if (!data || _.isEmpty(data)) {
@@ -52,74 +52,74 @@ const getBaseStore = async (): Promise<BaseJSONStore> => {
 };
 
 const updateBaseStore = async (
-  updatedData: BaseJSONStoreInput
+  updatedData: BaseJSONStoreInput,
 ): Promise<BaseJSONStore> => {
   const oldData = await getBaseStore();
   const newData = {
     ...oldData,
-    ...updatedData
+    ...updatedData,
   };
   const response = await axios.put<BaseJSONStore>(
     MYJSON_BASE_STORE,
     newData,
-    configOptions
+    configOptions,
   );
   return response.data;
 };
 
 const getGuildBaseJSONStore = async (
-  guildID: string
+  guildID: string,
 ): Promise<GuildBaseJSONStore | undefined> => {
   const baseStore: BaseJSONStore = await getBaseStore();
   const guildStoreObj = baseStore.guildStores.find(
-    (item: GuildStoreObject) => item.guildID === guildID
+    (item: GuildStoreObject) => item.guildID === guildID,
   );
   if (!guildStoreObj) {
     return undefined;
   }
   const response = await axios.get<GuildBaseJSONStoreData>(
     guildStoreObj.storeURL,
-    configOptions
+    configOptions,
   );
   const result: GuildBaseJSONStore = {
     data: response.data,
-    guildStore: guildStoreObj
+    guildStore: guildStoreObj,
   };
   return result;
 };
 
 const initGuildBaseJSONStore = async (
   guildID: string,
-  guildStoreData?: GuildBaseJSONStoreInput
+  guildStoreData?: GuildBaseJSONStoreInput,
 ): Promise<GuildBaseJSONStore | undefined> => {
   const initData: GuildBaseJSONStoreInput = {
     rule34Store: {
       recurringNSFWChannelID: undefined,
-      rule34Keywords: []
+      rule34Keywords: [],
     },
-    ...(guildStoreData ? guildStoreData : {})
+    ...(guildStoreData ? guildStoreData : {}),
   };
   const response = await axios.post<InitGuildBaseJSONStoreResponse>(
     MYJSON_URL,
     initData,
-    configOptions
+    configOptions,
   );
   const { uri } = response.data;
   const baseStore = await getBaseStore();
   const newGuildStoreObj: GuildStoreObject = {
     guildID,
-    storeURL: uri
+    storeURL: uri,
   };
   const updatedGuildStore: GuildStoreObject[] = baseStore.guildStores.find(
-    item => item.guildID === guildID
+    (item) => item.guildID === guildID,
   )
     ? baseStore.guildStores.map(
-        item => (item.guildID === guildID ? newGuildStoreObj : item)
+        (item) => (item.guildID === guildID ? newGuildStoreObj : item),
       )
     : [...baseStore.guildStores, newGuildStoreObj];
   const updatedBaseStore: BaseJSONStore = {
     ...baseStore,
-    guildStores: updatedGuildStore
+    guildStores: updatedGuildStore,
   };
   await updateBaseStore(updatedBaseStore);
   return await getGuildBaseJSONStore(guildID);
@@ -127,22 +127,22 @@ const initGuildBaseJSONStore = async (
 
 const updateGuildBaseJSONStore = async (
   guildID: string,
-  updatedGuildStoreData: GuildBaseJSONStoreInput
+  updatedGuildStoreData: GuildBaseJSONStoreInput,
 ): Promise<GuildBaseJSONStore | undefined> => {
   const guildBaseJSONStore = await getGuildBaseJSONStore(guildID);
   if (guildBaseJSONStore) {
     const updatedData: GuildBaseJSONStoreInput = {
       ...guildBaseJSONStore.data,
-      ...updatedGuildStoreData
+      ...updatedGuildStoreData,
     };
     const response = await axios.put<GuildBaseJSONStoreData>(
       guildBaseJSONStore.guildStore.storeURL,
       updatedData,
-      configOptions
+      configOptions,
     );
     const newGuildBaseJSONStore: GuildBaseJSONStore = {
+      data: response.data,
       guildStore: guildBaseJSONStore.guildStore,
-      data: response.data
     };
     return newGuildBaseJSONStore;
   } else {
@@ -151,11 +151,11 @@ const updateGuildBaseJSONStore = async (
 };
 
 export default {
-  setNewBaseStoreID,
-  initBaseStore,
   getBaseStore,
-  updateBaseStore,
-  initGuildBaseJSONStore,
   getGuildBaseJSONStore,
-  updateGuildBaseJSONStore
+  initBaseStore,
+  initGuildBaseJSONStore,
+  setNewBaseStoreID,
+  updateBaseStore,
+  updateGuildBaseJSONStore,
 };

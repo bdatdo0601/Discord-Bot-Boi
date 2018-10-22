@@ -5,6 +5,6 @@ export interface Command {
   commandCallback: (
     client: Client,
     query?: string,
-    message?: Message
+    message?: Message,
   ) => void | Promise<void>;
 }

@@ -20,6 +20,7 @@ export interface Rule34KeywordList {
 }
 
 export interface Rule34CommandKeyList {
+  RULE_34_DELETE_KEYWORD: "~rule34deleteKeyword";
   RULE_34_ADD_KEYWORD: "~rule34addKeyword";
   RULE34_SEARCH: "~rule34";
   RULE34_SET_RECURRING: "~rule34setRecurring";
@@ -29,6 +30,7 @@ export interface Rule34CommandKeyList {
 }
 
 export interface Rule34CommandList {
+  RULE_34_DELETE_KEYWORD: Command;
   RULE_34_ADD_KEYWORD: Command;
   RULE34_SEARCH: Command;
   RULE34_SET_RECURRING: Command;

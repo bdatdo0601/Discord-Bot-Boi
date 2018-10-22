@@ -1,6 +1,6 @@
 import {
+  Rule34Store,
   Rule34StoreInput,
-  Rule34Store
 } from "src/commands/rule34/rule34.interface";
 
 export interface GuildStoreObject {
