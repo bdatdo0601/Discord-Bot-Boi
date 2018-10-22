@@ -1,14 +1,14 @@
-/// <reference path="../node_modules/discord.js/typings/index.d.ts" />
 import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
+import debug from "debug";
 import dotenv from "dotenv";
 import botEventList from "./events";
 import { Event } from "./events/event.interface";
 import MyJSONAPI from "./lib/api/myJson";
 
 dotenv.config();
-const debug = require("debug")("BotBoi:Main");
+const debugLog = debug("BotBoi:Main");
 const TOKEN: string = process.env.BOT_TOKEN as string;
 
 const main = async (token: string): Promise<Client> => {
@@ -23,5 +23,5 @@ const main = async (token: string): Promise<Client> => {
 };
 
 main(TOKEN).catch((error: Error) => {
-  debug(error);
+  debugLog(error);
 });

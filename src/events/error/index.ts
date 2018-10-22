@@ -1,14 +1,15 @@
-import { Event } from "../event.interface";
+import debug from "debug";
 import { Client } from "discord.js";
+import { Event } from "../event.interface";
 
-const debug = require("debug")("BotBoi:onErrorEvent");
+const debugLog = debug("BotBoi:onErrorEvent");
 
-const error: Event = {
-  eventName: "error",
+const errorEvent: Event = {
   eventActionCallback: (client: Client) => async (error: Error) => {
-    debug(error.message);
-    debug(error);
-  }
+    debugLog(error.message);
+    debugLog(error);
+  },
+  eventName: "error",
 };
 
-export default error;
+export default errorEvent;

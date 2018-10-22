@@ -3,5 +3,5 @@ const getRandomElementFromArray = (array: any[]): any => {
 };
 
 export default {
-  getRandomElementFromArray
+  getRandomElementFromArray,
 };

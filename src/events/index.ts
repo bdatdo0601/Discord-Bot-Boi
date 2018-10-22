@@ -1,5 +1,5 @@
-import { Event } from "./event.interface";
 import errorEvent from "./error";
+import { Event } from "./event.interface";
 import messageEvent from "./message";
 import readyEvent from "./ready";
 
