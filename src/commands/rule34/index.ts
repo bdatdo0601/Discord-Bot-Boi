@@ -1,162 +1,17 @@
 import { Client, Guild, Message, TextChannel } from "discord.js";
 import _ from "lodash";
 import { Command } from "src/commands/command.interface.js";
-import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
-import MyJSONAPI from "../../lib/api/myJson";
-import rule34xxxAPI from "../../lib/api/rule34xxx";
 import Util from "../../lib/util";
-import {
-  Rule34CommandKeyList,
-  Rule34Keyword,
-  Rule34KeywordList,
-} from "./rule34.interface";
-
-/**
- *
- * @param query
- * @param amount
- * @param receiver
- */
-const getLewlImagesFromRule34XXX = async (
-  query: string,
-  amount: number = 10,
-  receiver: TextChannel,
-  showTags: boolean,
-) => {
-  await receiver.send(`The topic is ${query}`);
-  const images: Rule34XXXImage[] = await rule34xxxAPI.getRule34XXXImgs(query);
-  if (images.length === 0) {
-    await receiver.send("I haven't seen any of these in my db");
-  } else {
-    const dataToSend: Rule34XXXImage[] =
-      images.length > amount ? _.shuffle(images).slice(0, amount) : images;
-    await dataToSend.forEach(async (image: Rule34XXXImage) => {
-      const tags = showTags ? `tags: [ ${image.tags.join(" ")} ]` : "";
-      await receiver.send(`${image.url} \n ${tags}`);
-    });
-  }
-};
-
-const getRule34XXXKeywords = async (
-  guildID: string,
-): Promise<Rule34KeywordList> => {
-  const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  const result: Rule34KeywordList = {
-    rule34xxx: [""],
-  };
-  if (!guildBaseStore) {
-    return result;
-  }
-  const { rule34Store } = guildBaseStore.data;
-  const groupedKeywords = _.groupBy(
-    rule34Store.rule34Keywords,
-    (item) => item.source,
-  );
-
-  Object.keys(groupedKeywords).forEach((key) => {
-    result[key] = groupedKeywords[key].map((item) => item.word);
-  });
-  return result;
-};
-
-const getRule34RecurringChannel = async (
-  guildID: string,
-): Promise<string | null> => {
-  const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (
-    !guildBaseStore ||
-    !guildBaseStore.data.rule34Store.recurringNSFWChannelID
-  ) {
-    return null;
-  }
-  return guildBaseStore.data.rule34Store.recurringNSFWChannelID;
-};
-
-const setRule34RecurringChannel = async (
-  guildID: string,
-  channel: TextChannel,
-): Promise<string | null> => {
-  if (!channel.nsfw) {
-    return null;
-  }
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      recurringNSFWChannelID: channel.id,
-    },
-  });
-  return channel.id;
-};
-
-const deleteRule34RecurringChannel = async (guildID: string): Promise<void> => {
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      recurringNSFWChannelID: undefined,
-    },
-  });
-};
-
-const addRule34Keyword = async (
-  guildID: string,
-  keyword: string,
-  sources?: string[],
-): Promise<Rule34KeywordList> => {
-  const guildBase = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (!guildBase) {
-    return {
-      rule34xxx: [""],
-    };
-  }
-  const addedKeywords: Rule34Keyword[] = sources
-    ? sources.map<Rule34Keyword>((source) => ({ source, word: keyword }))
-    : [
-        {
-          source: "rule34xxx",
-          word: keyword,
-        },
-      ];
-  const updatedKeywords = guildBase.data.rule34Store.rule34Keywords
-    ? [...guildBase.data.rule34Store.rule34Keywords, ...addedKeywords]
-    : addedKeywords;
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      rule34Keywords: updatedKeywords,
-    },
-  });
-  return await getRule34XXXKeywords(guildID);
-};
-
-const deleteRule34Keyword = async (
-  guildID: string,
-  keyword: string,
-): Promise<Rule34KeywordList> => {
-  const guildBase = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (!guildBase) {
-    return {
-      rule34xxx: [""],
-    };
-  }
-  const updatedKeywordsList: Rule34Keyword[] = guildBase.data.rule34Store
-    .rule34Keywords
-    ? guildBase.data.rule34Store.rule34Keywords.filter(
-        (item) => item.word !== keyword,
-      )
-    : [];
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      rule34Keywords: updatedKeywordsList,
-    },
-  });
-  return await getRule34XXXKeywords(guildID);
-};
+import Rule34CommandHelper from "./helper";
+import { Rule34CommandKeyList } from "./rule34.interface";
 
 const rule34SetRecurringChannelCommand: Command = {
-  commandName: "Rule 34 Set Recurring Channel",
   commandCallback: async (
     client: Client,
     query: string,
     message: Message,
   ): Promise<void> => {
-    const channelID = await setRule34RecurringChannel(
+    const channelID = await Rule34CommandHelper.setRule34RecurringChannel(
       message.guild.id,
       message.channel as TextChannel,
     );
@@ -166,16 +21,16 @@ const rule34SetRecurringChannelCommand: Command = {
       message.channel.send("Rule34 Recurring Images will now be posted here");
     }
   },
+  commandName: "Rule 34 Set Recurring Channel",
 };
 
 const rule34GetRecurringChannelCommand: Command = {
-  commandName: "Rule 34 Get Recurring Channel",
   commandCallback: async (
     client: Client,
     query: string,
     message: Message,
   ): Promise<void> => {
-    const recurringChannelID = await getRule34RecurringChannel(
+    const recurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
       message.guild.id,
     );
     if (recurringChannelID) {
@@ -186,18 +41,18 @@ const rule34GetRecurringChannelCommand: Command = {
       message.channel.send("I can't find any recurring channel for rule 34");
     }
   },
+  commandName: "Rule 34 Get Recurring Channel",
 };
 
 const rule34DeleteRecurringChannelCommand: Command = {
-  commandName: "rule 34 delete recurring channel",
   commandCallback: async (client: Client, query: string, message: Message) => {
-    await deleteRule34RecurringChannel(message.guild.id);
+    await Rule34CommandHelper.deleteRule34RecurringChannel(message.guild.id);
     message.channel.send("Recurring Channel is now deleted");
   },
+  commandName: "rule 34 delete recurring channel",
 };
 
 const rule34ListCommand: Command = {
-  commandName: "rule 34 list",
   commandCallback: async (
     client: Client,
     query: string,
@@ -206,7 +61,9 @@ const rule34ListCommand: Command = {
     if (!(message.channel as TextChannel).nsfw) {
       await message.channel.send("Lewd stuff don't belong here");
     } else {
-      const rule34KeywordList = await getRule34XXXKeywords(message.guild.id);
+      const rule34KeywordList = await Rule34CommandHelper.getRule34XXXKeywords(
+        message.guild.id,
+      );
       Object.keys(rule34KeywordList).forEach((source) => {
         message.channel.send(
           `${source}: [ ${rule34KeywordList[source].join(" ")} ]`,
@@ -214,10 +71,10 @@ const rule34ListCommand: Command = {
       });
     }
   },
+  commandName: "rule 34 list",
 };
 
 const rule34SearchCommand: Command = {
-  commandName: "rule 34 search",
   commandCallback: async (
     client: Client,
     query?: string,
@@ -225,7 +82,7 @@ const rule34SearchCommand: Command = {
   ): Promise<void> => {
     if (!message) {
       await client.guilds.array().forEach(async (guild: Guild) => {
-        const nsfwRecurringChannelID = await getRule34RecurringChannel(
+        const nsfwRecurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
           guild.id,
         );
         if (nsfwRecurringChannelID) {
@@ -235,9 +92,10 @@ const rule34SearchCommand: Command = {
           const searchString = query
             ? query
             : Util.getRandomElementFromArray(
-                (await getRule34XXXKeywords(guild.id)).rule34xxx,
+                (await Rule34CommandHelper.getRule34XXXKeywords(guild.id))
+                  .rule34xxx,
               );
-          await getLewlImagesFromRule34XXX(
+          await Rule34CommandHelper.getLewlImagesFromRule34XXX(
             searchString,
             10,
             nsfwRecurringChannel,
@@ -251,9 +109,10 @@ const rule34SearchCommand: Command = {
       const searchString = query
         ? query
         : Util.getRandomElementFromArray(
-            (await getRule34XXXKeywords(message.guild.id)).rule34xxx,
+            (await Rule34CommandHelper.getRule34XXXKeywords(message.guild.id))
+              .rule34xxx,
           );
-      await getLewlImagesFromRule34XXX(
+      await Rule34CommandHelper.getLewlImagesFromRule34XXX(
         searchString,
         1,
         message.channel as TextChannel,
@@ -261,6 +120,7 @@ const rule34SearchCommand: Command = {
       );
     }
   },
+  commandName: "rule 34 search",
 };
 
 const rule34addKeywordCommand: Command = {
@@ -271,8 +131,13 @@ const rule34addKeywordCommand: Command = {
   ): Promise<void> => {
     if (!(message.channel as TextChannel).nsfw) {
       await message.channel.send("Lewd stuff don't belong here");
+    } else if (!query.match(/w+/)) {
+      await message.channel.send("You didn't give any word :[");
     } else {
-      const newKeywordsList = await addRule34Keyword(message.guild.id, query);
+      const newKeywordsList = await Rule34CommandHelper.addRule34Keyword(
+        message.guild.id,
+        query,
+      );
       message.channel.send("Updated List");
       Object.keys(newKeywordsList).forEach((source) => {
         message.channel.send(
@@ -293,7 +158,7 @@ const rule34deleteKeywordCommand: Command = {
     if (!(message.channel as TextChannel).nsfw) {
       await message.channel.send("Lewd stuff don't belong here");
     } else {
-      const newKeywordsList = await deleteRule34Keyword(
+      const newKeywordsList = await Rule34CommandHelper.deleteRule34Keyword(
         message.guild.id,
         query,
       );
@@ -309,19 +174,19 @@ const rule34deleteKeywordCommand: Command = {
 };
 
 export const rule34CommandKeyList: Rule34CommandKeyList = {
-  RULE_34_DELETE_KEYWORD: "~rule34deleteKeyword",
-  RULE_34_ADD_KEYWORD: "~rule34addKeyword",
-  RULE34_SEARCH: "~rule34",
-  RULE34_LIST: "~rule34list",
-  RULE34_SET_RECURRING: "~rule34setRecurring",
-  RULE34_GET_RECURRING: "~rule34getRecurring",
+  RULE34_ADD_KEYWORD: "~rule34addKeyword",
+  RULE34_DELETE_KEYWORD: "~rule34deleteKeyword",
   RULE34_DELETE_RECURRING: "~rule34deleteRecurring",
+  RULE34_GET_RECURRING: "~rule34getRecurring",
+  RULE34_LIST: "~rule34list",
+  RULE34_SEARCH: "~rule34",
+  RULE34_SET_RECURRING: "~rule34setRecurring",
 };
 
 export default {
-  [rule34CommandKeyList.RULE_34_DELETE_KEYWORD]:
+  [rule34CommandKeyList.RULE34_DELETE_KEYWORD]:
     rule34deleteKeywordCommand.commandCallback,
-  [rule34CommandKeyList.RULE_34_ADD_KEYWORD]:
+  [rule34CommandKeyList.RULE34_ADD_KEYWORD]:
     rule34addKeywordCommand.commandCallback,
   [rule34CommandKeyList.RULE34_SEARCH]: rule34SearchCommand.commandCallback,
   [rule34CommandKeyList.RULE34_LIST]: rule34ListCommand.commandCallback,

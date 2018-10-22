@@ -1,6 +1,5 @@
-import chai, { expect } from "chai";
 import axios from "axios";
-import Util from "../../../../src/lib/util";
+import chai, { expect } from "chai";
 import MyJSONAPI from "../../../../src/lib/api/myJson";
 import {
   BaseJSONStore,
@@ -8,27 +7,28 @@ import {
   GuildBaseJSONStore,
   GuildBaseJSONStoreData,
   GuildBaseJSONStoreInput,
-  InitGuildBaseJSONStoreResponse
+  InitGuildBaseJSONStoreResponse,
 } from "../../../../src/lib/api/myJson/myJson.interface";
+import Util from "../../../../src/lib/util";
 
 chai.use(require("chai-like"));
 
 const configOptions = {
   headers: {
-    "Content-type": "application/json"
-  }
+    "Content-type": "application/json",
+  },
 };
 
 describe("MyJSON API Functionalities", () => {
   const initBaseStoreData: BaseJSONStore = {
-    guildStores: []
+    guildStores: [],
   };
   let binID = "";
   before(async () => {
     const response = await axios.post<InitGuildBaseJSONStoreResponse>(
       `https://api.myjson.com/bins`,
       {},
-      configOptions
+      configOptions,
     );
     binID = response.data.uri.split("/")[4];
     MyJSONAPI.setNewBaseStoreID(binID);
@@ -44,19 +44,19 @@ describe("MyJSON API Functionalities", () => {
       const validMockData: BaseJSONStoreInput[] = [
         {},
         {
-          guildStores: [{ guildID: "foo", storeURL: "bar" }]
+          guildStores: [{ guildID: "foo", storeURL: "bar" }],
         },
         {
-          guildStores: [{ guildID: "baz", storeURL: "bas" }]
-        }
+          guildStores: [{ guildID: "baz", storeURL: "bas" }],
+        },
       ];
-      validMockData.forEach(testCase => {
+      validMockData.forEach((testCase) => {
         let previousData = initBaseStoreData;
         it("should returned updated data", async () => {
           const data = await MyJSONAPI.updateBaseStore(testCase);
           const expectedData = {
             ...previousData,
-            ...testCase
+            ...testCase,
           };
           expect(data).to.eql(expectedData);
           previousData = expectedData;
@@ -68,20 +68,20 @@ describe("MyJSON API Functionalities", () => {
         const originalData = await MyJSONAPI.getBaseStore();
         expect(originalData).to.be.an("object");
         const updatedData: BaseJSONStoreInput = {
-          guildStores: [{ guildID: "124", storeURL: "124" }]
+          guildStores: [{ guildID: "124", storeURL: "124" }],
         };
         await MyJSONAPI.updateBaseStore(updatedData);
         const newData = await MyJSONAPI.getBaseStore();
         expect(newData).to.eql({
           ...originalData,
-          ...updatedData
+          ...updatedData,
         });
       });
       it("should initialize data if the returned format is corrupted", async () => {
         await axios.put(
           `https://api.myjson.com/bins/${binID}`,
           {},
-          configOptions
+          configOptions,
         );
         const data = await MyJSONAPI.getBaseStore();
         expect(data).to.eql(initBaseStoreData);
@@ -94,23 +94,24 @@ describe("MyJSON API Functionalities", () => {
   describe("Guild Store Functions", () => {
     const validGuildStoreIDs: string[] = ["bar", "bas"];
     const initGuildStoreData: GuildBaseJSONStoreData = {
-      rule34Keywords: []
+      rule34Keywords: [],
     };
     describe("Initialization", () => {
-      validGuildStoreIDs.forEach(testCase => {
+      validGuildStoreIDs.forEach((testCase) => {
         it("should create guild store", async () => {
-          const guildBaseStore = <GuildBaseJSONStore>(
-            await MyJSONAPI.initGuildBaseJSONStore(testCase)
-          );
+          const guildBaseStore = (await MyJSONAPI.initGuildBaseJSONStore(
+            testCase,
+          )) as GuildBaseJSONStore;
           expect(guildBaseStore.data).to.not.be.undefined;
           expect(guildBaseStore.data).to.be.eql(initGuildStoreData);
         });
       });
-      validGuildStoreIDs.forEach(testCase => {
+      validGuildStoreIDs.forEach((testCase) => {
         it("should overwrite and init guild store if already exist", async () => {
-          const guildBaseStore = <GuildBaseJSONStore>(
-            await MyJSONAPI.initGuildBaseJSONStore(testCase, initGuildStoreData)
-          );
+          const guildBaseStore = (await MyJSONAPI.initGuildBaseJSONStore(
+            testCase,
+            initGuildStoreData,
+          )) as GuildBaseJSONStore;
           expect(guildBaseStore.data).to.not.be.undefined;
           expect(guildBaseStore.data).to.be.eql(initGuildStoreData);
         });
@@ -119,24 +120,25 @@ describe("MyJSON API Functionalities", () => {
     describe("Update", () => {
       const validGuildStoreIDsForUpdate: string[] = [
         Util.getRandomElementFromArray(validGuildStoreIDs),
-        "foos"
+        "foos",
       ];
       const updatedData: GuildBaseJSONStoreInput = {
         rule34Keywords: [
           {
             source: "rule34xxx",
-            word: "pokemon"
-          }
-        ]
+            word: "pokemon",
+          },
+        ],
       };
-      validGuildStoreIDsForUpdate.forEach(testCase => {
+      validGuildStoreIDsForUpdate.forEach((testCase) => {
         it("should update (or create update if does not exist) and return new data", async () => {
-          const guildBaseStore = <GuildBaseJSONStore>(
-            await MyJSONAPI.updateGuildBaseJSONStore(testCase, updatedData)
-          );
+          const guildBaseStore = (await MyJSONAPI.updateGuildBaseJSONStore(
+            testCase,
+            updatedData,
+          )) as GuildBaseJSONStore;
           const expectedData: GuildBaseJSONStoreData = {
             ...initGuildStoreData,
-            ...updatedData
+            ...updatedData,
           };
           expect(guildBaseStore.data).to.not.be.undefined;
           expect(guildBaseStore.data).to.be.eql(expectedData);
@@ -145,18 +147,18 @@ describe("MyJSON API Functionalities", () => {
     });
     describe("Retrieval", () => {
       const nonExistGuildID: string[] = ["asd", "asfa"];
-      validGuildStoreIDs.forEach(testCase => {
+      validGuildStoreIDs.forEach((testCase) => {
         it("should retrieve data if it exists", async () => {
-          const guildBaseStore = <GuildBaseJSONStore>(
-            await MyJSONAPI.getGuildBaseJSONStore(testCase)
-          );
+          const guildBaseStore = (await MyJSONAPI.getGuildBaseJSONStore(
+            testCase,
+          )) as GuildBaseJSONStore;
           expect(guildBaseStore.guildStore.guildID).to.equals(testCase);
         });
       });
-      nonExistGuildID.forEach(testCase => {
+      nonExistGuildID.forEach((testCase) => {
         it("should return undefined if it does not exist", async () => {
           const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(
-            testCase
+            testCase,
           );
           expect(guildBaseStore).to.be.undefined;
         });
