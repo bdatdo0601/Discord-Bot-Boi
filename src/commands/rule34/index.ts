@@ -95,6 +95,38 @@ const deleteRule34RecurringChannel = async (guildID: string): Promise<void> => {
   });
 };
 
+const addRule34Keyword = async (
+  guildID: string,
+  keyword: string,
+  sources?: string[],
+): Promise<Rule34KeywordList> => {
+  const guildBase = await MyJSONAPI.getGuildBaseJSONStore(guildID);
+  if (!guildBase) {
+    return {
+      rule34xxx: [""],
+    };
+  }
+  const addedKeywords: Rule34Keyword[] = sources
+    ? sources.map<Rule34Keyword>((source) => ({ source, word: keyword }))
+    : [
+        {
+          source: "rule34xxx",
+          word: keyword,
+        },
+      ];
+  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
+    rule34Store: {
+      rule34Keywords: [
+        ...(guildBase.data.rule34Store.rule34Keywords
+          ? guildBase.data.rule34Store.rule34Keywords
+          : []),
+        ...addedKeywords,
+      ],
+    },
+  });
+  return await getRule34XXXKeywords(guildID);
+};
+
 const rule34SetRecurringChannelCommand: Command = {
   commandName: "Rule 34 Set Recurring Channel",
   commandCallback: async (
@@ -153,6 +185,7 @@ const rule34ListCommand: Command = {
       await message.channel.send("Lewd stuff don't belong here");
     } else {
       const rule34KeywordList = await getRule34XXXKeywords(message.guild.id);
+      console.log(rule34KeywordList);
       Object.keys(rule34KeywordList).forEach((source) => {
         message.channel.send(
           `${source}: [ ${rule34KeywordList[source].join(" ")} ]`,
@@ -209,7 +242,29 @@ const rule34SearchCommand: Command = {
   },
 };
 
+const rule34addKeywordCommand: Command = {
+  commandName: "rule 34 add keyword command",
+  commandCallback: async (
+    client: Client,
+    query: string,
+    message: Message,
+  ): Promise<void> => {
+    if (!(message.channel as TextChannel).nsfw) {
+      await message.channel.send("Lewd stuff don't belong here");
+    } else {
+      const newKeywordsList = await addRule34Keyword(message.guild.id, query);
+      message.channel.send("Updated List");
+      Object.keys(newKeywordsList).forEach((source) => {
+        message.channel.send(
+          `${source}: [ ${newKeywordsList[source].join(" ")} ]`,
+        );
+      });
+    }
+  },
+};
+
 export const rule34CommandKeyList: Rule34CommandKeyList = {
+  RULE_34_ADD_KEYWORD: "~rule34addKeyword",
   RULE34_SEARCH: "~rule34",
   RULE34_LIST: "~rule34list",
   RULE34_SET_RECURRING: "~rule34setRecurring",
@@ -218,6 +273,8 @@ export const rule34CommandKeyList: Rule34CommandKeyList = {
 };
 
 export default {
+  [rule34CommandKeyList.RULE_34_ADD_KEYWORD]:
+    rule34addKeywordCommand.commandCallback,
   [rule34CommandKeyList.RULE34_SEARCH]: rule34SearchCommand.commandCallback,
   [rule34CommandKeyList.RULE34_LIST]: rule34ListCommand.commandCallback,
   [rule34CommandKeyList.RULE34_SET_RECURRING]:
