@@ -1,99 +1,93 @@
 import { expect } from "chai";
 import {
   Client,
-  Message,
   Collection,
-  User,
+  Guild,
+  Message,
   TextChannel,
-  Guild
+  User,
 } from "discord.js";
 import mockCommandList, {
-  mockCommandKeyList
+  mockCommandKeyList,
 } from "../../../src/commands/mock";
 
 describe("Mock Commands", () => {
   describe("Mock Command", () => {
     const client: Client = new Client();
-    before(() => {
-      client.on("message", (message: Message) => {
-        mockCommandList[mockCommandKeyList.MOCK](
-          client,
-          message.content,
-          message
-        );
-      });
-    });
 
-    it("should send a mock message based on mentioned user last message", done => {
+    it("should send a mock message based on mentioned user last message", (done) => {
       const users = new Collection<string, User>();
       const newUser = new User(client, { id: 1 });
       newUser.lastMessage = new Message(
         new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
         {
-          content: "test yolo",
+          attachments: new Collection(),
           author: newUser,
+          content: "test yolo",
           embeds: [],
-          attachments: new Collection()
         },
-        client
+        client,
       );
       users.set("foo", newUser);
       const input = {
         channel: {
-          send: result => {
+          send: (result) => {
             expect(result).to.equal("<@1>: tEsT yOlO");
             done();
-          }
+          },
         },
         mentions: {
-          users
-        }
+          users,
+        },
       };
-      client.emit("message", input);
+      mockCommandList[mockCommandKeyList.MOCK].commandCallback(
+        client,
+        "",
+        input as Message,
+      );
     });
-    it("should send a warning message if mentions user does not have last message", done => {
+    it("should send a warning message if mentions user does not have last message", (done) => {
       const users = new Collection<string, User>();
       const newUser = new User(client, { id: 1 });
       users.set("foo", newUser);
       const input = {
         channel: {
-          send: result => {
+          send: (result) => {
             expect(result).to.equal("I don't see any previous message of <@1>");
             done();
-          }
+          },
         },
         mentions: {
-          users
-        }
+          users,
+        },
       };
-      client.emit("message", input);
+      mockCommandList[mockCommandKeyList.MOCK].commandCallback(
+        client,
+        "",
+        input as Message,
+      );
     });
   });
   describe("sayMock Command", () => {
     const client: Client = new Client();
-    before(() => {
-      client.on("message", (message: Message) => {
-        mockCommandList[mockCommandKeyList.SAY_MOCK](
-          client,
-          message.content,
-          message
-        );
-      });
-    });
-    it("should send a mock version of the query", done => {
+    it("should send a mock version of the query", (done) => {
       const input = {
-        content: "foo bar",
+        author: {
+          id: 1,
+        },
         channel: {
-          send: result => {
+          send: (result) => {
             expect(result).to.equal("<@1>: fOo BaR");
             done();
-          }
+          },
         },
-        author: {
-          id: 1
-        }
+        content: "foo bar",
       };
-      client.emit("message", input);
+      mockCommandList[mockCommandKeyList.SAY_MOCK].commandCallback(
+        client,
+        input.content,
+        (input as unknown) as Message,
+      );
     });
   });
 });

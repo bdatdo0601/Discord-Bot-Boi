@@ -1,18 +1,18 @@
-/// <reference path="../node_modules/discord.js/typings/index.d.ts" />
 import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
+import debug from "debug";
 import dotenv from "dotenv";
-import MyJSONAPI from "./lib/api/myJson";
-import { Event } from "./events/event.interface";
 import botEventList from "./events";
+import { Event } from "./events/event.interface";
+import MyJSONAPI from "./lib/api/myJson";
 
 dotenv.config();
-const debug = require("debug")("BotBoi:Main");
-const TOKEN: string = <string>process.env.BOT_TOKEN;
+const debugLog = debug("BotBoi:Main");
+const TOKEN: string = process.env.BOT_TOKEN as string;
 
 const main = async (token: string): Promise<Client> => {
-  debug("Initializing Bot Boi");
+  debugLog("Initializing Bot Boi");
   await MyJSONAPI.getBaseStore();
   const client: Client = new Client();
   botEventList.forEach((event: Event) => {
@@ -22,6 +22,6 @@ const main = async (token: string): Promise<Client> => {
   return client;
 };
 
-main(TOKEN).catch(error => {
-  debug(error);
+main(TOKEN).catch((error: Error) => {
+  debugLog(error);
 });
