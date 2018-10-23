@@ -400,6 +400,25 @@ describe("Rule34 Commands", () => {
       expected.shift();
       expect(responses).to.eql(expected);
     });
+    it("should notify if no keyword found", async () => {
+      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID);
+      const mockMessage = {
+        channel: {
+          nsfw: true,
+          send: (result) => {
+            expect(result).to.eql("There are no keyword found");
+          },
+        },
+        guild: {
+          id: mockGuildID,
+        },
+      };
+      await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
+        client,
+        "test",
+        mockMessage as Message,
+      );
+    });
   });
   describe("Rule 34 Set Recurring", () => {
     const client = new Client();
