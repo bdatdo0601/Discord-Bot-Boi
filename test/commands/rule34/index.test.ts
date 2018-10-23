@@ -53,7 +53,7 @@ describe("Rule34 Commands", () => {
   };
   describe("Rule 34 Delete Keyword Command", () => {
     const client = new Client();
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("should restrict if the channel is not nsfw", (done) => {
@@ -96,7 +96,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 Add Keyword Command", () => {
     const client = new Client();
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID);
     });
     it("should restrict if the channel is not nsfw", (done) => {
@@ -169,7 +169,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 Search Command", () => {
     const client = new Client();
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("getLewdImageFromRule34XXX should return whole array if amount requested is larger that found", async () => {
@@ -271,7 +271,7 @@ describe("Rule34 Commands", () => {
       channels: new Collection<string, GuildChannel>(),
       id: mockGuildIDWithRecurring,
     };
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
       await MyJSONAPI.initGuildBaseJSONStore(
         mockGuildIDWithRecurring,
@@ -341,7 +341,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 List Command", () => {
     const client = new Client();
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("should restrict if channel is not nsfw", (done) => {
@@ -385,7 +385,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 Set Recurring", () => {
     const client = new Client();
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("should notify is the current channel is not nsfw", (done) => {
@@ -439,7 +439,7 @@ describe("Rule34 Commands", () => {
         recurringNSFWChannelID: mockRecurringChannelID,
       },
     };
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(
         mockGuildBaseWithRecurringID,
         initMockGuildDataWithRecurring,
@@ -510,7 +510,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 Delete Recurring", () => {
     const client = new Client();
-    beforeEach(async () => {
+    before(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("should notify when the deletion is complete", (done) => {
