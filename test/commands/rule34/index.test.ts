@@ -1,3 +1,4 @@
+import Axios from "axios";
 import { expect } from "chai";
 import {
   Client,
@@ -16,6 +17,7 @@ import MyJSONAPI from "../../../src/lib/api/myJson";
 import {
   GuildBaseJSONStore,
   GuildBaseJSONStoreInput,
+  InitGuildBaseJSONStoreResponse,
 } from "../../../src/lib/api/myJson/myJson.interface";
 
 describe("Rule34 Commands", () => {
@@ -51,7 +53,20 @@ describe("Rule34 Commands", () => {
     });
     return result;
   };
+  const configOptions = {
+    headers: {
+      "Content-type": "application/json",
+    },
+  };
+
   before(async () => {
+    const response = await Axios.post<InitGuildBaseJSONStoreResponse>(
+      `https://api.myjson.com/bins`,
+      {},
+      configOptions,
+    );
+    const binID = response.data.uri.split("/")[4];
+    MyJSONAPI.setNewBaseStoreID(binID);
     await MyJSONAPI.initBaseStore();
   });
   describe("Rule 34 Delete Keyword Command", () => {
