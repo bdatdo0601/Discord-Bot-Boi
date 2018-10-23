@@ -51,6 +51,9 @@ describe("Rule34 Commands", () => {
     });
     return result;
   };
+  before(async () => {
+    await MyJSONAPI.initBaseStore();
+  });
   describe("Rule 34 Delete Keyword Command", () => {
     const client = new Client();
     before(async () => {
