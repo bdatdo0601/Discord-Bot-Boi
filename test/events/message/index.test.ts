@@ -45,12 +45,15 @@ describe("Message Event", () => {
       client,
     );
     client.on(messageEvent.eventName, (message) => {
-      messageEvent.eventActionCallback(client)(message);
-      done();
+      messageEvent
+        .eventActionCallback(client)(message)
+        .then(() => {
+          done();
+        });
     });
     client.emit(messageEvent.eventName, testValidCommandMessage);
   });
-  it("should ignore bot message when invalid command arrive", (done) => {
+  it("should ignore command when invalid command arrive", (done) => {
     const testUser = new User(client, { id: 1, bot: true });
     const testInvalidCommandMessage = new Message(
       new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
@@ -63,8 +66,32 @@ describe("Message Event", () => {
       client,
     );
     client.on(messageEvent.eventName, (message) => {
-      messageEvent.eventActionCallback(client)(message);
-      done();
+      messageEvent
+        .eventActionCallback(client)(message)
+        .then(() => {
+          done();
+        });
+    });
+    client.emit(messageEvent.eventName, testInvalidCommandMessage);
+  });
+  it("should ignore bot message when it arrive", (done) => {
+    const testUser = new User(client, { id: 1, bot: true });
+    const testInvalidCommandMessage = new Message(
+      new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
+      {
+        attachments: new Collection(),
+        author: { ...testUser, bot: true },
+        content: "mocasfk",
+        embeds: [],
+      },
+      client,
+    );
+    client.on(messageEvent.eventName, (message) => {
+      messageEvent
+        .eventActionCallback(client)(message)
+        .then(() => {
+          done();
+        });
     });
     client.emit(messageEvent.eventName, testInvalidCommandMessage);
   });
