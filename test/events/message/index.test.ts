@@ -1,68 +1,68 @@
 import { expect } from "chai";
-import messageEvent from "../../../src/events/message";
 import {
   Client,
+  Collection,
+  Guild,
   Message,
   TextChannel,
   User,
-  Guild,
-  Collection
 } from "discord.js";
+import messageEvent from "../../../src/events/message";
 
 describe("Message Event", () => {
   let client: Client;
   beforeEach(() => {
     client = new Client();
   });
-  it("should trigger when a message event arrive", done => {
+  it("should trigger when a message event arrive", (done) => {
     const testUser = new User(client, { id: 1 });
     const testMessage = new Message(
       new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
       {
-        content: "test yolo",
+        attachments: new Collection(),
         author: testUser,
+        content: "test yolo",
         embeds: [],
-        attachments: new Collection()
       },
-      client
+      client,
     );
-    client.on(messageEvent.eventName, message => {
+    client.on(messageEvent.eventName, (message) => {
       messageEvent.eventActionCallback(client)(message);
       done();
     });
     client.emit(messageEvent.eventName, testMessage);
   });
-  it("should process command when a command arrive", done => {
+  it("should process command when a command arrive", (done) => {
     const testUser = new User(client, { id: 1 });
     const testValidCommandMessage = new Message(
       new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
       {
-        content: "~mock",
+        attachments: new Collection(),
         author: testUser,
+        content: "~mock",
         embeds: [],
-        attachments: new Collection()
       },
-      client
+      client,
     );
-    client.on(messageEvent.eventName, message => {
+    client.on(messageEvent.eventName, (message) => {
       messageEvent.eventActionCallback(client)(message);
       done();
     });
     client.emit(messageEvent.eventName, testValidCommandMessage);
   });
-  it("should ignore command when invalid command arrive", done => {
+  it("should ignore command when invalid command arrive", (done) => {
     const testUser = new User(client, { id: 1 });
     const testInvalidCommandMessage = new Message(
       new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
       {
-        content: "~mocasfk",
+        attachments: new Collection(),
         author: testUser,
+        content: "~mocasfk",
         embeds: [],
-        attachments: new Collection()
       },
-      client
+      client,
     );
-    client.on(messageEvent.eventName, message => {
+    client.on(messageEvent.eventName, (message) => {
       messageEvent.eventActionCallback(client)(message);
       done();
     });
