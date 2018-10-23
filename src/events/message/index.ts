@@ -12,7 +12,7 @@ const messageEvent: Event = {
       const [command, ...rest] = message.content.split(" ");
       const query: string = rest.join(" ");
       if (commandList[command]) {
-        commandList[command](client, query, message);
+        commandList[command].commandCallback(client, query, message);
       }
     }
   },

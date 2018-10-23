@@ -12,7 +12,7 @@ const debugLog = debug("BotBoi:Main");
 const TOKEN: string = process.env.BOT_TOKEN as string;
 
 const main = async (token: string): Promise<Client> => {
-  debug("Initializing Bot Boi");
+  debugLog("Initializing Bot Boi");
   await MyJSONAPI.getBaseStore();
   const client: Client = new Client();
   botEventList.forEach((event: Event) => {

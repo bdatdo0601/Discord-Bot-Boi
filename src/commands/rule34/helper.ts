@@ -1,5 +1,6 @@
 import { TextChannel } from "discord.js";
 import _ from "lodash";
+import { GuildBaseJSONStore } from "src/lib/api/myJson/myJson.interface";
 import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
 import MyJSONAPI from "../../lib/api/myJson";
 import rule34xxxAPI from "../../lib/api/rule34xxx";
@@ -14,33 +15,24 @@ import { Rule34Keyword, Rule34KeywordList } from "./rule34.interface";
 const getLewlImagesFromRule34XXX = async (
   query: string,
   amount: number = 10,
-  receiver: TextChannel,
-  showTags: boolean,
-) => {
-  await receiver.send(`The topic is ${query}`);
+): Promise<Rule34XXXImage[]> => {
   const images: Rule34XXXImage[] = await rule34xxxAPI.getRule34XXXImgs(query);
   if (images.length === 0) {
-    await receiver.send("I haven't seen any of these in my db");
+    return [];
   } else {
     const dataToSend: Rule34XXXImage[] =
       images.length > amount ? _.shuffle(images).slice(0, amount) : images;
-    await dataToSend.forEach(async (image: Rule34XXXImage) => {
-      const tags = showTags ? `tags: [ ${image.tags.join(" ")} ]` : "";
-      await receiver.send(`${image.url} \n ${tags}`);
-    });
+    return dataToSend;
   }
 };
 
 const getRule34XXXKeywords = async (
   guildID: string,
 ): Promise<Rule34KeywordList> => {
-  const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  const result: Rule34KeywordList = {
-    rule34xxx: [""],
-  };
-  if (!guildBaseStore) {
-    return result;
-  }
+  const guildBaseStore = (await MyJSONAPI.getGuildBaseJSONStore(
+    guildID,
+  )) as GuildBaseJSONStore;
+  const result: Rule34KeywordList = {} as Rule34KeywordList;
   const { rule34Store } = guildBaseStore.data;
   const groupedKeywords = _.groupBy(
     rule34Store.rule34Keywords,
@@ -56,11 +48,10 @@ const getRule34XXXKeywords = async (
 const getRule34RecurringChannel = async (
   guildID: string,
 ): Promise<string | null> => {
-  const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (
-    !guildBaseStore ||
-    !guildBaseStore.data.rule34Store.recurringNSFWChannelID
-  ) {
+  const guildBaseStore = (await MyJSONAPI.getGuildBaseJSONStore(
+    guildID,
+  )) as GuildBaseJSONStore;
+  if (!guildBaseStore.data.rule34Store.recurringNSFWChannelID) {
     return null;
   }
   return guildBaseStore.data.rule34Store.recurringNSFWChannelID;
@@ -94,12 +85,9 @@ const addRule34Keyword = async (
   keyword: string,
   sources?: string[],
 ): Promise<Rule34KeywordList> => {
-  const guildBase = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (!guildBase) {
-    return {
-      rule34xxx: [""],
-    };
-  }
+  const guildBase = (await MyJSONAPI.getGuildBaseJSONStore(
+    guildID,
+  )) as GuildBaseJSONStore;
   const addedKeywords: Rule34Keyword[] = sources
     ? sources.map<Rule34Keyword>((source) => ({ source, word: keyword }))
     : [
@@ -108,9 +96,10 @@ const addRule34Keyword = async (
           word: keyword,
         },
       ];
-  const updatedKeywords = guildBase.data.rule34Store.rule34Keywords
-    ? [...guildBase.data.rule34Store.rule34Keywords, ...addedKeywords]
-    : addedKeywords;
+  const updatedKeywords = [
+    ...guildBase.data.rule34Store.rule34Keywords,
+    ...addedKeywords,
+  ];
   await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
     rule34Store: {
       rule34Keywords: updatedKeywords,
@@ -123,18 +112,12 @@ const deleteRule34Keyword = async (
   guildID: string,
   keyword: string,
 ): Promise<Rule34KeywordList> => {
-  const guildBase = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (!guildBase) {
-    return {
-      rule34xxx: [""],
-    };
-  }
-  const updatedKeywordsList: Rule34Keyword[] = guildBase.data.rule34Store
-    .rule34Keywords
-    ? guildBase.data.rule34Store.rule34Keywords.filter(
-        (item) => item.word !== keyword,
-      )
-    : [];
+  const guildBase = (await MyJSONAPI.getGuildBaseJSONStore(
+    guildID,
+  )) as GuildBaseJSONStore;
+  const updatedKeywordsList: Rule34Keyword[] = guildBase.data.rule34Store.rule34Keywords.filter(
+    (item) => item.word !== keyword,
+  );
   await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
     rule34Store: {
       rule34Keywords: updatedKeywordsList,

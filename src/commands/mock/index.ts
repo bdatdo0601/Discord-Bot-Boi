@@ -8,7 +8,7 @@ const sayMockCommand: Command = {
     const mockSentence = MockCommandHelper.toMockSentence(query);
     message.channel.send(`<@${message.author.id}>: ${mockSentence}`);
   },
-  commandName: "Say Mock",
+  commandDescription: "Say Mock",
 };
 
 const mockCommand: Command = {
@@ -26,7 +26,7 @@ const mockCommand: Command = {
       }
     });
   },
-  commandName: "Mock",
+  commandDescription: "Mock",
 };
 
 export const mockCommandKeyList: MockCommandKeyList = {
@@ -35,6 +35,6 @@ export const mockCommandKeyList: MockCommandKeyList = {
 };
 
 export default {
-  [mockCommandKeyList.MOCK]: mockCommand.commandCallback,
-  [mockCommandKeyList.SAY_MOCK]: sayMockCommand.commandCallback,
+  [mockCommandKeyList.MOCK]: mockCommand,
+  [mockCommandKeyList.SAY_MOCK]: sayMockCommand,
 };

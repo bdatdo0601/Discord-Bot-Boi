@@ -30,7 +30,9 @@ const readyEvent: Event = {
     );
     // recurring
     client.setInterval(() => {
-      commandList[COMMANDS.RULE34.RULE34_SEARCH](client);
+      commandList[COMMANDS.RULE34.RULE34_SEARCH_RECURRING].commandCallback(
+        client,
+      );
     }, RULE34_INTERVAL);
     debugLog("Me Me Ready");
   },

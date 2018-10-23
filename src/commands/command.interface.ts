@@ -1,7 +1,7 @@
 import { Client, Message } from "discord.js";
 
 export interface Command {
-  commandName: string;
+  commandDescription: string;
   commandCallback: (
     client: Client,
     query?: string,
