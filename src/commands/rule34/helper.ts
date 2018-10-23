@@ -14,7 +14,7 @@ import { Rule34Keyword, Rule34KeywordList } from "./rule34.interface";
  */
 const getLewlImagesFromRule34XXX = async (
   query: string,
-  amount: number = 10,
+  amount: number,
 ): Promise<Rule34XXXImage[]> => {
   const images: Rule34XXXImage[] = await rule34xxxAPI.getRule34XXXImgs(query);
   if (images.length === 0) {
@@ -33,6 +33,7 @@ const getRule34XXXKeywords = async (
     guildID,
   )) as GuildBaseJSONStore;
   const result: Rule34KeywordList = {} as Rule34KeywordList;
+
   const { rule34Store } = guildBaseStore.data;
   const groupedKeywords = _.groupBy(
     rule34Store.rule34Keywords,
@@ -48,10 +49,11 @@ const getRule34XXXKeywords = async (
 const getRule34RecurringChannel = async (
   guildID: string,
 ): Promise<string | null> => {
-  const guildBaseStore = (await MyJSONAPI.getGuildBaseJSONStore(
-    guildID,
-  )) as GuildBaseJSONStore;
-  if (!guildBaseStore.data.rule34Store.recurringNSFWChannelID) {
+  const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
+  if (
+    !guildBaseStore ||
+    !guildBaseStore.data.rule34Store.recurringNSFWChannelID
+  ) {
     return null;
   }
   return guildBaseStore.data.rule34Store.recurringNSFWChannelID;

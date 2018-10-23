@@ -27,6 +27,10 @@ describe("Rule34 Commands", () => {
           source: "rule34xxx",
           word: "test",
         },
+        {
+          source: "rule34xxx",
+          word: "one_piece",
+        },
       ],
     },
   };
@@ -49,7 +53,7 @@ describe("Rule34 Commands", () => {
   };
   describe("Rule 34 Delete Keyword Command", () => {
     const client = new Client();
-    before(async () => {
+    beforeEach(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("should restrict if the channel is not nsfw", (done) => {
@@ -92,7 +96,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 Add Keyword Command", () => {
     const client = new Client();
-    before(async () => {
+    beforeEach(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID);
     });
     it("should restrict if the channel is not nsfw", (done) => {
@@ -165,8 +169,16 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 Search Command", () => {
     const client = new Client();
-    before(async () => {
+    beforeEach(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+    });
+    it("getLewdImageFromRule34XXX should return whole array if amount requested is larger that found", async () => {
+      const amount = 100000000;
+      const dataToSend = await rule34HelperFunction.getLewlImagesFromRule34XXX(
+        "naruto",
+        amount,
+      );
+      expect(dataToSend.length).to.be.lessThan(amount);
     });
     it("should restrict if channel is not nsfw", (done) => {
       const mockMessage = {
@@ -246,7 +258,7 @@ describe("Rule34 Commands", () => {
         rule34Keywords: [
           {
             source: "rule34xxx",
-            word: "pokemon",
+            word: "jhjhjhjhjhjhjhjkkmlknmm",
           },
         ],
       },
@@ -259,7 +271,7 @@ describe("Rule34 Commands", () => {
       channels: new Collection<string, GuildChannel>(),
       id: mockGuildIDWithRecurring,
     };
-    before(async () => {
+    beforeEach(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
       await MyJSONAPI.initGuildBaseJSONStore(
         mockGuildIDWithRecurring,
@@ -291,7 +303,7 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
       ].commandCallback(client);
-      expect(responses.length).to.be.greaterThan(1);
+      expect(responses.length).to.be.greaterThan(0);
     });
     it("should post images if a request is provided", async () => {
       const responses: string[] = [];
@@ -329,7 +341,7 @@ describe("Rule34 Commands", () => {
   });
   describe("Rule 34 List Command", () => {
     const client = new Client();
-    before(async () => {
+    beforeEach(async () => {
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
     it("should restrict if channel is not nsfw", (done) => {
@@ -434,11 +446,10 @@ describe("Rule34 Commands", () => {
       );
       await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
     });
-    it("should notify if it can't find recurring channel", (done) => {
+    it("should notify if it can't find guildbase", (done) => {
       const mockMessage = {
         channel: {
           id: "12s3",
-          nsfw: false,
           send: (result) => {
             expect(result).to.eql(
               "I can't find any recurring channel for rule 34",
@@ -448,6 +459,25 @@ describe("Rule34 Commands", () => {
         },
         guild: {
           id: mockGuildID,
+        },
+      };
+      rule34CommandList[
+        rule34CommandKeyList.RULE34_GET_RECURRING
+      ].commandCallback(client, "meh", mockMessage as Message);
+    });
+    it("should notify if it can't find recurring channel", (done) => {
+      const mockMessage = {
+        channel: {
+          id: "12s3",
+          send: (result) => {
+            expect(result).to.eql(
+              "I can't find any recurring channel for rule 34",
+            );
+            done();
+          },
+        },
+        guild: {
+          id: "foo",
         },
       };
       rule34CommandList[

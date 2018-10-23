@@ -19,11 +19,11 @@ const rule34deleteKeywordCommand: Command = {
         query,
       );
       await message.channel.send("Updated List");
-      await Object.keys(newKeywordsList).forEach(async (source) => {
+      for (const source of Object.keys(newKeywordsList)) {
         await message.channel.send(
           `${source}: [ ${newKeywordsList[source].join(" ")} ]`,
         );
-      });
+      }
     }
   },
   commandDescription: "Rule 34 delete keyword command",
@@ -45,11 +45,11 @@ const rule34addKeywordCommand: Command = {
         query,
       );
       message.channel.send("Updated List");
-      Object.keys(newKeywordsList).forEach((source) => {
-        message.channel.send(
+      for (const source of Object.keys(newKeywordsList)) {
+        await message.channel.send(
           `${source}: [ ${newKeywordsList[source].join(" ")} ]`,
         );
-      });
+      }
     }
   },
   commandDescription: "Rule 34 add keyword command",
