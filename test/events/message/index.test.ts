@@ -15,7 +15,7 @@ describe("Message Event", () => {
     client = new Client();
   });
   it("should trigger when a message event arrive", (done) => {
-    const testUser = new User(client, { id: 1 });
+    const testUser = new User(client, { id: 1, bot: false });
     const testMessage = new Message(
       new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
       {
@@ -50,13 +50,13 @@ describe("Message Event", () => {
     });
     client.emit(messageEvent.eventName, testValidCommandMessage);
   });
-  it("should ignore command when invalid command arrive", (done) => {
-    const testUser = new User(client, { id: 1 });
+  it("should ignore bot message when invalid command arrive", (done) => {
+    const testUser = new User(client, { id: 1, bot: true });
     const testInvalidCommandMessage = new Message(
       new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
       {
         attachments: new Collection(),
-        author: testUser,
+        author: { ...testUser, bot: true },
         content: "~mocasfk",
         embeds: [],
       },

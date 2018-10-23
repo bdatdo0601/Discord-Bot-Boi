@@ -14,7 +14,7 @@ const messageEvent: Event = {
       if (commandList[command]) {
         commandList[command].commandCallback(client, query, message);
       }
-    } else {
+    } else if (!message.author.bot) {
       commandList[COMMANDS.WIT_AI.EVAL].commandCallback(
         client,
         message.content,
