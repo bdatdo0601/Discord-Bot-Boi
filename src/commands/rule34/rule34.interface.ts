@@ -29,14 +29,3 @@ export interface Rule34CommandKeyList {
   RULE34_DELETE_RECURRING: "~rule34deleteRecurring";
   RULE34_LIST: "~rule34list";
 }
-
-export interface Rule34CommandList {
-  RULE34_DELETE_KEYWORD: Command;
-  RULE34_ADD_KEYWORD: Command;
-  RULE34_SEARCH: Command;
-  RULE34_SEARCH_RECURRING: Command;
-  RULE34_SET_RECURRING: Command;
-  RULE34_GET_RECURRING: Command;
-  RULE34_DELETE_RECURRING: Command;
-  RULE34_LIST: Command;
-}
