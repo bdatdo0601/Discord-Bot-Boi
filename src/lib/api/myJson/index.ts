@@ -82,7 +82,15 @@ const getGuildBaseJSONStore = async (
     configOptions,
   );
   const result: GuildBaseJSONStore = {
-    data: response.data,
+    data: {
+      ...response.data,
+      rule34Store: {
+        ...response.data.rule34Store,
+        rule34Keywords: response.data.rule34Store.rule34Keywords
+          ? response.data.rule34Store.rule34Keywords
+          : [],
+      },
+    },
     guildStore: guildStoreObj,
   };
   return result;
