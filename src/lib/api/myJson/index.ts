@@ -141,7 +141,10 @@ const updateGuildBaseJSONStore = async (
   if (guildBaseJSONStore) {
     const updatedData: GuildBaseJSONStoreInput = {
       ...guildBaseJSONStore.data,
-      ...updatedGuildStoreData,
+      rule34Store: {
+        ...guildBaseJSONStore.data.rule34Store,
+        ...updatedGuildStoreData.rule34Store,
+      },
     };
     const response = await axios.put<GuildBaseJSONStoreData>(
       guildBaseJSONStore.guildStore.storeURL,

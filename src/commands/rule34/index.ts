@@ -145,10 +145,14 @@ const rule34ListCommand: Command = {
       const rule34KeywordList = await Rule34CommandHelper.getRule34XXXKeywords(
         message.guild.id,
       );
-      for (const source of Object.keys(rule34KeywordList)) {
-        await message.channel.send(
-          `${source}: [ ${rule34KeywordList[source].join(" ")} ]`,
-        );
+      if (Object.keys(rule34KeywordList).length === 0) {
+        await message.channel.send("There are no keyword found");
+      } else {
+        for (const source of Object.keys(rule34KeywordList)) {
+          await message.channel.send(
+            `${source}: [ ${rule34KeywordList[source].join(" ")} ]`,
+          );
+        }
       }
     }
   },
