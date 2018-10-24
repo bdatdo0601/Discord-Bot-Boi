@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { Wit } from "node-wit";
 import { Command } from "../command.interface";
 import commandList from "../index";
+import helperWitAIFunctions from "./helper";
 import { WitAICommandKeyList } from "./witai.interface";
 dotenv.config();
 
@@ -29,7 +30,12 @@ const evalCommand: Command = {
       const value = response.entities[entityKey].value;
       if (entityKey.includes("_")) {
         const command = entityKey.replace("_", "~");
-        commandList[command].commandCallback(client, value, message);
+        await commandList[command].commandCallback(client, value, message);
+      } else {
+        if (helperWitAIFunctions[entityKey]) {
+          const messageToSend = await helperWitAIFunctions[entityKey](message);
+          await message.channel.send(messageToSend);
+        }
       }
     }
   },
