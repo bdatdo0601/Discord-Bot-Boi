@@ -21,7 +21,7 @@ const evalCommand: Command = {
     query: string,
     message: Message,
   ): Promise<void> => {
-    await witClient.message(query, {});
+    // await witClient.message(query, {});
   },
   commandDescription: "Evaluate based on user natural response",
 };
