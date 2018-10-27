@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
+  "files": ["node_modules/typescript/lib/lib.es6.d.ts"],
   "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["node_modules"]
 }
