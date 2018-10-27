@@ -31,7 +31,7 @@ const evalCommand: Command = {
       const value = response.entities[entityKey].value;
       if (entityKey.includes("_")) {
         const command = entityKey.replace("_", "~");
-        await commandList[command].commandCallback(client, value, message);
+        await commandList[command].commandCallback(client, db, value, message);
       } else {
         if (helperWitAIFunctions[entityKey]) {
           const messageToSend = await helperWitAIFunctions[entityKey](message);
