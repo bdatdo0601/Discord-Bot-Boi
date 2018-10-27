@@ -4,6 +4,7 @@ import _ from "lodash";
 import { Command, CommandList } from "./command.interface";
 import mockCommandList, { mockCommandKeyList } from "./mock";
 import readyToPlayCommandList, { r2pCommandKeyList } from "./readytoplay";
+import referendumCommandList, { referendumCommandKeyList } from "./referendum";
 import rule34CommandList, { rule34CommandKeyList } from "./rule34";
 
 const debugLog = debug("BotBoi:Commands");
@@ -42,6 +43,7 @@ export const COMMANDS = {
   GENERAL: generalCommandKeyList,
   MOCK: mockCommandKeyList,
   READY_TO_PLAY: r2pCommandKeyList,
+  REFERNDUM: referendumCommandKeyList,
   RULE34: rule34CommandKeyList,
 };
 
@@ -50,6 +52,7 @@ const commandList: CommandList = {
   ...mockCommandList,
   ...rule34CommandList,
   ...readyToPlayCommandList,
+  ...referendumCommandList,
 };
 
 export default commandList;
