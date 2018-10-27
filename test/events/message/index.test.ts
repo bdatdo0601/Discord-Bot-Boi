@@ -7,12 +7,31 @@ import {
   TextChannel,
   User,
 } from "discord.js";
+import dotenv from "dotenv";
+import firebase from "firebase";
 import messageEvent from "../../../src/events/message";
+dotenv.config();
+
+// firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
+  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
+};
 
 describe("Message Event", () => {
+  // firebase initialization
+  const app = firebase.initializeApp(firebaseConfig, "messageEventTestEnv");
+  const FireDB = app.database();
   let client: Client;
   beforeEach(() => {
     client = new Client();
+  });
+  before(async () => {
+    await FireDB.goOnline();
   });
   it("should trigger when a message event arrive", (done) => {
     const testUser = new User(client, { id: 1, bot: false });
@@ -27,7 +46,7 @@ describe("Message Event", () => {
       client,
     );
     client.on(messageEvent.eventName, (message) => {
-      messageEvent.eventActionCallback(client)(message);
+      messageEvent.eventActionCallback(client, FireDB)(message);
       done();
     });
     client.emit(messageEvent.eventName, testMessage);
@@ -46,7 +65,7 @@ describe("Message Event", () => {
     );
     client.on(messageEvent.eventName, (message) => {
       messageEvent
-        .eventActionCallback(client)(message)
+        .eventActionCallback(client, FireDB)(message)
         .then(() => {
           done();
         });
@@ -67,7 +86,7 @@ describe("Message Event", () => {
     );
     client.on(messageEvent.eventName, (message) => {
       messageEvent
-        .eventActionCallback(client)(message)
+        .eventActionCallback(client, FireDB)(message)
         .then(() => {
           done();
         });
@@ -88,14 +107,18 @@ describe("Message Event", () => {
     );
     client.on(messageEvent.eventName, (message) => {
       messageEvent
-        .eventActionCallback(client)(message)
+        .eventActionCallback(client, FireDB)(message)
         .then(() => {
           done();
         });
     });
     client.emit(messageEvent.eventName, testInvalidCommandMessage);
   });
-  afterEach(() => {
-    client.destroy();
+  afterEach(async () => {
+    await client.destroy();
+  });
+  after(async () => {
+    await FireDB.goOffline();
+    await app.delete();
   });
 });

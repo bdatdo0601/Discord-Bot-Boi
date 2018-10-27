@@ -25,7 +25,7 @@ const getRule34XXXImgs = async (query: string): Promise<Rule34XXXImage[]> => {
     object: true,
     ...xmlToJsonConfig,
   }) as Rule34XXXParsedData;
-  return parsedData.posts.post
+  return parsedData.posts.post && parsedData.posts.post instanceof Array
     ? parsedData.posts.post.map<Rule34XXXImage>(
         (item: Rule34XXXRawImageData): Rule34XXXImage => {
           return {

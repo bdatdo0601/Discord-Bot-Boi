@@ -1,4 +1,3 @@
-import Axios from "axios";
 import { expect } from "chai";
 import {
   Client,
@@ -8,21 +7,41 @@ import {
   Message,
   TextChannel,
 } from "discord.js";
+import dotenv from "dotenv";
+import firebase from "firebase";
 import _ from "lodash";
 import rule34CommandList, {
   rule34CommandKeyList,
 } from "../../../src/commands/rule34";
 import rule34HelperFunction from "../../../src/commands/rule34/helper";
-import MyJSONAPI from "../../../src/lib/api/myJson";
 import {
-  GuildBaseJSONStore,
-  GuildBaseJSONStoreInput,
-  InitGuildBaseJSONStoreResponse,
-} from "../../../src/lib/api/myJson/myJson.interface";
+  getGuildStore,
+  initGuildStore,
+  updateGuildStore,
+} from "../../../src/lib/db/firebase";
+import {
+  GuildStore,
+  GuildStoreDataInput,
+} from "../../../src/lib/db/firebase/firebase.interface";
+
+dotenv.config();
+
+// firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
+  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
+};
 
 describe("Rule34 Commands", () => {
+  // firebase initialization
+  const app = firebase.initializeApp(firebaseConfig, "Rule34TestEnv");
+  const FireDB = app.database();
   const mockGuildID = "1";
-  const initMockGuildData: GuildBaseJSONStoreInput = {
+  const initMockGuildData: GuildStoreDataInput = {
     rule34Store: {
       rule34Keywords: [
         {
@@ -39,9 +58,10 @@ describe("Rule34 Commands", () => {
   const getExpectedResponse = async () => {
     const result: string[] = [];
     result.push("Updated List");
-    const mockGuildStore = (await MyJSONAPI.getGuildBaseJSONStore(
+    const mockGuildStore = (await getGuildStore(
       mockGuildID,
-    )) as GuildBaseJSONStore;
+      FireDB,
+    )) as GuildStore;
     const updatedData = _.groupBy(
       mockGuildStore.data.rule34Store.rule34Keywords,
       (item) => item.source,
@@ -53,26 +73,22 @@ describe("Rule34 Commands", () => {
     });
     return result;
   };
-  const configOptions = {
-    headers: {
-      "Content-type": "application/json",
-    },
-  };
-
   before(async () => {
-    const response = await Axios.post<InitGuildBaseJSONStoreResponse>(
-      `https://api.myjson.com/bins`,
-      {},
-      configOptions,
-    );
-    const binID = response.data.uri.split("/")[4];
-    MyJSONAPI.setNewBaseStoreID(binID);
-    await MyJSONAPI.initBaseStore();
+    await FireDB.ref("/").remove();
   });
-  describe("Rule 34 Delete Keyword Command", () => {
+  describe("Rule 34 Delete Keyword Command", async () => {
     const client = new Client();
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+      await initGuildStore(mockGuildID, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
     });
     it("should restrict if the channel is not nsfw", (done) => {
       const mockMessage = {
@@ -86,7 +102,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
-      ].commandCallback(client, "", mockMessage as Message);
+      ].commandCallback(client, FireDB, "", mockMessage as Message);
     });
     it("should delete if keyword exist and send back updated list", async () => {
       const responses: string[] = [];
@@ -104,7 +120,12 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
-      ].commandCallback(client, mockMessage.content, mockMessage as Message);
+      ].commandCallback(
+        client,
+        FireDB,
+        mockMessage.content,
+        mockMessage as Message,
+      );
       const expectedData = await getExpectedResponse();
       expect(responses.join()).to.equal(expectedData.join());
     });
@@ -115,7 +136,7 @@ describe("Rule34 Commands", () => {
   describe("Rule 34 Add Keyword Command", () => {
     const client = new Client();
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID);
+      await initGuildStore(mockGuildID, FireDB);
     });
     it("should restrict if the channel is not nsfw", (done) => {
       const mockMessage = {
@@ -129,7 +150,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback(client, "", mockMessage as Message);
+      ].commandCallback(client, FireDB, "", mockMessage as Message);
     });
     it("should notify if no words was provided", (done) => {
       const mockMessage = {
@@ -143,7 +164,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback(client, "   ", mockMessage as Message);
+      ].commandCallback(client, FireDB, "   ", mockMessage as Message);
     });
     it("should return updated list if words are provided in nsfw channel", async () => {
       const responses: string[] = [];
@@ -160,7 +181,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback(client, "foos", mockMessage as Message);
+      ].commandCallback(client, FireDB, "foos", mockMessage as Message);
       const expectedData = await getExpectedResponse();
       expect(responses.join()).to.equal(expectedData.join());
     });
@@ -168,12 +189,12 @@ describe("Rule34 Commands", () => {
       const updatedList = await rule34HelperFunction.addRule34Keyword(
         mockGuildID,
         "fos",
+        FireDB,
         ["rule34xxx", "reddit"],
       );
       const expectedList: object = _.groupBy(
-        ((await MyJSONAPI.getGuildBaseJSONStore(
-          mockGuildID,
-        )) as GuildBaseJSONStore).data.rule34Store.rule34Keywords,
+        ((await getGuildStore(mockGuildID, FireDB)) as GuildStore).data
+          .rule34Store.rule34Keywords,
         (item) => item.source,
       );
       Object.keys(expectedList).forEach((source) => {
@@ -188,7 +209,16 @@ describe("Rule34 Commands", () => {
   describe("Rule 34 Search Command", () => {
     const client = new Client();
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+      await initGuildStore(mockGuildID, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
     });
     it("getLewdImageFromRule34XXX should return whole array if amount requested is larger that found", async () => {
       const amount = 100000000;
@@ -210,6 +240,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[rule34CommandKeyList.RULE34_SEARCH].commandCallback(
         client,
+        FireDB,
         "test",
         mockMessage as Message,
       );
@@ -226,7 +257,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback(client, "naruto", mockMessage as Message);
+      ].commandCallback(client, FireDB, "naruto", mockMessage as Message);
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should notify if it doesn't found any results", async () => {
@@ -241,7 +272,12 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback(client, "asfasdgfs;l;;", mockMessage as Message);
+      ].commandCallback(
+        client,
+        FireDB,
+        "asfasdgfs;l;;",
+        mockMessage as Message,
+      );
       expect(responses.length).to.equal(1);
     });
     it("should send back one random lewd image if no query provided", async () => {
@@ -259,7 +295,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback(client, "", mockMessage as Message);
+      ].commandCallback(client, FireDB, "", mockMessage as Message);
       expect(responses.length).to.be.greaterThan(0);
     });
     after(() => {
@@ -270,7 +306,7 @@ describe("Rule34 Commands", () => {
     const client = new Client();
     const mockGuildIDWithRecurring = "2";
     const mockRecurringChannelID = "123";
-    const mockStoreWithRecurringID: GuildBaseJSONStoreInput = {
+    const mockStoreWithRecurringID: GuildStoreDataInput = {
       rule34Store: {
         recurringNSFWChannelID: mockRecurringChannelID,
         rule34Keywords: [
@@ -290,10 +326,25 @@ describe("Rule34 Commands", () => {
       id: mockGuildIDWithRecurring,
     };
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
-      await MyJSONAPI.initGuildBaseJSONStore(
-        mockGuildIDWithRecurring,
-        mockStoreWithRecurringID,
+      await initGuildStore(mockGuildID, FireDB);
+      await initGuildStore(mockGuildIDWithRecurring, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
+      await updateGuildStore(
+        {
+          data: mockStoreWithRecurringID,
+          guildMetadata: {
+            guildID: mockGuildIDWithRecurring,
+          },
+        },
+        FireDB,
       );
     });
     it("should send images to client's guild when message was not supplied based on recurring channel ID", async () => {
@@ -320,7 +371,7 @@ describe("Rule34 Commands", () => {
       client.guilds = guilds;
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback(client);
+      ].commandCallback(client, FireDB);
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should post images if a request is provided", async () => {
@@ -338,7 +389,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback(client, "", mockMessage as Message);
+      ].commandCallback(client, FireDB, "", mockMessage as Message);
     });
     it("should do notthing if the message is provided but channel is not nsfw", async () => {
       const mockMessage = {
@@ -354,13 +405,27 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback(client, "", (mockMessage as unknown) as Message);
+      ].commandCallback(
+        client,
+        FireDB,
+        "",
+        (mockMessage as unknown) as Message,
+      );
     });
   });
   describe("Rule 34 List Command", () => {
     const client = new Client();
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+      await initGuildStore(mockGuildID, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
     });
     it("should restrict if channel is not nsfw", (done) => {
       const mockMessage = {
@@ -374,6 +439,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
         client,
+        FireDB,
         "test",
         mockMessage as Message,
       );
@@ -393,6 +459,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
         client,
+        FireDB,
         "test",
         mockMessage as Message,
       );
@@ -401,7 +468,19 @@ describe("Rule34 Commands", () => {
       expect(responses).to.eql(expected);
     });
     it("should notify if no keyword found", async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID);
+      await updateGuildStore(
+        {
+          data: {
+            rule34Store: {
+              rule34Keywords: [],
+            },
+          },
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
       const mockMessage = {
         channel: {
           nsfw: true,
@@ -415,6 +494,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
         client,
+        FireDB,
         "test",
         mockMessage as Message,
       );
@@ -423,7 +503,16 @@ describe("Rule34 Commands", () => {
   describe("Rule 34 Set Recurring", () => {
     const client = new Client();
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+      await initGuildStore(mockGuildID, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
     });
     it("should notify is the current channel is not nsfw", (done) => {
       const mockMessage = {
@@ -441,7 +530,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
-      ].commandCallback(client, "meh", mockMessage as Message);
+      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
     });
     it("should notify success if the channel is now set to recurring", (done) => {
       const mockMessage = {
@@ -461,7 +550,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
-      ].commandCallback(client, "meh", mockMessage as Message);
+      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
     });
     after(() => {
       client.destroy();
@@ -471,17 +560,32 @@ describe("Rule34 Commands", () => {
     const client = new Client();
     const mockGuildBaseWithRecurringID = "2";
     const mockRecurringChannelID = "123";
-    const initMockGuildDataWithRecurring: GuildBaseJSONStoreInput = {
+    const initMockGuildDataWithRecurring: GuildStoreDataInput = {
       rule34Store: {
         recurringNSFWChannelID: mockRecurringChannelID,
       },
     };
-    before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(
-        mockGuildBaseWithRecurringID,
-        initMockGuildDataWithRecurring,
+    beforeEach(async () => {
+      await initGuildStore(mockGuildID, FireDB);
+      await initGuildStore(mockGuildBaseWithRecurringID, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
       );
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+      await updateGuildStore(
+        {
+          data: initMockGuildDataWithRecurring,
+          guildMetadata: {
+            guildID: mockGuildBaseWithRecurringID,
+          },
+        },
+        FireDB,
+      );
     });
     it("should notify if it can't find guildbase", (done) => {
       const mockMessage = {
@@ -495,12 +599,12 @@ describe("Rule34 Commands", () => {
           },
         },
         guild: {
-          id: mockGuildID,
+          id: "4124",
         },
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback(client, "meh", mockMessage as Message);
+      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
     });
     it("should notify if it can't find recurring channel", (done) => {
       const mockMessage = {
@@ -519,7 +623,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback(client, "meh", mockMessage as Message);
+      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
     });
     it("should tell which channel is recurring if it existed", (done) => {
       const mockMessage = {
@@ -539,7 +643,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback(client, "meh", mockMessage as Message);
+      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
     });
     after(() => {
       client.destroy();
@@ -548,7 +652,16 @@ describe("Rule34 Commands", () => {
   describe("Rule 34 Delete Recurring", () => {
     const client = new Client();
     before(async () => {
-      await MyJSONAPI.initGuildBaseJSONStore(mockGuildID, initMockGuildData);
+      await initGuildStore(mockGuildID, FireDB);
+      await updateGuildStore(
+        {
+          data: initMockGuildData,
+          guildMetadata: {
+            guildID: mockGuildID,
+          },
+        },
+        FireDB,
+      );
     });
     it("should notify when the deletion is complete", (done) => {
       const mockMessage = {
@@ -566,7 +679,11 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_RECURRING
-      ].commandCallback(client, "meh", mockMessage as Message);
+      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
     });
+  });
+  after(async () => {
+    await FireDB.ref("/").remove();
+    await app.delete();
   });
 });
