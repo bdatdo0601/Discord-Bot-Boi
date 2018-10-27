@@ -22,6 +22,7 @@ const witClient = new Wit({
 const evalCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {

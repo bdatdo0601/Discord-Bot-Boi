@@ -4,7 +4,7 @@ import debug from "debug";
 import dotenv from "dotenv";
 import firebase from "firebase";
 import sinon from "sinon";
-import FireDB, {
+import {
   DEFAULT_BASE_STORE,
   DEFAULT_GUILD_STORE,
   getBaseStore,
@@ -22,7 +22,23 @@ chai.use(chaiPromise);
 
 const debugLog = debug("BotBoi:FirebaseTest");
 
+// firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
+  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
+};
+
 describe("Firebase DB Store", () => {
+  // firebase initialization
+  const app = firebase.initializeApp(firebaseConfig, "FirebaseUtilityTestEnv");
+  const FireDB = app.database();
+  before(async () => {
+    await FireDB.goOnline();
+  });
   describe("BaseStore", () => {
     describe("Retriving data from BaseStore", () => {
       beforeEach(async () => {
@@ -35,7 +51,7 @@ describe("Firebase DB Store", () => {
           },
         };
         await FireDB.ref("/").set(expectedData);
-        const dataFromStore = await getBaseStore();
+        const dataFromStore = await getBaseStore(FireDB);
         expect(dataFromStore).to.eql(expectedData);
       });
       it("should return everything in BaseStore as format", async () => {
@@ -43,16 +59,16 @@ describe("Firebase DB Store", () => {
           foo: "bar",
         };
         await FireDB.ref("/").set(expectedData);
-        const dataFromStore = await getBaseStore();
+        const dataFromStore = await getBaseStore(FireDB);
         expect(dataFromStore).to.eql(DEFAULT_BASE_STORE);
       });
       it("should return default BaseStore if the database is empty", async () => {
-        const dataFromStore = await getBaseStore();
+        const dataFromStore = await getBaseStore(FireDB);
         expect(dataFromStore).to.eql(DEFAULT_BASE_STORE);
       });
       it("should throw error if something wrong occur", async () => {
         sinon.stub(FireDB, "ref").throws();
-        expect(getBaseStore()).to.eventually.be.rejected;
+        expect(getBaseStore(FireDB)).to.eventually.be.rejected;
       });
       after(() => {
         sinon.restore();
@@ -82,16 +98,20 @@ describe("Firebase DB Store", () => {
       it("should return guild store if it found one", async () => {
         const dataFromStore = await getGuildStore(
           existingGuildStore.guildMetadata.guildID,
+          FireDB,
         );
         expect(dataFromStore).to.eql(existingGuildStore);
       });
       it("should return undefined if it couldn't find existing guild store", async () => {
-        const dataFromStore = await getGuildStore(nonExistingGuildStoreID);
+        const dataFromStore = await getGuildStore(
+          nonExistingGuildStoreID,
+          FireDB,
+        );
         expect(dataFromStore).to.be.null;
       });
       it("should throw error if something wrong occur", async () => {
         sinon.stub(FireDB, "ref").throws();
-        expect(getGuildStore(nonExistingGuildStoreID)).to.eventually.be
+        expect(getGuildStore(nonExistingGuildStoreID, FireDB)).to.eventually.be
           .rejected;
       });
       after(() => {
@@ -100,7 +120,10 @@ describe("Firebase DB Store", () => {
     });
     describe("Initialzing data from GuildStore", () => {
       it("should initialize and return newly initialized data", async () => {
-        const dataFromStore = await initGuildStore(nonExistingGuildStoreID);
+        const dataFromStore = await initGuildStore(
+          nonExistingGuildStoreID,
+          FireDB,
+        );
         expect(dataFromStore).to.eql({
           ...DEFAULT_GUILD_STORE,
           guildMetadata: {
@@ -110,7 +133,7 @@ describe("Firebase DB Store", () => {
       });
       it("should throw error if something wrong occur", async () => {
         sinon.stub(FireDB, "ref").throws();
-        expect(initGuildStore(nonExistingGuildStoreID)).to.eventually.be
+        expect(initGuildStore(nonExistingGuildStoreID, FireDB)).to.eventually.be
           .rejected;
       });
       after(() => {
@@ -130,9 +153,8 @@ describe("Firebase DB Store", () => {
             guildID: "4124",
           },
         };
-        const dataFromStore = await updateGuildStore(dataToUpdate);
+        const dataFromStore = await updateGuildStore(dataToUpdate, FireDB);
         expect(dataFromStore).to.eql({
-          ...DEFAULT_GUILD_STORE,
           guildMetadata: {
             guildID: nonExistingGuildStoreID,
           },
@@ -141,8 +163,8 @@ describe("Firebase DB Store", () => {
       });
       it("should throw error if something wrong occur", async () => {
         sinon.stub(FireDB, "ref").throws();
-        expect(updateGuildStore(({} as unknown) as GuildStore)).to.eventually.be
-          .rejected;
+        expect(updateGuildStore(({} as unknown) as GuildStore, FireDB)).to
+          .eventually.be.rejected;
       });
       after(() => {
         sinon.restore();
@@ -152,7 +174,8 @@ describe("Firebase DB Store", () => {
       await FireDB.ref("/").remove();
     });
   });
-  after(() => {
-    FireDB.goOffline();
+  after(async () => {
+    await FireDB.goOffline();
+    await app.delete();
   });
 });

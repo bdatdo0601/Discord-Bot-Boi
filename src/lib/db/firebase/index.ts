@@ -1,6 +1,7 @@
 import debug from "debug";
 import dotenv from "dotenv";
 import firebase from "firebase";
+import _ from "lodash";
 import {
   BaseStore,
   BaseStoreInput,
@@ -9,23 +10,7 @@ import {
 } from "./firebase.interface";
 dotenv.config();
 
-// firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
-  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
-};
-
-// firebase initialization
-firebase.initializeApp(firebaseConfig);
-
 const debugLog = debug("BotBoi:Firebase");
-
-// firebase realtime db instance
-const db = firebase.database();
 
 // default base store
 export const DEFAULT_BASE_STORE = Object.freeze<BaseStore>({
@@ -36,12 +21,12 @@ export const DEFAULT_BASE_STORE = Object.freeze<BaseStore>({
 export const DEFAULT_GUILD_STORE = Object.freeze<GuildStore>({
   data: {
     rule34Store: {
-      recurringNSFWChannelID: "undefined",
+      recurringNSFWChannelID: "",
       rule34Keywords: [],
     },
   },
   guildMetadata: {
-    guildID: "undefined",
+    guildID: "",
   },
 });
 
@@ -56,7 +41,8 @@ const formatGuildStore = (data: GuildStore): GuildStore =>
   Object.freeze({
     data: {
       rule34Store: {
-        recurringNSFWChannelID: data.data.rule34Store.recurringNSFWChannelID,
+        recurringNSFWChannelID:
+          data.data.rule34Store.recurringNSFWChannelID || "",
         rule34Keywords: data.data.rule34Store.rule34Keywords || [],
       },
     },
@@ -70,7 +56,9 @@ const formatGuildStore = (data: GuildStore): GuildStore =>
  *
  * @returns {Promise<BaseStore} eventually return updated store
  */
-export const getBaseStore = async (): Promise<BaseStore> => {
+export const getBaseStore = async (
+  db: firebase.database.Database,
+): Promise<BaseStore> => {
   try {
     debugLog("Getting most updated base store data");
     const dataSnapshot = await db.ref("/").once("value");
@@ -94,6 +82,7 @@ export const getBaseStore = async (): Promise<BaseStore> => {
  */
 export const getGuildStore = async (
   guildID: string,
+  db: firebase.database.Database,
 ): Promise<GuildStore | null> => {
   try {
     debugLog("getting specific guild store based on ID");
@@ -115,16 +104,20 @@ export const getGuildStore = async (
  * @param {string} guildID ID of the interested guild
  * @returns {Promise<GuildStore>} eventually return guild store data
  */
-export const initGuildStore = async (guildID: string): Promise<GuildStore> => {
+export const initGuildStore = async (
+  guildID: string,
+  db: firebase.database.Database,
+): Promise<GuildStore> => {
   try {
     debugLog("Initializing Guild Store");
+    await db.ref(`/guilds/${guildID}`).remove();
     await db.ref(`/guilds/${guildID}`).set({
       ...DEFAULT_GUILD_STORE,
       guildMetadata: {
         guildID,
       },
     });
-    return (await getGuildStore(guildID)) as GuildStore;
+    return (await getGuildStore(guildID, db)) as GuildStore;
   } catch (error) {
     debugLog(error);
     throw error;
@@ -139,19 +132,30 @@ export const initGuildStore = async (guildID: string): Promise<GuildStore> => {
  */
 export const updateGuildStore = async (
   updatedData: GuildStoreInput,
+  db: firebase.database.Database,
 ): Promise<GuildStore> => {
   try {
     debugLog("Updating Guild Store");
-    await db
-      .ref(`/guilds/${updatedData.guildMetadata.guildID}`)
-      .update(updatedData);
-    return (await getGuildStore(
+    const result = DEFAULT_GUILD_STORE;
+    const originalData = (await getGuildStore(
       updatedData.guildMetadata.guildID,
+      db,
+    )) as GuildStore;
+    debugLog(updatedData);
+    debugLog(originalData);
+    _.mergeWith(result, originalData, updatedData, (objValue, srcValue) => {
+      if (_.isArray(objValue)) {
+        return srcValue;
+      }
+    });
+    debugLog(result);
+    await db.ref(`/guilds/${result.guildMetadata.guildID}`).update(result);
+    return (await getGuildStore(
+      result.guildMetadata.guildID,
+      db,
     )) as GuildStore;
   } catch (error) {
     debugLog(error);
     throw error;
   }
 };
-
-export default db;

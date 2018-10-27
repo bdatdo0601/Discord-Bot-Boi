@@ -8,6 +8,7 @@ import { Rule34CommandKeyList } from "./rule34.interface";
 const rule34deleteKeywordCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {
@@ -17,6 +18,7 @@ const rule34deleteKeywordCommand: Command = {
       const newKeywordsList = await Rule34CommandHelper.deleteRule34Keyword(
         message.guild.id,
         query,
+        db,
       );
       await message.channel.send("Updated List");
       for (const source of Object.keys(newKeywordsList)) {
@@ -32,6 +34,7 @@ const rule34deleteKeywordCommand: Command = {
 const rule34addKeywordCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {
@@ -43,6 +46,7 @@ const rule34addKeywordCommand: Command = {
       const newKeywordsList = await Rule34CommandHelper.addRule34Keyword(
         message.guild.id,
         query,
+        db,
       );
       message.channel.send("Updated List");
       for (const source of Object.keys(newKeywordsList)) {
@@ -58,6 +62,7 @@ const rule34addKeywordCommand: Command = {
 const rule34SearchCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {
@@ -67,8 +72,10 @@ const rule34SearchCommand: Command = {
       const searchString = query
         ? query
         : Util.getRandomElementFromArray(
-            (await Rule34CommandHelper.getRule34XXXKeywords(message.guild.id))
-              .rule34xxx,
+            (await Rule34CommandHelper.getRule34XXXKeywords(
+              message.guild.id,
+              db,
+            )).rule34xxx,
           );
       const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
         searchString,
@@ -92,6 +99,7 @@ const rule34SearchCommand: Command = {
 const rule34SearchRecurringCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query?: string,
     message?: Message,
   ) => {
@@ -100,6 +108,7 @@ const rule34SearchRecurringCommand: Command = {
       for (const guild of client.guilds.array()) {
         const nsfwRecurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
           guild.id,
+          db,
         );
         if (nsfwRecurringChannelID) {
           const nsfwRecurringChannel: TextChannel = guild.channels.get(
@@ -113,7 +122,7 @@ const rule34SearchRecurringCommand: Command = {
     }
     for (const channel of recurringChannels) {
       const searchString = Util.getRandomElementFromArray(
-        (await Rule34CommandHelper.getRule34XXXKeywords(channel.guild.id))
+        (await Rule34CommandHelper.getRule34XXXKeywords(channel.guild.id, db))
           .rule34xxx,
       );
       const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
@@ -136,6 +145,7 @@ const rule34SearchRecurringCommand: Command = {
 const rule34ListCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {
@@ -144,6 +154,7 @@ const rule34ListCommand: Command = {
     } else {
       const rule34KeywordList = await Rule34CommandHelper.getRule34XXXKeywords(
         message.guild.id,
+        db,
       );
       if (Object.keys(rule34KeywordList).length === 0) {
         await message.channel.send("There are no keyword found");
@@ -162,12 +173,14 @@ const rule34ListCommand: Command = {
 const rule34SetRecurringChannelCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {
     const channelID = await Rule34CommandHelper.setRule34RecurringChannel(
       message.guild.id,
       message.channel as TextChannel,
+      db,
     );
     if (!channelID) {
       message.channel.send("Lewd stuff don't belong here");
@@ -181,11 +194,13 @@ const rule34SetRecurringChannelCommand: Command = {
 const rule34GetRecurringChannelCommand: Command = {
   commandCallback: async (
     client: Client,
+    db: firebase.database.Database,
     query: string,
     message: Message,
   ): Promise<void> => {
     const recurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
       message.guild.id,
+      db,
     );
     if (recurringChannelID) {
       message.channel.send(
@@ -199,8 +214,16 @@ const rule34GetRecurringChannelCommand: Command = {
 };
 
 const rule34DeleteRecurringChannelCommand: Command = {
-  commandCallback: async (client: Client, query: string, message: Message) => {
-    await Rule34CommandHelper.deleteRule34RecurringChannel(message.guild.id);
+  commandCallback: async (
+    client: Client,
+    db: firebase.database.Database,
+    query: string,
+    message: Message,
+  ) => {
+    await Rule34CommandHelper.deleteRule34RecurringChannel(
+      message.guild.id,
+      db,
+    );
     message.channel.send("Recurring Channel is now deleted");
   },
   commandDescription: "Rule 34 delete recurring channel",

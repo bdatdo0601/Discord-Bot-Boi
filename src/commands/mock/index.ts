@@ -4,7 +4,12 @@ import MockCommandHelper from "./helper";
 import { MockCommandKeyList } from "./mock.interace";
 
 const sayMockCommand: Command = {
-  commandCallback: (client: Client, query: string, message: Message) => {
+  commandCallback: (
+    client: Client,
+    db: firebase.database.Database,
+    query: string,
+    message: Message,
+  ) => {
     const mockSentence = MockCommandHelper.toMockSentence(query);
     message.channel.send(`<@${message.author.id}>: ${mockSentence}`);
   },
@@ -12,7 +17,12 @@ const sayMockCommand: Command = {
 };
 
 const mockCommand: Command = {
-  commandCallback: (client: Client, query: string, message: Message) => {
+  commandCallback: (
+    client: Client,
+    db: firebase.database.Database,
+    query: string,
+    message: Message,
+  ) => {
     message.mentions.users.array().forEach((user: User) => {
       if (user.lastMessage) {
         const mockMessage = MockCommandHelper.toMockSentence(

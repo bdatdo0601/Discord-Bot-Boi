@@ -1,9 +1,9 @@
 import { TextChannel } from "discord.js";
 import _ from "lodash";
-import { GuildBaseJSONStore } from "src/lib/api/myJson/myJson.interface";
 import { Rule34XXXImage } from "src/lib/api/rule34xxx/rule34xxx.interface.js";
-import MyJSONAPI from "../../lib/api/myJson";
+import { GuildStore } from "src/lib/db/firebase/firebase.interface";
 import rule34xxxAPI from "../../lib/api/rule34xxx";
+import { getGuildStore, updateGuildStore } from "../../lib/db/firebase";
 import { Rule34Keyword, Rule34KeywordList } from "./rule34.interface";
 
 /**
@@ -28,17 +28,13 @@ const getLewlImagesFromRule34XXX = async (
 
 const getRule34XXXKeywords = async (
   guildID: string,
+  db: firebase.database.Database,
 ): Promise<Rule34KeywordList> => {
-  const guildBaseStore = (await MyJSONAPI.getGuildBaseJSONStore(
-    guildID,
-  )) as GuildBaseJSONStore;
+  const guildStore = (await getGuildStore(guildID, db)) as GuildStore;
   const result: Rule34KeywordList = {} as Rule34KeywordList;
 
-  const { rule34Store } = guildBaseStore.data;
-  const groupedKeywords = _.groupBy(
-    rule34Store.rule34Keywords,
-    (item) => item.source,
-  );
+  const { rule34Keywords } = guildStore.data.rule34Store;
+  const groupedKeywords = _.groupBy(rule34Keywords, (item) => item.source);
 
   Object.keys(groupedKeywords).forEach((key) => {
     result[key] = groupedKeywords[key].map((item) => item.word);
@@ -48,48 +44,65 @@ const getRule34XXXKeywords = async (
 
 const getRule34RecurringChannel = async (
   guildID: string,
+  db: firebase.database.Database,
 ): Promise<string | null> => {
-  const guildBaseStore = await MyJSONAPI.getGuildBaseJSONStore(guildID);
-  if (
-    !guildBaseStore ||
-    !guildBaseStore.data.rule34Store.recurringNSFWChannelID
-  ) {
+  const guildStore = await getGuildStore(guildID, db);
+  if (!guildStore || !guildStore.data.rule34Store.recurringNSFWChannelID) {
     return null;
   }
-  return guildBaseStore.data.rule34Store.recurringNSFWChannelID;
+  return guildStore.data.rule34Store.recurringNSFWChannelID;
 };
 
 const setRule34RecurringChannel = async (
   guildID: string,
   channel: TextChannel,
+  db: firebase.database.Database,
 ): Promise<string | null> => {
   if (!channel.nsfw) {
     return null;
   }
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      recurringNSFWChannelID: channel.id,
+  const updatedGuildStore = await updateGuildStore(
+    {
+      data: {
+        rule34Store: {
+          recurringNSFWChannelID: channel.id,
+        },
+      },
+      guildMetadata: {
+        guildID,
+      },
     },
-  });
-  return channel.id;
+    db,
+  );
+  return updatedGuildStore.data.rule34Store.recurringNSFWChannelID;
 };
 
-const deleteRule34RecurringChannel = async (guildID: string): Promise<void> => {
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      recurringNSFWChannelID: undefined,
+const deleteRule34RecurringChannel = async (
+  guildID: string,
+  db,
+): Promise<void> => {
+  await updateGuildStore(
+    {
+      data: {
+        rule34Store: {
+          recurringNSFWChannelID: "",
+        },
+      },
+      guildMetadata: {
+        guildID,
+      },
     },
-  });
+    db,
+  );
 };
 
 const addRule34Keyword = async (
   guildID: string,
   keyword: string,
+  db: firebase.database.Database,
   sources?: string[],
 ): Promise<Rule34KeywordList> => {
-  const guildBase = (await MyJSONAPI.getGuildBaseJSONStore(
-    guildID,
-  )) as GuildBaseJSONStore;
+  const guildStore = (await getGuildStore(guildID, db)) as GuildStore;
   const addedKeywords: Rule34Keyword[] = sources
     ? sources.map<Rule34Keyword>((source) => ({ source, word: keyword }))
     : [
@@ -99,33 +112,48 @@ const addRule34Keyword = async (
         },
       ];
   const updatedKeywords = [
-    ...guildBase.data.rule34Store.rule34Keywords,
+    ...guildStore.data.rule34Store.rule34Keywords,
     ...addedKeywords,
   ];
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      rule34Keywords: updatedKeywords,
+  await updateGuildStore(
+    {
+      data: {
+        rule34Store: {
+          rule34Keywords: updatedKeywords,
+        },
+      },
+      guildMetadata: {
+        guildID,
+      },
     },
-  });
-  return await getRule34XXXKeywords(guildID);
+    db,
+  );
+  return await getRule34XXXKeywords(guildID, db);
 };
 
 const deleteRule34Keyword = async (
   guildID: string,
   keyword: string,
+  db: firebase.database.Database,
 ): Promise<Rule34KeywordList> => {
-  const guildBase = (await MyJSONAPI.getGuildBaseJSONStore(
-    guildID,
-  )) as GuildBaseJSONStore;
-  const updatedKeywordsList: Rule34Keyword[] = guildBase.data.rule34Store.rule34Keywords.filter(
+  const guildStore = (await getGuildStore(guildID, db)) as GuildStore;
+  const updatedKeywordsList: Rule34Keyword[] = guildStore.data.rule34Store.rule34Keywords.filter(
     (item) => item.word !== keyword,
   );
-  await MyJSONAPI.updateGuildBaseJSONStore(guildID, {
-    rule34Store: {
-      rule34Keywords: updatedKeywordsList,
+  await updateGuildStore(
+    {
+      data: {
+        rule34Store: {
+          rule34Keywords: updatedKeywordsList,
+        },
+      },
+      guildMetadata: {
+        guildID,
+      },
     },
-  });
-  return await getRule34XXXKeywords(guildID);
+    db,
+  );
+  return await getRule34XXXKeywords(guildID, db);
 };
 
 export default {
