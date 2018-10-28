@@ -40,7 +40,7 @@ const evalCommand: Command = {
       }
     }
   },
-  commandDescription: "Evaluate based on user natural response",
+  commandDescription: "<ALWAYS_ON> Evaluate based on user natural response",
 };
 
 export const witAICommandKeyList: WitAICommandKeyList = {

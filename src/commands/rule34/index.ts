@@ -28,7 +28,7 @@ const rule34deleteKeywordCommand: Command = {
       }
     }
   },
-  commandDescription: "Rule 34 delete keyword command",
+  commandDescription: "delete a keyword from rule34 keyword list",
 };
 
 const rule34addKeywordCommand: Command = {
@@ -56,7 +56,7 @@ const rule34addKeywordCommand: Command = {
       }
     }
   },
-  commandDescription: "Rule 34 add keyword command",
+  commandDescription: "add a keyword to rule34 keyword list",
 };
 
 const rule34SearchCommand: Command = {
@@ -93,7 +93,7 @@ const rule34SearchCommand: Command = {
       }
     }
   },
-  commandDescription: "Rule 34 search",
+  commandDescription: "search rule34 db",
 };
 
 const rule34SearchRecurringCommand: Command = {
@@ -139,7 +139,7 @@ const rule34SearchRecurringCommand: Command = {
       }
     }
   },
-  commandDescription: "Rule 34 Recurring Search Command",
+  commandDescription: "return a sample of automatic rule34 images system",
 };
 
 const rule34ListCommand: Command = {
@@ -167,7 +167,7 @@ const rule34ListCommand: Command = {
       }
     }
   },
-  commandDescription: "Rule 34 list",
+  commandDescription: "list all keyword in rule34 keyword list",
 };
 
 const rule34SetRecurringChannelCommand: Command = {
@@ -188,7 +188,7 @@ const rule34SetRecurringChannelCommand: Command = {
       message.channel.send("Rule34 Recurring Images will now be posted here");
     }
   },
-  commandDescription: "Rule 34 Set Recurring Channel",
+  commandDescription: "set a channel to receive recurring rule34 images",
 };
 
 const rule34GetRecurringChannelCommand: Command = {
@@ -210,7 +210,7 @@ const rule34GetRecurringChannelCommand: Command = {
       message.channel.send("I can't find any recurring channel for rule 34");
     }
   },
-  commandDescription: "Rule 34 Get Recurring Channel",
+  commandDescription: "return the current recurring rule34 channel",
 };
 
 const rule34DeleteRecurringChannelCommand: Command = {
@@ -226,7 +226,7 @@ const rule34DeleteRecurringChannelCommand: Command = {
     );
     message.channel.send("Recurring Channel is now deleted");
   },
-  commandDescription: "Rule 34 delete recurring channel",
+  commandDescription: "disable sending automated rule34 images",
 };
 
 export const rule34CommandKeyList: Rule34CommandKeyList = {
