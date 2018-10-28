@@ -30,9 +30,11 @@ const getRule34XXXKeywords = async (
   guildID: string,
   db: firebase.database.Database,
 ): Promise<Rule34KeywordList> => {
-  const guildStore = (await getGuildStore(guildID, db)) as GuildStore;
+  const guildStore = await getGuildStore(guildID, db);
   const result: Rule34KeywordList = {} as Rule34KeywordList;
-
+  if (!guildStore) {
+    return result;
+  }
   const { rule34Keywords } = guildStore.data.rule34Store;
   const groupedKeywords = _.groupBy(rule34Keywords, (item) => item.source);
 
