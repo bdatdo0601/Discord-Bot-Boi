@@ -1,11 +1,20 @@
 import debug from "debug";
-import { Client } from "discord.js";
+import { Client, TextChannel } from "discord.js";
+import dotenv from "dotenv";
+import moment from "moment";
 import { Event } from "../event.interface";
+dotenv.config();
 
 import commandList, { COMMANDS } from "../../commands";
 import { getBaseStore, initGuildStore } from "../../lib/db/firebase";
 
 export const RULE34_INTERVAL = 60000 * 15;
+
+const {
+  HEROKU_APP_NAME,
+  HEROKU_RELEASE_VERSION,
+  HEROKU_RELEASE_CREATED_AT,
+} = process.env;
 
 const debugLog = debug("BotBoi:onReadyEvent");
 
@@ -23,6 +32,20 @@ const readyEvent: Event = {
         if (guild.id && !baseStore.guilds[guild.id]) {
           await initGuildStore(guild.id, db);
         }
+        const channelToSendIntroMessages = guild.channels
+          .filter((channel) => channel.type === "text")
+          .array()[0] as TextChannel;
+        await channelToSendIntroMessages.send(
+          `\n\nHello I am **${HEROKU_APP_NAME} ${HEROKU_RELEASE_VERSION}**! I was born on **${moment(
+            HEROKU_RELEASE_CREATED_AT,
+          ).format("dddd[,] Do MMMM YYYY")}** \n\nBelow is what I can do\n\n`,
+        );
+        await commandList[COMMANDS.GENERAL.LIST_COMMAND].commandCallback(
+          client,
+          db,
+          "",
+          { channel: channelToSendIntroMessages },
+        );
       },
     );
     // recurring

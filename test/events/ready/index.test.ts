@@ -1,4 +1,5 @@
-import { Client, Collection, Guild } from "discord.js";
+import { expect } from "chai";
+import { Client, Collection, Guild, GuildChannel } from "discord.js";
 import dotenv from "dotenv";
 import firebase from "firebase";
 import sinon from "sinon";
@@ -30,6 +31,17 @@ describe("Ready Event", () => {
     const guilds = new Collection<string, Guild>();
     const existedGuild = new Guild(client, { emojis: new Collection() });
     existedGuild.id = "1";
+    const existedGuildChannels = new Collection<string, GuildChannel>();
+    existedGuildChannels.set("1", ({
+      type: "voice",
+    } as unknown) as GuildChannel);
+    existedGuildChannels.set("2", ({
+      send: (result) => {
+        expect(result).to.be.a("string");
+      },
+      type: "text",
+    } as unknown) as GuildChannel);
+    existedGuild.channels = existedGuildChannels;
     const nonExistingGuild = new Guild(client, { emojis: new Collection() });
     nonExistingGuild.id = "2";
     guilds.set("1", existedGuild);

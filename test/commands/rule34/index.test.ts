@@ -298,6 +298,24 @@ describe("Rule34 Commands", () => {
       ].commandCallback(client, FireDB, "", mockMessage as Message);
       expect(responses.length).to.be.greaterThan(0);
     });
+    it("should notify if no query provided an no keyword associated with guild found", async () => {
+      const responses: string[] = [];
+      const mockMessage = {
+        channel: {
+          nsfw: true,
+          send: (result) => {
+            responses.push(result);
+          },
+        },
+        guild: {
+          id: "foos",
+        },
+      };
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_SEARCH
+      ].commandCallback(client, FireDB, "", mockMessage as Message);
+      expect(responses.length).to.be.greaterThan(0);
+    });
     after(() => {
       client.destroy();
     });

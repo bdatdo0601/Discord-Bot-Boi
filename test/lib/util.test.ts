@@ -9,4 +9,10 @@ describe("getRandomElementFromArray Function", () => {
       expect(testCase).to.include(result);
     });
   });
+  it("should return null if no array was provided", () => {
+    const result = Util.getRandomElementFromArray(
+      (undefined as unknown) as any,
+    );
+    expect(result).to.be.null;
+  });
 });

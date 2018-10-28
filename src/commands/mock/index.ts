@@ -1,4 +1,5 @@
 import { Client, Message, User } from "discord.js";
+import firebase from "firebase";
 import { Command } from "../command.interface";
 import MockCommandHelper from "./helper";
 import { MockCommandKeyList } from "./mock.interace";
@@ -13,7 +14,7 @@ const sayMockCommand: Command = {
     const mockSentence = MockCommandHelper.toMockSentence(query);
     message.channel.send(`<@${message.author.id}>: ${mockSentence}`);
   },
-  commandDescription: "Say Mock",
+  commandDescription: "create a mocking version of what author said",
 };
 
 const mockCommand: Command = {
@@ -36,7 +37,7 @@ const mockCommand: Command = {
       }
     });
   },
-  commandDescription: "Mock",
+  commandDescription: "mock mentioned users",
 };
 
 export const mockCommandKeyList: MockCommandKeyList = {
