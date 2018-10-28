@@ -29,7 +29,7 @@ const evalCommand: Command = {
     const response = await witClient.message(query, {});
     for (const entityKey of Object.keys(response.entities)) {
       const value = response.entities[entityKey].value;
-      if (entityKey.includes("_")) {
+      if (entityKey[0] === "_") {
         const command = entityKey.replace("_", "~");
         await commandList[command].commandCallback(client, db, value, message);
       } else {
