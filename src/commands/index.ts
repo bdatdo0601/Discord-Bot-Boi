@@ -5,6 +5,7 @@ import { Command } from "./command.interface";
 import mockCommandList, { mockCommandKeyList } from "./mock";
 import rule34CommandList, { rule34CommandKeyList } from "./rule34";
 import witAICommandList, { witAICommandKeyList } from "./witai";
+import referendumCommandList, { referendumCommandKeyList} from "./referendum";
 
 const debugLog = debug("BotBoi:Commands");
 
@@ -44,6 +45,7 @@ export const COMMANDS = {
   MOCK: mockCommandKeyList,
   RULE34: rule34CommandKeyList,
   WIT_AI: witAICommandKeyList,
+  REFERNDUM: referendumCommandKeyList
 };
 
 const commandList = {
@@ -51,6 +53,7 @@ const commandList = {
   ...mockCommandList,
   ...rule34CommandList,
   ...witAICommandList,
+  ...referendumCommandList
 };
 
 export default commandList;
