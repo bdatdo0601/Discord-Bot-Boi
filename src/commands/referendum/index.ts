@@ -21,6 +21,8 @@ const poll: Command = { // starts vote, must supply options
       _.each(args, (candidate: string) => {
           candidate = _.trim(candidate);
           votes[candidate] = 0;
+          message.channel.send(`${message.author.username} started a poll!`);
+          message.channel.send(`Your choices are ${args}.`);
       });
     }
   }
@@ -43,6 +45,7 @@ const vote: Command = {
     } else {
       votes[query] += 1;
       voted.push(message.author.username + message.author.discriminator);
+      message.channel.send(`${message.author.username} voted for ${query}!`);
     }
 
   }
