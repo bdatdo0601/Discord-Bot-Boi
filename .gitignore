@@ -58,3 +58,5 @@ jspm_packages/
 .next
 build/
 .coveralls.yml
+
+package-lock.json
