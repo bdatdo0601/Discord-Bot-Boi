@@ -1,4 +1,8 @@
 import {
+  ReadyToPlayStore,
+  ReadyToPlayStoreInput,
+} from "../../../commands/readytoplay/readytoplay.interface";
+import {
   Rule34Store,
   Rule34StoreInput,
 } from "../../../commands/rule34/rule34.interface";
@@ -24,10 +28,12 @@ export interface GuildStoreInput {
 
 export interface GuildStoreDataInput {
   rule34Store?: Rule34StoreInput;
+  readyToPlayStore?: ReadyToPlayStoreInput;
 }
 
 export interface GuildStoreData {
   rule34Store: Rule34Store;
+  readyToPlayStore: ReadyToPlayStore;
 }
 
 export interface GuildStore {

@@ -3,6 +3,9 @@ import { Client, Message } from "discord.js";
 import _ from "lodash";
 import { Command } from "./command.interface";
 import mockCommandList, { mockCommandKeyList } from "./mock";
+import readyToPlayCommandList, {
+  readyToPlayCommandKeyList,
+} from "./readytoplay";
 import rule34CommandList, { rule34CommandKeyList } from "./rule34";
 import witAICommandList, { witAICommandKeyList } from "./witai";
 
@@ -42,6 +45,7 @@ const generalCommandList = {
 export const COMMANDS = {
   GENERAL: generalCommandKeyList,
   MOCK: mockCommandKeyList,
+  READY_TO_PLAY: readyToPlayCommandKeyList,
   RULE34: rule34CommandKeyList,
   WIT_AI: witAICommandKeyList,
 };
@@ -51,6 +55,7 @@ const commandList = {
   ...mockCommandList,
   ...rule34CommandList,
   ...witAICommandList,
+  ...readyToPlayCommandList,
 };
 
 export default commandList;

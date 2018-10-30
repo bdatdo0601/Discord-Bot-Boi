@@ -78,6 +78,10 @@ describe("Firebase DB Store", () => {
   describe("GuildStore", () => {
     const existingGuildStore: GuildStore = {
       data: {
+        readyToPlayStore: {
+          isActivated: false,
+          readyToPlayRoleID: "",
+        },
         rule34Store: {
           recurringNSFWChannelID: "12354",
           rule34Keywords: [],
@@ -155,10 +159,13 @@ describe("Firebase DB Store", () => {
         };
         const dataFromStore = await updateGuildStore(dataToUpdate, FireDB);
         expect(dataFromStore).to.eql({
+          data: {
+            ...DEFAULT_GUILD_STORE.data,
+            ...dataToUpdate.data,
+          },
           guildMetadata: {
             guildID: nonExistingGuildStoreID,
           },
-          ...dataToUpdate,
         });
       });
       it("should throw error if something wrong occur", async () => {
