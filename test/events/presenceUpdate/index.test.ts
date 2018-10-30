@@ -75,6 +75,7 @@ describe("PresenceUpdate Event", () => {
     const mockRDPID = "f1231234";
     const mockRDPRole = {
       id: mockRDPID,
+      members: new Collection<string, GuildMember>(),
     };
     const mockDefaultChannel = {
       id: "12-49012",
@@ -118,6 +119,10 @@ describe("PresenceUpdate Event", () => {
         expect(role).to.eql(mockRDPRole);
       },
     };
+    mockRDPRole.members.set(
+      mockNewMember.id,
+      (mockNewMember as unknown) as GuildMember,
+    );
     await presenceUpdateEvent.eventActionCallback(client, FireDB)(
       ({} as unknown) as GuildMember,
       mockNewMember,
