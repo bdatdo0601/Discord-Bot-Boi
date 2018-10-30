@@ -2,10 +2,12 @@ import { Command } from "../command.interface";
 
 export interface ReadyToPlayStore {
   readyToPlayRoleID: string;
+  isActivated: boolean;
 }
 
 export interface ReadyToPlayStoreInput {
   readyToPlayRoleID?: string;
+  isActivated?: boolean;
 }
 
 export interface ReadyToPlayCommandKeyList {

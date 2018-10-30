@@ -53,7 +53,7 @@ const addUserToRDPCommand: Command = {
       } catch (err) {
         debugLog(err);
         await message.channel
-          .send(`Did not have permission to add you to <@&${readyToPlayRoleID}>
+          .send(`Did not have permission to add users to <@&${readyToPlayRoleID}>
         *give me permission by place me in a role that is higher in the list from that role*`);
       }
     }
@@ -98,12 +98,12 @@ const removeUserFromRDPCommand: Command = {
         message.channel.send(
           `${usersAdded.join(" ")} ${
             usersAdded.length > 1 ? "are" : "is"
-          } now not <@&${readyToPlayRoleID}>`,
+          } now not Ready To Play`,
         );
       } catch (err) {
         debugLog(err);
         await message.channel
-          .send(`Did not have permission to remove you to <@&${readyToPlayRoleID}>
+          .send(`Did not have permission to remove users from <@&${readyToPlayRoleID}>
         *give me permission by place me in a role that is higher in the list from that role*`);
       }
     }
@@ -137,6 +137,7 @@ const activateReadyToPlayFeature: Command = {
       {
         data: {
           readyToPlayStore: {
+            isActivated: true,
             readyToPlayRoleID: readyToPlayRole.id,
           },
         },

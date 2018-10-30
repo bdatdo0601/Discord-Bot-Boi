@@ -79,6 +79,7 @@ describe("Firebase DB Store", () => {
     const existingGuildStore: GuildStore = {
       data: {
         readyToPlayStore: {
+          isActivated: false,
           readyToPlayRoleID: "",
         },
         rule34Store: {
