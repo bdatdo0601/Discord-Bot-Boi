@@ -79,7 +79,7 @@ describe("Firebase DB Store", () => {
     const existingGuildStore: GuildStore = {
       data: {
         readyToPlayStore: {
-          isReadyToPlayFeatureEnabled: false,
+          readyToPlayRoleID: "",
         },
         rule34Store: {
           recurringNSFWChannelID: "12354",

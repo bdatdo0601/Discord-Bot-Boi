@@ -21,7 +21,7 @@ export const DEFAULT_BASE_STORE = Object.freeze<BaseStore>({
 export const DEFAULT_GUILD_STORE = Object.freeze<GuildStore>({
   data: {
     readyToPlayStore: {
-      isReadyToPlayFeatureEnabled: false,
+      readyToPlayRoleID: "",
     },
     rule34Store: {
       recurringNSFWChannelID: "",
@@ -44,8 +44,7 @@ const formatGuildStore = (data: GuildStore): GuildStore =>
   Object.freeze({
     data: {
       readyToPlayStore: {
-        isReadyToPlayFeatureEnabled:
-          data.data.readyToPlayStore.isReadyToPlayFeatureEnabled,
+        readyToPlayRoleID: data.data.readyToPlayStore.readyToPlayRoleID,
       },
       rule34Store: {
         recurringNSFWChannelID:
@@ -148,14 +147,11 @@ export const updateGuildStore = async (
       updatedData.guildMetadata.guildID,
       db,
     )) as GuildStore;
-    debugLog(updatedData);
-    debugLog(originalData);
     _.mergeWith(result, originalData, updatedData, (objValue, srcValue) => {
       if (_.isArray(objValue)) {
         return srcValue;
       }
     });
-    debugLog(result);
     await db.ref(`/guilds/${result.guildMetadata.guildID}`).update(result);
     return (await getGuildStore(
       result.guildMetadata.guildID,
