@@ -13,13 +13,13 @@ const presenceUpdateEvent: Event = {
     db: firebase.database.Database,
   ) => async (oldMember: GuildMember, newMember: GuildMember) => {
     debugLog("Presence Update triggered");
-    const guildStore = (await getGuildStore(
-      newMember.guild.id,
-      db,
-    )) as GuildStore;
     if (newMember.presence.status !== "online") {
+      const guildStore = (await getGuildStore(
+        newMember.guild.id,
+        db,
+      )) as GuildStore;
       if (guildStore.data.readyToPlayStore.isActivated) {
-        commandList[
+        await commandList[
           COMMANDS.READY_TO_PLAY.REMOVE_USER_FROM_RDP
         ].commandCallback(client, db, "", {
           channel: newMember.guild.channels
