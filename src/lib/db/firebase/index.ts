@@ -20,6 +20,9 @@ export const DEFAULT_BASE_STORE = Object.freeze<BaseStore>({
 // default guild store
 export const DEFAULT_GUILD_STORE = Object.freeze<GuildStore>({
   data: {
+    readyToPlayStore: {
+      isReadyToPlayFeatureEnabled: false,
+    },
     rule34Store: {
       recurringNSFWChannelID: "",
       rule34Keywords: [],
@@ -40,6 +43,10 @@ const formatBaseStore = (data: BaseStore): BaseStore =>
 const formatGuildStore = (data: GuildStore): GuildStore =>
   Object.freeze({
     data: {
+      readyToPlayStore: {
+        isReadyToPlayFeatureEnabled:
+          data.data.readyToPlayStore.isReadyToPlayFeatureEnabled,
+      },
       rule34Store: {
         recurringNSFWChannelID:
           data.data.rule34Store.recurringNSFWChannelID || "",
