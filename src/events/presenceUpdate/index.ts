@@ -19,15 +19,20 @@ const presenceUpdateEvent: Event = {
         db,
       )) as GuildStore;
       if (guildStore.data.readyToPlayStore.isActivated) {
-        await commandList[
-          COMMANDS.READY_TO_PLAY.REMOVE_USER_FROM_RDP
-        ].commandCallback(client, db, "", {
-          channel: newMember.guild.channels
-            .filter((channel) => channel.type === "text")
-            .array()[0] as TextChannel,
-          guild: newMember.guild,
-          member: newMember,
-        });
+        const rdpRole = newMember.guild.roles.find(
+          (role) => role.id === guildStore.data.readyToPlayStore.readyToPlayRoleID,
+        );
+        if (rdpRole.members.find((members) => members.id === newMember.id)) {
+          await commandList[
+            COMMANDS.READY_TO_PLAY.REMOVE_USER_FROM_RDP
+          ].commandCallback(client, db, "", {
+            channel: newMember.guild.channels
+              .filter((channel) => channel.type === "text")
+              .array()[0] as TextChannel,
+            guild: newMember.guild,
+            member: newMember,
+          });
+        }
       }
     }
   },
