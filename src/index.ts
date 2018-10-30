@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import firebase from "firebase";
 import botEventList from "./events";
 import { Event } from "./events/event.interface";
+import { getMockImage } from "./lib/api/spongeBobMock";
 import { getBaseStore } from "./lib/db/firebase";
 
 dotenv.config();

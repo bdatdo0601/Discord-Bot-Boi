@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import {
   Client,
+  ClientUser,
   Collection,
   Guild,
   Message,
@@ -33,8 +34,8 @@ describe("Mock Commands", () => {
   });
   describe("Mock Command", () => {
     const client: Client = new Client();
-
-    it("should send a mock message based on mentioned user last message", (done) => {
+    client.user = new User(client, { id: 1 }) as ClientUser;
+    it("should send a mock message based on mentioned user last message", async () => {
       const users = new Collection<string, User>();
       const newUser = new User(client, { id: 1 });
       newUser.lastMessage = new Message(
@@ -47,45 +48,60 @@ describe("Mock Commands", () => {
         },
         client,
       );
+      const newUser2 = new User(client, { id: 2 });
+      newUser.lastMessage = new Message(
+        new TextChannel(new Guild(client, { emojis: new Collection() }), {}),
+        {
+          attachments: new Collection(),
+          author: newUser,
+          content: "test yolo 2",
+          embeds: [],
+        },
+        client,
+      );
       users.set("foo", newUser);
+      users.set("bar", newUser2);
       const input = {
+        author: {
+          id: 1,
+        },
         channel: {
           send: (result) => {
-            expect(result).to.equal("<@1>: tEsT yOlO");
-            done();
+            expect(result).to.be.a("string");
           },
         },
         mentions: {
           users,
         },
       };
-      mockCommandList[mockCommandKeyList.MOCK].commandCallback(
+      await mockCommandList[mockCommandKeyList.MOCK].commandCallback(
         client,
         FireDB,
         "",
-        input as Message,
+        (input as unknown) as Message,
       );
     });
-    it("should send a warning message if mentions user does not have last message", (done) => {
+    it("should send a warning message if mentions user does not have last message", async () => {
       const users = new Collection<string, User>();
-      const newUser = new User(client, { id: 1 });
+      const newUser = new User(client, { id: 10 });
       users.set("foo", newUser);
       const input = {
         channel: {
           send: (result) => {
-            expect(result).to.equal("I don't see any previous message of <@1>");
-            done();
+            expect(result).to.equal(
+              "I don't see any previous message of <@10>",
+            );
           },
         },
         mentions: {
           users,
         },
       };
-      mockCommandList[mockCommandKeyList.MOCK].commandCallback(
+      await mockCommandList[mockCommandKeyList.MOCK].commandCallback(
         client,
         FireDB,
         "",
-        input as Message,
+        (input as unknown) as Message,
       );
     });
   });

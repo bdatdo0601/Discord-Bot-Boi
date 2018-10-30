@@ -32,20 +32,20 @@ const readyEvent: Event = {
         if (guild.id && !baseStore.guilds[guild.id]) {
           await initGuildStore(guild.id, db);
         }
-        const channelToSendIntroMessages = guild.channels
-          .filter((channel) => channel.type === "text")
-          .array()[0] as TextChannel;
-        await channelToSendIntroMessages.send(
-          `\n\nHello I am **${HEROKU_APP_NAME} ${HEROKU_RELEASE_VERSION}**! I was born on **${moment(
-            HEROKU_RELEASE_CREATED_AT,
-          ).format("dddd[,] Do MMMM YYYY")}** \n\nBelow is what I can do\n\n`,
-        );
-        await commandList[COMMANDS.GENERAL.LIST_COMMAND].commandCallback(
-          client,
-          db,
-          "",
-          { channel: channelToSendIntroMessages },
-        );
+        // const channelToSendIntroMessages = guild.channels
+        //   .filter((channel) => channel.type === "text")
+        //   .array()[0] as TextChannel;
+        // await channelToSendIntroMessages.send(
+        //   `\n\nHello I am **${HEROKU_APP_NAME} ${HEROKU_RELEASE_VERSION}**! I was born on **${moment(
+        //     HEROKU_RELEASE_CREATED_AT,
+        //   ).format("dddd[,] Do MMMM YYYY")}** \n\nBelow is what I can do\n\n`,
+        // );
+        // await commandList[COMMANDS.GENERAL.LIST_COMMAND].commandCallback(
+        //   client,
+        //   db,
+        //   "",
+        //   { channel: channelToSendIntroMessages },
+        // );
       },
     );
     // recurring
