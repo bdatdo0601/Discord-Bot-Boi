@@ -126,10 +126,10 @@ const activateReadyToPlayFeature: Command = {
     // if not, create the role
     if (!readyToPlayRole) {
       readyToPlayRole = await message.guild.createRole({
-        mentionable: true,
         name: "Ready To Play",
       });
     }
+    readyToPlayRole.setMentionable(true);
     readyToPlayRole.setHoist(true);
     readyToPlayRole.setPermissions("SEND_MESSAGES");
     // update the role ID to database
