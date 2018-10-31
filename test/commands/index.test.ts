@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { Message } from "discord.js";
 import _ from "lodash";
 import commandList, { COMMANDS } from "../../src/commands";
+import { Context } from "../../src/events/event.interface";
 
 describe("Command List Wrapper", () => {
   describe("General Command", () => {
@@ -25,10 +26,8 @@ describe("Command List Wrapper", () => {
         },
       };
       commandList[COMMANDS.GENERAL.LIST_COMMAND].commandCallback(
-        {},
-        {},
-        "",
-        mockMessage,
+        ({} as unknown) as Context,
+        (mockMessage as unknown) as Message,
       );
     });
   });

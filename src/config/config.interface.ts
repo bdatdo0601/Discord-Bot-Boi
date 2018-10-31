@@ -2,7 +2,12 @@ export interface EnvironmentVariables {
   FIREBASE_CONFIG: FirebaseConfiguration;
   DISCORD_CONFIG: DiscordConfiguration;
   WIT_AI_CONFIG: WitAIConfiguration;
+  RULE_34_CONFIG: Rule34Configuration;
   HEROKU_DATA: HerokuData;
+}
+
+export interface Rule34Configuration {
+  RECURRING_INTERVAL: number;
 }
 
 export interface DiscordConfiguration {

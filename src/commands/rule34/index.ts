@@ -1,4 +1,4 @@
-import { Command } from "@commands/command.interface.js";
+import { Command, CommandList } from "@commands/command.interface.js";
 import Util from "@lib/util";
 import debug from "debug";
 import { Message, TextChannel } from "discord.js";
@@ -223,4 +223,4 @@ export default {
   [rule34CommandKeyList.RULE34_SET_RECURRING]: rule34SetRecurringChannelCommand,
   [rule34CommandKeyList.RULE34_GET_RECURRING]: rule34GetRecurringChannelCommand,
   [rule34CommandKeyList.RULE34_DELETE_RECURRING]: rule34DeleteRecurringChannelCommand,
-};
+} as CommandList;

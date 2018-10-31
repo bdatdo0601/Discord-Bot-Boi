@@ -14,7 +14,7 @@ const presenceUpdateEvent: Event = {
   ) => {
     debugLog("Presence Update triggered");
     try {
-      const { db, client } = context;
+      const { db } = context;
       if (newMember.presence.status === "online") {
         return;
       }
@@ -25,9 +25,6 @@ const presenceUpdateEvent: Event = {
       if (!guildStore.data.readyToPlayStore.isActivated) {
         return;
       }
-      const rdpRole = newMember.guild.roles.find(
-        (role) => role.id === guildStore.data.readyToPlayStore.readyToPlayRoleID,
-      );
       await commandList[
         COMMANDS.READY_TO_PLAY.REMOVE_USER_FROM_RDP
       ].commandCallback(context, ({

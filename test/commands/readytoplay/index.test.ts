@@ -1,11 +1,11 @@
-import chai, { expect } from "chai";
-import chaiAsPromised from "chai-as-promised";
+import { expect } from "chai";
 import { Client, Collection, GuildMember, Message, Role } from "discord.js";
-import dotenv from "dotenv";
 import firebase from "firebase";
 import readyToPlayCommand, {
-  readyToPlayCommandKeyList,
+  r2pCommandKeyList,
 } from "../../../src/commands/readytoplay";
+import R2P_RESPONSE from "../../../src/commands/readytoplay/response";
+import { FIREBASE_CONFIG } from "../../../src/config";
 import {
   getGuildStore,
   initGuildStore,
@@ -13,22 +13,10 @@ import {
 } from "../../../src/lib/db/firebase";
 import { GuildStore } from "../../../src/lib/db/firebase/firebase.interface";
 
-dotenv.config();
-
-// firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
-  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
-};
-
 describe("Ready To Play Commands", () => {
   // firebase initialization
   const app = firebase.initializeApp(
-    firebaseConfig,
+    FIREBASE_CONFIG,
     "ReadyToPlayCommandTestEnv",
   );
   const FireDB = app.database();
@@ -66,11 +54,12 @@ describe("Ready To Play Commands", () => {
         },
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.ACTIVATE_RDP_FEATURE
+        r2pCommandKeyList.ACTIVATE_RDP_FEATURE
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
       const guildStore = (await getGuildStore(
@@ -111,11 +100,12 @@ describe("Ready To Play Commands", () => {
         },
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.ACTIVATE_RDP_FEATURE
+        r2pCommandKeyList.ACTIVATE_RDP_FEATURE
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
       const guildStore = (await getGuildStore(
@@ -153,11 +143,7 @@ describe("Ready To Play Commands", () => {
       const mockMessage = {
         channel: {
           send: (result) => {
-            expect(result).to.eql(
-              `You need to activate Ready To Play feature (\`${
-                readyToPlayCommandKeyList.ACTIVATE_RDP_FEATURE
-              }\`) for me to add you to the role!`,
-            );
+            expect(result).to.eql(R2P_RESPONSE.R2P_ROLE_NOT_FOUND());
           },
         },
         guild: {
@@ -166,11 +152,12 @@ describe("Ready To Play Commands", () => {
         },
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.ADD_USER_TO_RDP
+        r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
     });
@@ -218,18 +205,21 @@ describe("Ready To Play Commands", () => {
         },
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.ADD_USER_TO_RDP
+        r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "foos",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
+        "foos",
       );
     });
     it("should add message author if query is empty", async () => {
       const existedRoles = new Collection<string, Role>();
       const mockRDPRole = {
         id: mockRDPID,
+        members: new Collection<string, GuildMember>(),
       };
       existedRoles.set(mockRDPID, (mockRDPRole as unknown) as Role);
       const mentionedUser = {
@@ -238,6 +228,10 @@ describe("Ready To Play Commands", () => {
         },
         id: "123",
       };
+      mockRDPRole.members.set(
+        mentionedUser.id,
+        (mentionedUser as unknown) as GuildMember,
+      );
       const mockMessage = {
         channel: {
           send: (result) => {
@@ -252,11 +246,12 @@ describe("Ready To Play Commands", () => {
         member: mentionedUser,
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.ADD_USER_TO_RDP
+        r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
     });
@@ -268,7 +263,7 @@ describe("Ready To Play Commands", () => {
       existedRoles.set(mockRDPID, (mockRDPRole as unknown) as Role);
       const mentionedUser = {
         addRole: (role) => {
-          throw new Error();
+          throw new Error("Missing Permissions");
         },
         id: "123",
       };
@@ -286,11 +281,12 @@ describe("Ready To Play Commands", () => {
         member: mentionedUser,
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.ADD_USER_TO_RDP
+        r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
     });
@@ -320,11 +316,7 @@ describe("Ready To Play Commands", () => {
       const mockMessage = {
         channel: {
           send: (result) => {
-            expect(result).to.eql(
-              `You need to activate Ready To Play feature (\`${
-                readyToPlayCommandKeyList.ACTIVATE_RDP_FEATURE
-              }\`) for me to remove you from the role!`,
-            );
+            expect(result).to.eql(R2P_RESPONSE.R2P_ROLE_NOT_FOUND());
           },
         },
         guild: {
@@ -333,18 +325,20 @@ describe("Ready To Play Commands", () => {
         },
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.REMOVE_USER_FROM_RDP
+        r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
     });
-    it("should remove mentioned users if query is not empty", async () => {
+    it("should try to remove mentioned users if query is not empty", async () => {
       const existedRoles = new Collection<string, Role>();
       const mockRDPRole = {
         id: mockRDPID,
+        members: new Collection<string, GuildMember>(),
       };
       existedRoles.set(mockRDPID, (mockRDPRole as unknown) as Role);
       const firstMentionedUser = {
@@ -358,9 +352,13 @@ describe("Ready To Play Commands", () => {
         displayName: "fus-ro-dah-2",
         id: "1234",
         removeRole: (role) => {
-          expect(role).to.eql(mockRDPRole);
+          throw new Error();
         },
       };
+      mockRDPRole.members.set(
+        firstMentionedUser.id,
+        (firstMentionedUser as unknown) as GuildMember,
+      );
       const members = new Collection<string, GuildMember>();
       members.set(
         firstMentionedUser.id,
@@ -374,8 +372,6 @@ describe("Ready To Play Commands", () => {
         channel: {
           send: (result) => {
             expect(result).to.be.a("string");
-            expect(result).to.include(firstMentionedUser.id);
-            expect(result).to.include(secondMentionedUser.id);
           },
         },
         guild: {
@@ -387,18 +383,21 @@ describe("Ready To Play Commands", () => {
         },
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.REMOVE_USER_FROM_RDP
+        r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "foos",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
+        "foos",
       );
     });
     it("should remove message author if query is empty", async () => {
       const existedRoles = new Collection<string, Role>();
       const mockRDPRole = {
         id: mockRDPID,
+        members: new Collection<string, GuildMember>(),
       };
       existedRoles.set(mockRDPID, (mockRDPRole as unknown) as Role);
       const mentionedUser = {
@@ -408,11 +407,14 @@ describe("Ready To Play Commands", () => {
           expect(role).to.eql(mockRDPRole);
         },
       };
+      mockRDPRole.members.set(
+        mentionedUser.id,
+        (mentionedUser as unknown) as GuildMember,
+      );
       const mockMessage = {
         channel: {
           send: (result) => {
             expect(result).to.be.a("string");
-            expect(result).to.include(mentionedUser.id);
           },
         },
         guild: {
@@ -422,11 +424,9 @@ describe("Ready To Play Commands", () => {
         member: mentionedUser,
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.REMOVE_USER_FROM_RDP
+        r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        { client, db: FireDB },
         (mockMessage as unknown) as Message,
       );
     });
@@ -446,7 +446,6 @@ describe("Ready To Play Commands", () => {
         channel: {
           send: (result) => {
             expect(result).to.be.a("string");
-            expect(result).to.include("Did not have permission");
           },
         },
         guild: {
@@ -456,11 +455,12 @@ describe("Ready To Play Commands", () => {
         member: mentionedUser,
       };
       await readyToPlayCommand[
-        readyToPlayCommandKeyList.REMOVE_USER_FROM_RDP
+        r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
     });

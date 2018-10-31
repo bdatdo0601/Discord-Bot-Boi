@@ -1,14 +1,11 @@
-import { Command } from "@commands/command.interface";
+import { Command, CommandList } from "@commands/command.interface";
 import { getGuildStore, updateGuildStore } from "@lib/db/firebase";
 import { GuildStore } from "@lib/db/firebase/firebase.interface";
 import debug from "debug";
-import { Client, Message, Role } from "discord.js";
+import { Message, Role } from "discord.js";
 import firebase from "firebase";
 import R2PCommandHelper from "./helper";
-import {
-  ReadyToPlayCommandKeyList,
-  ReadyToPlayCommandList,
-} from "./readytoplay.interface";
+import { ReadyToPlayCommandKeyList } from "./readytoplay.interface";
 import R2P_RESPONSES from "./response";
 
 const debugLog = debug("BotBoi:ReadyToPlay");
@@ -150,4 +147,4 @@ export default {
   [r2pCommandKeyList.ACTIVATE_RDP_FEATURE]: activateReadyToPlayFeature,
   [r2pCommandKeyList.ADD_USER_TO_RDP]: addUserToRDPCommand,
   [r2pCommandKeyList.REMOVE_USER_FROM_RDP]: removeUserFromRDPCommand,
-} as ReadyToPlayCommandList;
+} as CommandList;

@@ -4,6 +4,7 @@ import {
   EnvironmentVariables,
   FirebaseConfiguration,
   HerokuData,
+  Rule34Configuration,
   WitAIConfiguration,
 } from "./config.interface";
 dotenv.config();
@@ -23,7 +24,16 @@ export const DISCORD_CONFIG: DiscordConfiguration = {
 
 export const WIT_AI_CONFIG: WitAIConfiguration = {
   CLIENT_ACCESS_TOKEN: process.env.WIT_AI_CLIENT_ACCESS_TOKEN as string,
-  CONFIDENCE_RATE: parseFloat(process.env.WIT_AI_CONFIDENCE_RATE as string),
+  CONFIDENCE_RATE: parseFloat(
+    (process.env.WIT_AI_CONFIDENCE_RATE as string) || "0.7",
+  ),
+};
+
+export const RULE_34_CONFIG: Rule34Configuration = {
+  RECURRING_INTERVAL: parseInt(
+    (process.env.RECURRING_INTERVAL as string) || "60000*30",
+    10,
+  ),
 };
 
 export const HEROKU_DATA: HerokuData = {
@@ -36,6 +46,7 @@ const ENV_VAR: EnvironmentVariables = {
   DISCORD_CONFIG,
   FIREBASE_CONFIG,
   HEROKU_DATA,
+  RULE_34_CONFIG,
   WIT_AI_CONFIG,
 };
 

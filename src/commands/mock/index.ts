@@ -1,7 +1,7 @@
 import { getMockImage } from "@lib/api/spongeBobMock";
 import debug from "debug";
 import { Attachment, Message } from "discord.js";
-import { Command } from "../command.interface";
+import { Command, CommandList } from "../command.interface";
 import MockCommandHelper from "./helper";
 import { MockCommandKeyList } from "./mock.interace";
 import MOCK_RESPONSE from "./response";
@@ -67,4 +67,4 @@ export const mockCommandKeyList: MockCommandKeyList = {
 export default {
   [mockCommandKeyList.MOCK]: mockCommand,
   [mockCommandKeyList.SAY_MOCK]: sayMockCommand,
-};
+} as CommandList;

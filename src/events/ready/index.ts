@@ -11,24 +11,28 @@ const debugLog = debug("BotBoi:onReadyEvent");
 const readyEvent: Event = {
   eventActionCallback: (context) => async (): Promise<void> => {
     debugLog("Ready Event triggered");
-    const { client, db } = context;
-    // get base guild or init if it does not exist
-    const baseStore = await getBaseStore(db);
-    // add guild to baseStore if guild does not exist
-    await client.guilds.array().forEach(
-      async (guild): Promise<void> => {
-        if (guild.id && !baseStore.guilds[guild.id]) {
-          await initGuildStore(guild.id, db);
-        }
-      },
-    );
-    // recurring
-    client.setInterval(() => {
-      debugLog("Search Recurring Occured");
-      commandList[COMMANDS.RULE34.RULE34_SEARCH_RECURRING].commandCallback(
-        context,
+    try {
+      const { client, db } = context;
+      // get base guild or init if it does not exist
+      const baseStore = await getBaseStore(db);
+      // add guild to baseStore if guild does not exist
+      await client.guilds.array().forEach(
+        async (guild): Promise<void> => {
+          if (guild.id && !baseStore.guilds[guild.id]) {
+            await initGuildStore(guild.id, db);
+          }
+        },
       );
-    }, RULE34_INTERVAL);
+      // recurring
+      client.setInterval(() => {
+        debugLog("Search Recurring Occured");
+        commandList[COMMANDS.RULE34.RULE34_SEARCH_RECURRING].commandCallback(
+          context,
+        );
+      }, RULE34_INTERVAL);
+    } catch (err) {
+      throw err;
+    }
     debugLog("Me Me Ready");
   },
   eventName: "ready",
