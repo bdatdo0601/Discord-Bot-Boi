@@ -1,11 +1,10 @@
+import commandList from "@commands";
+import { Command } from "@commands/command.interface";
 import debug from "debug";
 import { Client, Message } from "discord.js";
 import dotenv from "dotenv";
 import { Wit } from "node-wit";
-import { Command } from "../command.interface";
-import commandList from "../index";
 import helperWitAIFunctions from "./helper";
-import { WitAICommandKeyList } from "./witai.interface";
 dotenv.config();
 
 const debugLog = debug("BotBoi:WitAI");
@@ -19,7 +18,7 @@ const CONFIDENCE_RATE = 0.7;
 const witClient = new Wit({
   accessToken: WIT_AI_CLIENT_ACCESS_TOKEN,
 });
-const evalCommand: Command = {
+const evalCommand = {
   commandCallback: async (
     client: Client,
     db: firebase.database.Database,
@@ -43,10 +42,10 @@ const evalCommand: Command = {
   commandDescription: "<ALWAYS_ON> Evaluate based on user natural response",
 };
 
-export const witAICommandKeyList: WitAICommandKeyList = {
-  EVAL: "~EVAL",
-};
+// export const witAICommandKeyList: WitAICommandKeyList = {
+//   EVAL: "~EVAL",
+// };
 
-export default {
-  [witAICommandKeyList.EVAL]: evalCommand,
-};
+// export default {
+//   [witAICommandKeyList.EVAL]: evalCommand,
+// };

@@ -10,7 +10,15 @@
     "allowJs": false, // allow a partial TypeScript and JavaScript codebase
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@lib/*": ["src/lib/*"],
+      "@commands": ["src/commands"],
+      "@commands/*": ["src/commands/*"],
+      "@events": ["src/events"],
+      "@events/*": ["src/events/*"],
+      "@config": ["src/config/"]
+    }
   },
   "files": ["node_modules/typescript/lib/lib.es6.d.ts"],
   "include": ["src/**/*.ts", "src/**/*.json"],

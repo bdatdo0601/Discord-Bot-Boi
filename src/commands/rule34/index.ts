@@ -1,59 +1,60 @@
-import { Client, Guild, Message, TextChannel } from "discord.js";
-import _ from "lodash";
-import { Command } from "src/commands/command.interface.js";
-import Util from "../../lib/util";
+import { Command } from "@commands/command.interface.js";
+import Util from "@lib/util";
+import debug from "debug";
+import { Message, TextChannel } from "discord.js";
 import Rule34CommandHelper from "./helper";
+import RULE34_RESPONSES from "./response";
 import { Rule34CommandKeyList } from "./rule34.interface";
 
+const debugLog = debug("BotBoi:Rule34Commands");
+
+const rule34Validation = async (message: Message): Promise<void> => {
+  const channel = message.channel as TextChannel;
+  if (!channel.nsfw) {
+    await message.channel.send(RULE34_RESPONSES.INVALID_CHANNEL());
+    throw new Error(RULE34_RESPONSES.INVALID_CHANNEL());
+  }
+};
+
 const rule34deleteKeywordCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): Promise<void> => {
-    if (!(message.channel as TextChannel).nsfw) {
-      await message.channel.send("Lewd stuff don't belong here");
-    } else {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const { db } = context;
+      await rule34Validation(message);
       const newKeywordsList = await Rule34CommandHelper.deleteRule34Keyword(
         message.guild.id,
         query,
         db,
       );
-      await message.channel.send("Updated List");
-      for (const source of Object.keys(newKeywordsList)) {
-        await message.channel.send(
-          `${source}: [ ${newKeywordsList[source].join(" ")} ]`,
-        );
-      }
+      await message.channel.send(
+        Rule34CommandHelper.getRule34UpdatedListResponse(newKeywordsList),
+      );
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "delete a keyword from rule34 keyword list",
 };
 
 const rule34addKeywordCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): Promise<void> => {
-    if (!(message.channel as TextChannel).nsfw) {
-      await message.channel.send("Lewd stuff don't belong here");
-    } else if (!query.match(/\w+/)) {
-      await message.channel.send("You didn't give any word :[");
-    } else {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const { db } = context;
+      await rule34Validation(message);
+      if (!query.match(/\w+/)) {
+        await message.channel.send(RULE34_RESPONSES.WORDS_NOT_FOUND());
+        return;
+      }
       const newKeywordsList = await Rule34CommandHelper.addRule34Keyword(
         message.guild.id,
         query,
         db,
       );
-      message.channel.send("Updated List");
-      for (const source of Object.keys(newKeywordsList)) {
-        await message.channel.send(
-          `${source}: [ ${newKeywordsList[source].join(" ")} ]`,
-        );
-      }
+      await message.channel.send(
+        Rule34CommandHelper.getRule34UpdatedListResponse(newKeywordsList),
+      );
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "add a keyword to rule34 keyword list",
@@ -61,50 +62,37 @@ const rule34addKeywordCommand: Command = {
 
 const rule34SearchCommand: Command = {
   commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
+    context,
     message: Message,
+    query: string,
   ): Promise<void> => {
-    if (!(message.channel as TextChannel).nsfw) {
-      await message.channel.send("Lewd images don't belong here");
-    } else {
+    try {
+      const { db } = context;
+      await rule34Validation(message);
       const searchString = query
         ? query
         : Util.getRandomElementFromArray(
-            (await Rule34CommandHelper.getRule34XXXKeywords(
-              message.guild.id,
-              db,
-            )).rule34xxx,
+            (await Rule34CommandHelper.getRule34Keywords(message.guild.id, db))
+              .rule34xxx,
           );
       const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
         searchString,
         1,
       );
-      if (images.length > 0) {
-        message.channel.send(`The topic is ${searchString}`);
-        images.forEach((image) => {
-          message.channel.send(
-            `${image.url} \n tags: [ ${image.tags.join(" ")} ]`,
-          );
-        });
-      } else {
-        message.channel.send(`I could not find ${searchString} in my db`);
-      }
+      await message.channel.send(
+        Rule34CommandHelper.getRule34ImagesResponse(searchString, images, true),
+      );
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "search rule34 db",
 };
 
 const rule34SearchRecurringCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query?: string,
-    message?: Message,
-  ) => {
-    const recurringChannels: TextChannel[] = [];
-    if (!message) {
+  commandCallback: async (context) => {
+    const { db, client } = context;
+    try {
       for (const guild of client.guilds.array()) {
         const nsfwRecurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
           guild.id,
@@ -114,117 +102,103 @@ const rule34SearchRecurringCommand: Command = {
           const nsfwRecurringChannel: TextChannel = guild.channels.get(
             nsfwRecurringChannelID.toString(),
           ) as TextChannel;
-          recurringChannels.push(nsfwRecurringChannel);
-        }
-      }
-    } else if ((message.channel as TextChannel).nsfw) {
-      recurringChannels.push(message.channel as TextChannel);
-    }
-    for (const channel of recurringChannels) {
-      const searchString = Util.getRandomElementFromArray(
-        (await Rule34CommandHelper.getRule34XXXKeywords(channel.guild.id, db))
-          .rule34xxx,
-      );
-      const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
-        searchString,
-        10,
-      );
-      if (images.length > 0) {
-        channel.send(`The topic is ${searchString}`);
-        images.forEach((image) => {
-          channel.send(image.url);
-        });
-      } else {
-        channel.send(`I could not find ${searchString} in my db`);
-      }
-    }
-  },
-  commandDescription: "return a sample of automatic rule34 images system",
-};
-
-const rule34ListCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): Promise<void> => {
-    if (!(message.channel as TextChannel).nsfw) {
-      await message.channel.send("Lewd stuff don't belong here");
-    } else {
-      const rule34KeywordList = await Rule34CommandHelper.getRule34XXXKeywords(
-        message.guild.id,
-        db,
-      );
-      if (Object.keys(rule34KeywordList).length === 0) {
-        await message.channel.send("There are no keyword found");
-      } else {
-        for (const source of Object.keys(rule34KeywordList)) {
-          await message.channel.send(
-            `${source}: [ ${rule34KeywordList[source].join(" ")} ]`,
+          const searchString = Util.getRandomElementFromArray(
+            (await Rule34CommandHelper.getRule34Keywords(
+              nsfwRecurringChannel.guild.id,
+              db,
+            )).rule34xxx,
+          );
+          const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
+            searchString,
+            10,
+          );
+          await nsfwRecurringChannel.send(
+            Rule34CommandHelper.getRule34ImagesResponse(
+              searchString,
+              images,
+              false,
+            ),
           );
         }
       }
+    } catch (err) {
+      debugLog(err);
+    }
+  },
+  commandDescription: "<INTERNAL> automatically rule34 images",
+};
+
+const rule34ListCommand: Command = {
+  commandCallback: async (context, message: Message): Promise<void> => {
+    try {
+      const { db } = context;
+      await rule34Validation(message);
+      const rule34KeywordList = await Rule34CommandHelper.getRule34Keywords(
+        message.guild.id,
+        db,
+      );
+      await message.channel.send(
+        Rule34CommandHelper.getRule34UpdatedListResponse(rule34KeywordList),
+      );
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "list all keyword in rule34 keyword list",
 };
 
 const rule34SetRecurringChannelCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): Promise<void> => {
-    const channelID = await Rule34CommandHelper.setRule34RecurringChannel(
-      message.guild.id,
-      message.channel as TextChannel,
-      db,
-    );
-    if (!channelID) {
-      message.channel.send("Lewd stuff don't belong here");
-    } else {
-      message.channel.send("Rule34 Recurring Images will now be posted here");
+  commandCallback: async (context, message: Message): Promise<void> => {
+    try {
+      const { db } = context;
+      await rule34Validation(message);
+      await Rule34CommandHelper.setRule34RecurringChannel(
+        message.guild.id,
+        message.channel as TextChannel,
+        db,
+      );
+      await message.channel.send(RULE34_RESPONSES.RECURRING_CHANNEL_SET());
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "set a channel to receive recurring rule34 images",
 };
 
 const rule34GetRecurringChannelCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): Promise<void> => {
-    const recurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
-      message.guild.id,
-      db,
-    );
-    if (recurringChannelID) {
-      message.channel.send(
-        `The current Rule 34 recurring channel is <#${recurringChannelID}>`,
+  commandCallback: async (context, message: Message): Promise<void> => {
+    try {
+      const { db } = context;
+      const recurringChannelID = await Rule34CommandHelper.getRule34RecurringChannel(
+        message.guild.id,
+        db,
       );
-    } else {
-      message.channel.send("I can't find any recurring channel for rule 34");
+      if (!recurringChannelID) {
+        await message.channel.send(RULE34_RESPONSES.RECURRING_NOT_FOUND());
+        return;
+      }
+      await message.channel.send(
+        RULE34_RESPONSES.GET_RECURRING_CHANNEL(recurringChannelID),
+      );
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "return the current recurring rule34 channel",
 };
 
 const rule34DeleteRecurringChannelCommand: Command = {
-  commandCallback: async (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ) => {
-    await Rule34CommandHelper.deleteRule34RecurringChannel(
-      message.guild.id,
-      db,
-    );
-    message.channel.send("Recurring Channel is now deleted");
+  commandCallback: async (context, message: Message) => {
+    try {
+      const { db } = context;
+      await Rule34CommandHelper.deleteRule34RecurringChannel(
+        message.guild.id,
+        db,
+      );
+      await message.channel.send(RULE34_RESPONSES.RECURRING_CHANNEL_DELETED());
+    } catch (err) {
+      debugLog(err);
+    }
   },
   commandDescription: "disable sending automated rule34 images",
 };
