@@ -30,6 +30,12 @@ describe("Command List Wrapper", () => {
         (mockMessage as unknown) as Message,
       );
     });
+    it("should do nothing if an error occur", async () => {
+      commandList[COMMANDS.GENERAL.LIST_COMMAND].commandCallback(
+        ({} as unknown) as Context,
+        ({} as unknown) as Message,
+      );
+    });
   });
   it("should return an object", () => {
     expect(COMMANDS).to.be.an("object");

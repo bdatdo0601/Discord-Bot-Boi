@@ -9,6 +9,7 @@ import {
   User,
 } from "discord.js";
 import firebase from "firebase";
+import { Context } from "vm";
 import mockCommandList, {
   mockCommandKeyList,
 } from "../../../src/commands/mock";
@@ -93,6 +94,12 @@ describe("Mock Commands", () => {
           db: FireDB,
         },
         (input as unknown) as Message,
+      );
+    });
+    it("should do nothing if an error occur", async () => {
+      mockCommandList[mockCommandKeyList.MOCK].commandCallback(
+        ({} as unknown) as Context,
+        ({} as unknown) as Message,
       );
     });
   });

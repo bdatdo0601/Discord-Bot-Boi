@@ -154,7 +154,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_ADD_KEYWORD
-//       ].commandCallback(client, FireDB, "   ", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, mockMessage as Message, "   ");
 //     });
 //     it("should return updated list if words are provided in nsfw channel", async () => {
 //       const responses: string[] = [];
@@ -171,7 +171,7 @@
 //       };
 //       await rule34CommandList[
 //         rule34CommandKeyList.RULE34_ADD_KEYWORD
-//       ].commandCallback(client, FireDB, "foos", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "foos", mockMessage as Message);
 //       const expectedData = await getExpectedResponse();
 //       expect(responses.join()).to.equal(expectedData.join());
 //     });
@@ -247,7 +247,11 @@
 //       };
 //       await rule34CommandList[
 //         rule34CommandKeyList.RULE34_SEARCH
-//       ].commandCallback(client, FireDB, "naruto", mockMessage as Message);
+//       ].commandCallback(
+//         { client, db: FireDB },
+//         "naruto",
+//         mockMessage as Message,
+//       );
 //       expect(responses.length).to.be.greaterThan(0);
 //     });
 //     it("should notify if it doesn't found any results", async () => {
@@ -285,7 +289,7 @@
 //       };
 //       await rule34CommandList[
 //         rule34CommandKeyList.RULE34_SEARCH
-//       ].commandCallback(client, FireDB, "", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "", mockMessage as Message);
 //       expect(responses.length).to.be.greaterThan(0);
 //     });
 //     it("should notify if no query provided an no keyword associated with guild found", async () => {
@@ -303,7 +307,7 @@
 //       };
 //       await rule34CommandList[
 //         rule34CommandKeyList.RULE34_SEARCH
-//       ].commandCallback(client, FireDB, "", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "", mockMessage as Message);
 //       expect(responses.length).to.be.greaterThan(0);
 //     });
 //     after(() => {
@@ -355,7 +359,7 @@
 //         FireDB,
 //       );
 //     });
-// it("should send images to client's guild when message was not supplied based on recurring channel ID", async () => {
+//     it("should send images to client's guild when message was not supplied based on recurring channel ID", async () => {
 //       const responses: string[] = [];
 //       const mockChannel = {
 //         guild: {
@@ -379,7 +383,7 @@
 //       client.guilds = guilds;
 //       await rule34CommandList[
 //         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-//       ].commandCallback(client, FireDB);
+//       ].commandCallback({ client, db: FireDB });
 //       expect(responses.length).to.be.greaterThan(0);
 //     });
 //     it("should post images if a request is provided", async () => {
@@ -397,7 +401,7 @@
 //       };
 //       await rule34CommandList[
 //         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-//       ].commandCallback(client, FireDB, "", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "", mockMessage as Message);
 //     });
 //     it("should do notthing if the message is provided but channel is not nsfw", async () => {
 //       const mockMessage = {
@@ -538,7 +542,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_SET_RECURRING
-//       ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "meh", mockMessage as Message);
 //     });
 //     it("should notify success if the channel is now set to recurring", (done) => {
 //       const mockMessage = {
@@ -558,7 +562,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_SET_RECURRING
-//       ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "meh", mockMessage as Message);
 //     });
 //     after(() => {
 //       client.destroy();
@@ -612,7 +616,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_GET_RECURRING
-//       ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
 //     });
 //     it("should notify if it can't find recurring channel", (done) => {
 //       const mockMessage = {
@@ -631,7 +635,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_GET_RECURRING
-//       ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, "meh", mockMessage as Message);
 //     });
 //     it("should tell which channel is recurring if it existed", (done) => {
 //       const mockMessage = {
@@ -651,7 +655,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_GET_RECURRING
-//       ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
 //     });
 //     after(() => {
 //       client.destroy();
@@ -687,7 +691,7 @@
 //       };
 //       rule34CommandList[
 //         rule34CommandKeyList.RULE34_DELETE_RECURRING
-//       ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+//       ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
 //     });
 //   });
 //   after(async () => {
