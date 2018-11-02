@@ -55,8 +55,6 @@ Below are availabe command for the project. Checkout `package.json` to see the e
 
 ```shell
 $ yarn lint # cleaning up source code
-$ yarn data-initialization # one time work script for development mode
-$ yarn data-initialize-production # one time work script for production mode
 $ yarn start # start the project in development mode
 $ test:specific # test specific file
 $ yarn test # run test against the project

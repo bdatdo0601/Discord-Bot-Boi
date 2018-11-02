@@ -1,4 +1,7 @@
+import { Attachment } from "discord.js";
 import _ from "lodash";
+import { MockResponse } from "./mock.interace";
+import MOCK_RESPONSE from "./response";
 
 const toMockSentence = (sentence: string): string => {
   const response: string[] = sentence.split("");
@@ -22,6 +25,19 @@ const toMockSentence = (sentence: string): string => {
   return mockSentence;
 };
 
+const getMockResponse = async (
+  mockeeID: string,
+  mockMessage: string,
+): Promise<MockResponse> => {
+  const imageData = await mockMessage;
+  const attachment = new Attachment(imageData, "mocking.jpg");
+  return {
+    message: MOCK_RESPONSE.MOCKING(mockeeID, mockMessage),
+    attachment,
+  };
+};
+
 export default {
   toMockSentence,
+  getMockResponse,
 };

@@ -8,26 +8,16 @@ import {
   TextChannel,
   User,
 } from "discord.js";
-import dotenv from "dotenv";
 import firebase from "firebase";
+import { Context } from "vm";
 import mockCommandList, {
   mockCommandKeyList,
 } from "../../../src/commands/mock";
-dotenv.config();
-
-// firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
-  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
-};
+import { FIREBASE_CONFIG } from "../../../src/config";
 
 describe("Mock Commands", () => {
   // firebase initialization
-  const app = firebase.initializeApp(firebaseConfig, "MockCommandTestEnv");
+  const app = firebase.initializeApp(FIREBASE_CONFIG, "MockCommandTestEnv");
   const FireDB = app.database();
   before(async () => {
     await FireDB.goOnline();
@@ -59,6 +49,7 @@ describe("Mock Commands", () => {
         },
         client,
       );
+      newUser2.lastMessage = newUser.lastMessage;
       users.set("foo", newUser);
       users.set("bar", newUser2);
       const input = {
@@ -75,9 +66,10 @@ describe("Mock Commands", () => {
         },
       };
       await mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (input as unknown) as Message,
       );
     });
@@ -98,10 +90,20 @@ describe("Mock Commands", () => {
         },
       };
       await mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (input as unknown) as Message,
+      );
+    });
+    it("should do nothing if an error occur", async () => {
+      mockCommandList[mockCommandKeyList.MOCK].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        ({} as unknown) as Message,
       );
     });
   });
@@ -121,10 +123,12 @@ describe("Mock Commands", () => {
         content: "foo bar",
       };
       mockCommandList[mockCommandKeyList.SAY_MOCK].commandCallback(
-        client,
-        FireDB,
-        input.content,
+        {
+          client,
+          db: FireDB,
+        },
         (input as unknown) as Message,
+        input.content,
       );
     });
   });

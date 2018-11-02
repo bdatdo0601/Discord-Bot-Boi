@@ -1,14 +1,7 @@
 import debug from "debug";
-import dotenv from "dotenv";
 import firebase from "firebase";
 import _ from "lodash";
-import {
-  BaseStore,
-  BaseStoreInput,
-  GuildStore,
-  GuildStoreInput,
-} from "./firebase.interface";
-dotenv.config();
+import { BaseStore, GuildStore, GuildStoreInput } from "./firebase.interface";
 
 const debugLog = debug("BotBoi:Firebase");
 

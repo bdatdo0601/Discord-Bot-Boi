@@ -1,11 +1,19 @@
+import { Context } from "@events/event.interface";
 import { Client, Message } from "discord.js";
 
 export interface Command {
   commandDescription: string;
   commandCallback: (
-    client: Client,
-    db: firebase.database.Database,
-    query?: string,
+    context: Context,
     message?: Message,
-  ) => void | Promise<void>;
+    query?: string,
+  ) => Promise<void>;
+}
+
+export interface CommandResponse {
+  [key: string]: (...args: string[]) => string;
+}
+
+export interface CommandList {
+  [key: string]: Command;
 }

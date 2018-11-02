@@ -1,4 +1,5 @@
-import { expect } from "chai";
+import chai, { expect } from "chai";
+import chaiAsPromised from "chai-as-promised";
 import {
   Client,
   Collection,
@@ -7,13 +8,14 @@ import {
   Message,
   TextChannel,
 } from "discord.js";
-import dotenv from "dotenv";
 import firebase from "firebase";
 import _ from "lodash";
 import rule34CommandList, {
   rule34CommandKeyList,
 } from "../../../src/commands/rule34";
 import rule34HelperFunction from "../../../src/commands/rule34/helper";
+import RULE34_RESPONSES from "../../../src/commands/rule34/response";
+import { FIREBASE_CONFIG } from "../../../src/config";
 import {
   getGuildStore,
   initGuildStore,
@@ -24,21 +26,11 @@ import {
   GuildStoreDataInput,
 } from "../../../src/lib/db/firebase/firebase.interface";
 
-dotenv.config();
-
-// firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
-  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
-};
+chai.use(chaiAsPromised);
 
 describe("Rule34 Commands", () => {
   // firebase initialization
-  const app = firebase.initializeApp(firebaseConfig, "Rule34TestEnv");
+  const app = firebase.initializeApp(FIREBASE_CONFIG, "Rule34TestEnv");
   const FireDB = app.database();
   const mockGuildID = "1";
   const initMockGuildData: GuildStoreDataInput = {
@@ -90,19 +82,18 @@ describe("Rule34 Commands", () => {
         FireDB,
       );
     });
-    it("should restrict if the channel is not nsfw", (done) => {
+    it("should restrict if the channel is not nsfw", async () => {
       const mockMessage = {
         channel: {
           nsfw: false,
           send: (result) => {
             expect(result).to.eql("Lewd stuff don't belong here");
-            done();
           },
         },
       };
-      rule34CommandList[
+      await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
-      ].commandCallback(client, FireDB, "", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
     });
     it("should delete if keyword exist and send back updated list", async () => {
       const responses: string[] = [];
@@ -121,13 +112,26 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
       ].commandCallback(
-        client,
-        FireDB,
-        mockMessage.content,
+        {
+          client,
+          db: FireDB,
+        },
         mockMessage as Message,
+        mockMessage.content,
       );
       const expectedData = await getExpectedResponse();
-      expect(responses.join()).to.equal(expectedData.join());
+      expect(responses[0]).to.eql(expectedData.join("\n"));
+    });
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_DELETE_KEYWORD
+      ].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        {} as Message,
+      );
     });
     after(() => {
       client.destroy();
@@ -138,19 +142,18 @@ describe("Rule34 Commands", () => {
     before(async () => {
       await initGuildStore(mockGuildID, FireDB);
     });
-    it("should restrict if the channel is not nsfw", (done) => {
+    it("should restrict if the channel is not nsfw", async () => {
       const mockMessage = {
         channel: {
           nsfw: false,
           send: (result: string) => {
             expect(result).to.eql("Lewd stuff don't belong here");
-            done();
           },
         },
       };
-      rule34CommandList[
+      await rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback(client, FireDB, "", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
     });
     it("should notify if no words was provided", (done) => {
       const mockMessage = {
@@ -164,7 +167,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback(client, FireDB, "   ", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "   ");
     });
     it("should return updated list if words are provided in nsfw channel", async () => {
       const responses: string[] = [];
@@ -181,9 +184,9 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback(client, FireDB, "foos", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "foos");
       const expectedData = await getExpectedResponse();
-      expect(responses.join()).to.equal(expectedData.join());
+      expect(responses[0]).to.eql(expectedData.join("\n"));
     });
     it("helper function should add keyword onto specific source if a source array is provided", async () => {
       const updatedList = await rule34HelperFunction.addRule34Keyword(
@@ -199,6 +202,17 @@ describe("Rule34 Commands", () => {
       );
       Object.keys(expectedList).forEach((source) => {
         expectedList[source] = expectedList[source].map((item) => item.word);
+      });
+      it("should do nothing if an error occur", async () => {
+        await rule34CommandList[
+          rule34CommandKeyList.RULE34_ADD_KEYWORD
+        ].commandCallback(
+          {
+            client,
+            db: FireDB,
+          },
+          {} as Message,
+        );
       });
       expect(updatedList).to.eql(expectedList);
     });
@@ -228,21 +242,24 @@ describe("Rule34 Commands", () => {
       );
       expect(dataToSend.length).to.be.lessThan(amount);
     });
-    it("should restrict if channel is not nsfw", (done) => {
+    it("should restrict if channel is not nsfw", async () => {
       const mockMessage = {
         channel: {
           nsfw: false,
           send: (result) => {
             expect(result).to.eql("Lewd images don't belong here");
-            done();
           },
         },
       };
-      rule34CommandList[rule34CommandKeyList.RULE34_SEARCH].commandCallback(
-        client,
-        FireDB,
-        "test",
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_SEARCH
+      ].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
         mockMessage as Message,
+        "test",
       );
     });
     it("should send back one lewd image if it found one", async () => {
@@ -257,7 +274,11 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback(client, FireDB, "naruto", mockMessage as Message);
+      ].commandCallback(
+        { client, db: FireDB },
+        mockMessage as Message,
+        "naruto",
+      );
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should notify if it doesn't found any results", async () => {
@@ -273,12 +294,16 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
       ].commandCallback(
-        client,
-        FireDB,
-        "asfasdgfs;l;;",
+        {
+          client,
+          db: FireDB,
+        },
         mockMessage as Message,
+        "asfasdgfasfhlakshf;;",
       );
-      expect(responses.length).to.equal(1);
+      expect(responses[0]).to.eql(
+        RULE34_RESPONSES.TOPIC_NOT_FOUND("asfasdgfasfhlakshf;;"),
+      );
     });
     it("should send back one random lewd image if no query provided", async () => {
       const responses: string[] = [];
@@ -295,7 +320,7 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback(client, FireDB, "", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should notify if no query provided an no keyword associated with guild found", async () => {
@@ -313,8 +338,19 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback(client, FireDB, "", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
       expect(responses.length).to.be.greaterThan(0);
+    });
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_SEARCH
+      ].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        {} as Message,
+      );
     });
     after(() => {
       client.destroy();
@@ -330,7 +366,7 @@ describe("Rule34 Commands", () => {
         rule34Keywords: [
           {
             source: "rule34xxx",
-            word: "jhjhjhjhjhjhjhjkkmlknmm",
+            word: "mei_terumi",
           },
         ],
       },
@@ -389,7 +425,7 @@ describe("Rule34 Commands", () => {
       client.guilds = guilds;
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback(client, FireDB);
+      ].commandCallback({ client, db: FireDB });
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should post images if a request is provided", async () => {
@@ -407,9 +443,20 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback(client, FireDB, "", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
     });
-    it("should do notthing if the message is provided but channel is not nsfw", async () => {
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_SEARCH_RECURRING
+      ].commandCallback(
+        {
+          client: ({} as unknown) as Client,
+          db: FireDB,
+        },
+        {} as Message,
+      );
+    });
+    it("should do nothing if the message is provided but channel is not nsfw", async () => {
       const mockMessage = {
         channel: {
           guild: {
@@ -424,9 +471,10 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
       ].commandCallback(
-        client,
-        FireDB,
-        "",
+        {
+          client,
+          db: FireDB,
+        },
         (mockMessage as unknown) as Message,
       );
     });
@@ -445,21 +493,22 @@ describe("Rule34 Commands", () => {
         FireDB,
       );
     });
-    it("should restrict if channel is not nsfw", (done) => {
+    it("should restrict if channel is not nsfw", async () => {
       const mockMessage = {
         channel: {
           nsfw: false,
           send: (result) => {
             expect(result).to.eql("Lewd stuff don't belong here");
-            done();
           },
         },
       };
-      rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        client,
-        FireDB,
-        "test",
+      await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
         mockMessage as Message,
+        "test",
       );
     });
     it("should return a list categorized by source", async () => {
@@ -476,14 +525,15 @@ describe("Rule34 Commands", () => {
         },
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        client,
-        FireDB,
-        "test",
+        {
+          client,
+          db: FireDB,
+        },
         mockMessage as Message,
+        "test",
       );
       const expected = await getExpectedResponse();
-      expected.shift();
-      expect(responses).to.eql(expected);
+      expect(responses[0]).to.eql(expected.join("\n"));
     });
     it("should notify if no keyword found", async () => {
       await updateGuildStore(
@@ -511,10 +561,21 @@ describe("Rule34 Commands", () => {
         },
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        client,
-        FireDB,
-        "test",
+        {
+          client,
+          db: FireDB,
+        },
         mockMessage as Message,
+        "test",
+      );
+    });
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        {} as Message,
       );
     });
   });
@@ -548,7 +609,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
-      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
     });
     it("should notify success if the channel is now set to recurring", (done) => {
       const mockMessage = {
@@ -568,7 +629,18 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
-      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+    });
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_SET_RECURRING
+      ].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        {} as Message,
+      );
     });
     after(() => {
       client.destroy();
@@ -622,7 +694,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
     });
     it("should notify if it can't find recurring channel", (done) => {
       const mockMessage = {
@@ -641,7 +713,7 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
     });
     it("should tell which channel is recurring if it existed", (done) => {
       const mockMessage = {
@@ -661,7 +733,18 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+    });
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_GET_RECURRING
+      ].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        {} as Message,
+      );
     });
     after(() => {
       client.destroy();
@@ -697,7 +780,18 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_RECURRING
-      ].commandCallback(client, FireDB, "meh", mockMessage as Message);
+      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+    });
+    it("should do nothing if an error occur", async () => {
+      await rule34CommandList[
+        rule34CommandKeyList.RULE34_DELETE_RECURRING
+      ].commandCallback(
+        {
+          client,
+          db: FireDB,
+        },
+        {} as Message,
+      );
     });
   });
   after(async () => {

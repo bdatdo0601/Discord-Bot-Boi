@@ -1,5 +1,5 @@
 import debug from "debug";
-import { Client, GuildMember, TextChannel } from "discord.js";
+import { GuildMember, Message, TextChannel } from "discord.js";
 import commandList, { COMMANDS } from "../../commands";
 import { getGuildStore } from "../../lib/db/firebase";
 import { GuildStore } from "../../lib/db/firebase/firebase.interface";
@@ -8,32 +8,34 @@ import { Event } from "../event.interface";
 const debugLog = debug("BotBoi:onPresenceUpdateEvent");
 
 const presenceUpdateEvent: Event = {
-  eventActionCallback: (
-    client: Client,
-    db: firebase.database.Database,
-  ) => async (oldMember: GuildMember, newMember: GuildMember) => {
+  eventActionCallback: (context) => async (
+    _: GuildMember,
+    newMember: GuildMember,
+  ) => {
     debugLog("Presence Update triggered");
-    if (newMember.presence.status !== "online") {
+    try {
+      const { db } = context;
+      if (newMember.presence.status === "online") {
+        return;
+      }
       const guildStore = (await getGuildStore(
         newMember.guild.id,
         db,
       )) as GuildStore;
-      if (guildStore.data.readyToPlayStore.isActivated) {
-        const rdpRole = newMember.guild.roles.find(
-          (role) => role.id === guildStore.data.readyToPlayStore.readyToPlayRoleID,
-        );
-        if (rdpRole.members.find((members) => members.id === newMember.id)) {
-          await commandList[
-            COMMANDS.READY_TO_PLAY.REMOVE_USER_FROM_RDP
-          ].commandCallback(client, db, "", {
-            channel: newMember.guild.channels
-              .filter((channel) => channel.type === "text")
-              .array()[0] as TextChannel,
-            guild: newMember.guild,
-            member: newMember,
-          });
-        }
+      if (!guildStore.data.readyToPlayStore.isActivated) {
+        return;
       }
+      await commandList[
+        COMMANDS.READY_TO_PLAY.REMOVE_USER_FROM_RDP
+      ].commandCallback(context, ({
+        channel: newMember.guild.channels
+          .filter((channel) => channel.type === "text")
+          .array()[0] as TextChannel,
+        guild: newMember.guild,
+        member: newMember,
+      } as unknown) as Message);
+    } catch (err) {
+      debugLog(err);
     }
   },
   eventName: "presenceUpdate",

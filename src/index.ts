@@ -1,44 +1,45 @@
+/**
+ * src/index.ts
+ *
+ * Entry point of application, handle initializing global context
+ */
+
 import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
+import { DISCORD_CONFIG, FIREBASE_CONFIG } from "@config";
+import botEventList from "@events";
+import { getBaseStore } from "@lib/db/firebase";
 import debug from "debug";
-import dotenv from "dotenv";
 import firebase from "firebase";
-import botEventList from "./events";
-import { Event } from "./events/event.interface";
-import { getMockImage } from "./lib/api/spongeBobMock";
-import { getBaseStore } from "./lib/db/firebase";
 
-dotenv.config();
+// debug logger
 const debugLog = debug("BotBoi:Main");
-const TOKEN: string = process.env.BOT_TOKEN as string;
 
-// firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_AUTH_DOMAIN}.firebaseapp.com`,
-  databaseURL: `https://${process.env.FIREBASE_DB_NAME}.firebaseio.com`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_STORAGE_BUCKET}.appspot.com`,
-};
-
-// firebase initialization
-firebase.initializeApp(firebaseConfig);
-
+/**
+ * function wrapper to start the application
+ *
+ * @param {string} token token acquired from discord developer app
+ */
 const main = async (token: string): Promise<Client> => {
   debugLog("Initializing Bot Boi");
+  // firebase initialization
+  firebase.initializeApp(FIREBASE_CONFIG);
   const db = firebase.database();
   await getBaseStore(db);
+  // discord initialization
   const client: Client = new Client();
-  botEventList.forEach((event: Event) => {
-    client.on(event.eventName, event.eventActionCallback(client, db));
+  // setup events
+  botEventList.forEach((event) => {
+    client.on(event.eventName, event.eventActionCallback({ client, db }));
   });
+  // start the bot
   await client.login(token);
+  debugLog("Bot Boi Initialized");
   return client;
 };
 
-main(TOKEN).catch((error: Error) => {
+main(DISCORD_CONFIG.BOT_TOKEN).catch((error: Error) => {
   debugLog(error);
   process.exit(1);
 });

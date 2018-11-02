@@ -12,16 +12,15 @@
   },
   "scripts": {
     "lint": "tslint --project .",
-    "data-initialize": "cross-env DEBUG=BotBoi:* NODE_ENV=development ts-node src/init.ts",
-    "start": "cross-env DEBUG=BotBoi:* NODE_ENV=development nodemon --exec ts-node src/index.ts",
-    "test:specific": "mocha --exit -r ts-node/register --timeout 15000",
-    "test": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register './test/**/*.test.ts' && yarn coverage",
-    "build-server": "tsc",
+    "start": "cross-env DEBUG=BotBoi:* NODE_ENV=development nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
+    "test:specific": "mocha --exit -r ts-node/register -r tsconfig-paths/register --timeout 15000",
+    "test-local": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts'",
+    "test": "nyc --reporter=lcov mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts' && yarn coverage",
+    "build-server": "tsc --project ./tsconfig.json",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "clean": "rm -rf build && mkdir build",
     "build": "yarn clean && yarn build-server",
-    "start-production": "cross-env NODE_ENV=production node ./build/index.js",
-    "data-initialize-production": "cross-env NODE_ENV=production node ./build/init.js",
+    "start-production": "cross-env NODE_ENV=production node -r ts-node/register -r tsconfig-paths/register ./build/index.js",
     "deploy": "yarn build && yarn start-production"
   },
   "nyc": {
@@ -43,7 +42,6 @@
     "instrument": true
   },
   "dependencies": {
-    "@types/moment": "^2.13.0",
     "@types/sinon": "^5.0.5",
     "aws-sdk": "^2.343.0",
     "axios": "^0.18.0",
@@ -83,6 +81,7 @@
     "nodemon": "^1.17.3",
     "nyc": "^13.1.0",
     "ts-node": "^7.0.1",
+    "tsconfig-paths": "^3.6.0",
     "tslint": "^5.11.0",
     "typescript": "^3.1.3"
   }

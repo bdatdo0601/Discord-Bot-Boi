@@ -15,7 +15,3 @@ export interface ReadyToPlayCommandKeyList {
   ADD_USER_TO_RDP: "~addUsersToRDP";
   REMOVE_USER_FROM_RDP: "~removeUsersFromRDP";
 }
-
-export interface ReadyToPlayCommandList {
-  [key: string]: Command;
-}
