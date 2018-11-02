@@ -32,7 +32,7 @@ const mockCommand: Command = {
           await message.channel.send(
             MOCK_RESPONSE.ATTACK_AUTHOR(message.author.id),
           );
-          return;
+          continue;
         }
         if (!user.lastMessage) {
           await message.channel.send(
