@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/bdatdo0601/Discord-Bot-Boi.svg?branch=master)](https://travis-ci.org/bdatdo0601/Discord-Bot-Boi)
 [![Coverage Status](https://coveralls.io/repos/github/bdatdo0601/Discord-Bot-Boi/badge.svg?branch=master)](https://coveralls.io/github/bdatdo0601/Discord-Bot-Boi?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d31a3f2912c9a209c096/maintainability)](https://codeclimate.com/github/bdatdo0601/Discord-Bot-Boi/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/d31a3f2912c9a209c096/test_coverage)](https://codeclimate.com/github/bdatdo0601/Discord-Bot-Boi/test_coverage)
 [![dependencies Status](https://david-dm.org/bdatdo0601/Discord-Bot-Boi/status.svg)](https://david-dm.org/bdatdo0601/Discord-Bot-Boi)
 [![devDependencies Status](https://david-dm.org/bdatdo0601/Discord-Bot-Boi/dev-status.svg)](https://david-dm.org/bdatdo0601/Discord-Bot-Boi?type=dev)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
