@@ -49,6 +49,7 @@ describe("Mock Commands", () => {
         },
         client,
       );
+      newUser2.lastMessage = newUser.lastMessage;
       users.set("foo", newUser);
       users.set("bar", newUser2);
       const input = {
@@ -98,7 +99,10 @@ describe("Mock Commands", () => {
     });
     it("should do nothing if an error occur", async () => {
       mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        ({} as unknown) as Context,
+        {
+          client,
+          db: FireDB,
+        },
         ({} as unknown) as Message,
       );
     });
