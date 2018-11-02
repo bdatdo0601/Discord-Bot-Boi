@@ -15,7 +15,7 @@
     "start": "cross-env DEBUG=BotBoi:* NODE_ENV=development nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "test:specific": "mocha --exit -r ts-node/register -r tsconfig-paths/register --timeout 15000",
     "test": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts' && yarn coverage",
-    "build-server": "tsc",
+    "build-server": "tsc --project ./tsconfig.json",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "clean": "rm -rf build && mkdir build",
     "build": "yarn clean && yarn build-server",
@@ -59,6 +59,7 @@
     "xml2json": "^0.11.2"
   },
   "devDependencies": {
+    "@types/": "momothepug/tsmodule-alias",
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.6",
     "@types/chai-as-promised": "^7.1.0",
