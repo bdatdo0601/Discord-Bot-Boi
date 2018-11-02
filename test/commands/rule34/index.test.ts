@@ -9,6 +9,7 @@ import {
   TextChannel,
 } from "discord.js";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import _ from "lodash";
 import rule34CommandList, {
   rule34CommandKeyList,
@@ -31,7 +32,7 @@ chai.use(chaiAsPromised);
 describe("Rule34 Commands", () => {
   // firebase initialization
   const app = firebase.initializeApp(FIREBASE_CONFIG, "Rule34TestEnv");
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   const mockGuildID = "1";
   const initMockGuildData: GuildStoreDataInput = {
     rule34Store: {

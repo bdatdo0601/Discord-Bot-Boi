@@ -1,13 +1,13 @@
-import { expect } from "chai";
 import { Client } from "discord.js";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import { FIREBASE_CONFIG } from "../../../src/config";
 import errorEvent from "../../../src/events/error";
 
 describe("Error Event", () => {
   // firebase initialization
   const app = firebase.initializeApp(FIREBASE_CONFIG, "ErrorEventTestEnv");
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   const client = new Client();
   before(async () => {
     await FireDB.goOnline();

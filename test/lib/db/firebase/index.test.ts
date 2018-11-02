@@ -3,6 +3,7 @@ import chaiPromise from "chai-as-promised";
 import debug from "debug";
 import dotenv from "dotenv";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import sinon from "sinon";
 import {
   DEFAULT_BASE_STORE,
@@ -35,7 +36,7 @@ const firebaseConfig = {
 describe("Firebase DB Store", () => {
   // firebase initialization
   const app = firebase.initializeApp(firebaseConfig, "FirebaseUtilityTestEnv");
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   before(async () => {
     await FireDB.goOnline();
   });

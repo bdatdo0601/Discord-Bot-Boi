@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { Client, Collection, GuildMember, Message, Role } from "discord.js";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import readyToPlayCommand, {
   r2pCommandKeyList,
 } from "../../../src/commands/readytoplay";
@@ -19,7 +20,7 @@ describe("Ready To Play Commands", () => {
     FIREBASE_CONFIG,
     "ReadyToPlayCommandTestEnv",
   );
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   before(async () => {
     await FireDB.goOnline();
   });
@@ -140,8 +141,8 @@ describe("Ready To Play Commands", () => {
         {
           data: {
             readyToPlayStore: {
-              readyToPlayRoleID: mockRDPID,
               isActivated: true,
+              readyToPlayRoleID: mockRDPID,
             },
           },
           guildMetadata: {
@@ -349,8 +350,8 @@ describe("Ready To Play Commands", () => {
         {
           data: {
             readyToPlayStore: {
-              readyToPlayRoleID: mockRDPID,
               isActivated: true,
+              readyToPlayRoleID: mockRDPID,
             },
           },
           guildMetadata: {

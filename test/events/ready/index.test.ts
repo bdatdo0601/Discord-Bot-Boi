@@ -2,6 +2,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client, Collection, Guild, GuildChannel } from "discord.js";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import sinon from "sinon";
 import { FIREBASE_CONFIG } from "../../../src/config";
 import { Context } from "../../../src/events/event.interface";
@@ -12,7 +13,7 @@ chai.use(chaiAsPromised);
 describe("Ready Event", () => {
   // firebase initialization
   const app = firebase.initializeApp(FIREBASE_CONFIG, "readyEventTestEnv");
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   const client: Client = new Client();
   let clock: any;
   before(async () => {

@@ -2,13 +2,15 @@ import { expect } from "chai";
 import { Client, Message } from "discord.js";
 
 import firebase from "firebase";
+import fb from "firebase-admin";
+
 import { FIREBASE_CONFIG } from "../../../src/config";
 import messageEvent from "../../../src/events/message";
 
 describe("Message Event", () => {
   // firebase initialization
   const app = firebase.initializeApp(FIREBASE_CONFIG, "messageEventTestEnv");
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   let client: Client;
   beforeEach(() => {
     client = new Client();

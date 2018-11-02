@@ -8,6 +8,7 @@ import {
   TextChannel,
 } from "discord.js";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import { FIREBASE_CONFIG } from "../../../src/config";
 import presenceUpdateEvent from "../../../src/events/presenceUpdate";
 import { initGuildStore, updateGuildStore } from "../../../src/lib/db/firebase";
@@ -18,7 +19,7 @@ describe("PresenceUpdate Event", () => {
     FIREBASE_CONFIG,
     "PresenceUpdateEventTestEnv",
   );
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   const client = new Client();
   const mockGuildID = "1123";
   before(async () => {

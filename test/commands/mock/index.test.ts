@@ -9,6 +9,7 @@ import {
   User,
 } from "discord.js";
 import firebase from "firebase";
+import fb from "firebase-admin";
 import { Context } from "vm";
 import mockCommandList, {
   mockCommandKeyList,
@@ -18,7 +19,7 @@ import { FIREBASE_CONFIG } from "../../../src/config";
 describe("Mock Commands", () => {
   // firebase initialization
   const app = firebase.initializeApp(FIREBASE_CONFIG, "MockCommandTestEnv");
-  const FireDB = app.database();
+  const FireDB = (app.database() as unknown) as fb.database.Database;
   before(async () => {
     await FireDB.goOnline();
   });
