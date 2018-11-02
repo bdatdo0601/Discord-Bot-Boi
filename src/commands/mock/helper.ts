@@ -46,12 +46,12 @@ const getMockResponse = async (
   const imageData = await mockMessage;
   const attachment = new Attachment(imageData, "mocking.jpg");
   return {
-    message: MOCK_RESPONSE.MOCKING(mockeeID, mockMessage),
     attachment,
+    message: MOCK_RESPONSE.MOCKING(mockeeID, mockMessage),
   };
 };
 
 export default {
-  toMockSentence,
   getMockResponse,
+  toMockSentence,
 };

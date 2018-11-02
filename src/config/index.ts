@@ -11,17 +11,17 @@ import {
 dotenv.config();
 
 export const GOOGLE_CONFIG: GoogleConfiguration = {
-  type: process.env.GOOGLE_ACCOUNT_TYPE as string,
-  project_id: process.env.GOOGLE_PROJECT_ID as string,
-  private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID as string,
-  private_key: (process.env.GOOGLE_PRIVATE_KEY as string).replace(/\\n/g, "\n"),
-  client_email: process.env.GOOGLE_CLIENT_EMAIL as string,
-  client_id: process.env.GOOGLE_CLIENT_ID as string,
-  auth_uri: process.env.GOOGLE_AUTH_URI as string,
-  token_uri: process.env.GOOGLE_TOKEN_URI as string,
   auth_provider_x509_cert_url: process.env
     .GOOGLE_AUTH_PROVIDER_X509_CERT_URL as string,
+  auth_uri: process.env.GOOGLE_AUTH_URI as string,
+  client_email: process.env.GOOGLE_CLIENT_EMAIL as string,
+  client_id: process.env.GOOGLE_CLIENT_ID as string,
   client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL as string,
+  private_key: (process.env.GOOGLE_PRIVATE_KEY as string).replace(/\\n/g, "\n"),
+  private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID as string,
+  project_id: process.env.GOOGLE_PROJECT_ID as string,
+  token_uri: process.env.GOOGLE_TOKEN_URI as string,
+  type: process.env.GOOGLE_ACCOUNT_TYPE as string,
 };
 
 export const FIREBASE_CONFIG: FirebaseConfiguration = {
@@ -60,8 +60,8 @@ export const HEROKU_DATA: HerokuData = {
 
 const ENV_VAR: EnvironmentVariables = {
   DISCORD_CONFIG,
-  GOOGLE_CONFIG,
   FIREBASE_CONFIG,
+  GOOGLE_CONFIG,
   HEROKU_DATA,
   RULE_34_CONFIG,
   WIT_AI_CONFIG,
