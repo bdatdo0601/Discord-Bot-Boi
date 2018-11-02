@@ -242,7 +242,7 @@ const getRule34ImagesResponse = (
   withTag: boolean,
 ): string => {
   const result: string[] = [];
-  if (images.length < 0) {
+  if (images.length === 0) {
     result.push(RULE34_RESPONSES.TOPIC_NOT_FOUND(topic));
     return result.join("\n");
   }
