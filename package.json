@@ -19,7 +19,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "clean": "rm -rf build && mkdir build",
     "build": "yarn clean && yarn build-server",
-    "start-production": "cross-env NODE_ENV=production node ./build/index.js",
+    "start-production": "cross-env NODE_ENV=production node -r ts-node/register -r tsconfig-paths/register ./build/index.js",
     "deploy": "yarn build && yarn start-production"
   },
   "nyc": {
@@ -41,7 +41,6 @@
     "instrument": true
   },
   "dependencies": {
-    "@types/moment": "^2.13.0",
     "@types/sinon": "^5.0.5",
     "aws-sdk": "^2.343.0",
     "axios": "^0.18.0",
@@ -59,7 +58,6 @@
     "xml2json": "^0.11.2"
   },
   "devDependencies": {
-    "@types/": "momothepug/tsmodule-alias",
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.6",
     "@types/chai-as-promised": "^7.1.0",
