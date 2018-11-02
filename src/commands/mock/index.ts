@@ -40,13 +40,10 @@ const mockCommand: Command = {
           );
           continue;
         }
-        const mockResponse = await MockCommandHelper.getMockResponse(
-          message.author.id,
-          MockCommandHelper.toMockSentence(user.lastMessage.cleanContent),
-        );
-        await message.channel.send(
-          mockResponse.message,
-          mockResponse.attachment,
+        await sayMockCommand.commandCallback(
+          context,
+          message,
+          user.lastMessage.cleanContent,
         );
       }
     } catch (err) {
