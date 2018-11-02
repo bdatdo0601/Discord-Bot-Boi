@@ -36,21 +36,23 @@ const mockCommand: Command = {
           await message.channel.send(
             MOCK_RESPONSE.ATTACK_AUTHOR(message.author.id),
           );
-        } else if (user.lastMessage) {
-          const mockMessage = MockCommandHelper.toMockSentence(
-            user.lastMessage.cleanContent,
-          );
-          const imageData = await getMockImage(mockMessage);
-          const attachment = new Attachment(imageData, "mocking.jpg");
-          await message.channel.send(
-            MOCK_RESPONSE.MOCKING(user.id, mockMessage),
-            attachment,
-          );
-        } else {
+          return;
+        }
+        if (!user.lastMessage) {
           await message.channel.send(
             MOCK_RESPONSE.PREV_MESSAGE_NOT_FOUND(user.id),
           );
+          continue;
         }
+        const mockMessage = MockCommandHelper.toMockSentence(
+          user.lastMessage.cleanContent,
+        );
+        const imageData = await getMockImage(mockMessage);
+        const attachment = new Attachment(imageData, "mocking.jpg");
+        await message.channel.send(
+          MOCK_RESPONSE.MOCKING(user.id, mockMessage),
+          attachment,
+        );
       }
     } catch (err) {
       debugLog(err);
