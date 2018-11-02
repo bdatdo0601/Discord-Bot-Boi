@@ -11,15 +11,11 @@ const debugLog = debug("BotBoi:MockCommands");
 const sayMockCommand: Command = {
   commandCallback: async (context, message: Message, query: string) => {
     try {
-      const mockSentence = MockCommandHelper.toMockSentence(query);
-      const attachment = new Attachment(
-        await getMockImage(mockSentence),
-        "mocking.jpg",
+      const mockResponse = await MockCommandHelper.getMockResponse(
+        message.author.id,
+        MockCommandHelper.toMockSentence(query),
       );
-      await message.channel.send(
-        MOCK_RESPONSE.MOCKING(message.author.id, mockSentence),
-        attachment,
-      );
+      await message.channel.send(mockResponse.message, mockResponse.attachment);
     } catch (err) {
       debugLog(err);
     }
@@ -44,14 +40,13 @@ const mockCommand: Command = {
           );
           continue;
         }
-        const mockMessage = MockCommandHelper.toMockSentence(
-          user.lastMessage.cleanContent,
+        const mockResponse = await MockCommandHelper.getMockResponse(
+          message.author.id,
+          MockCommandHelper.toMockSentence(user.lastMessage.cleanContent),
         );
-        const imageData = await getMockImage(mockMessage);
-        const attachment = new Attachment(imageData, "mocking.jpg");
         await message.channel.send(
-          MOCK_RESPONSE.MOCKING(user.id, mockMessage),
-          attachment,
+          mockResponse.message,
+          mockResponse.attachment,
         );
       }
     } catch (err) {
