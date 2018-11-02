@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import firebase from "firebase";
+import firebase from "firebase-admin";
 
 export interface Context {
   client: Client;

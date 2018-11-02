@@ -7,11 +7,11 @@
 import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
-import { DISCORD_CONFIG, FIREBASE_CONFIG } from "@config";
+import { DISCORD_CONFIG, FIREBASE_CONFIG, GOOGLE_CONFIG } from "@config";
 import botEventList from "@events";
 import { getBaseStore } from "@lib/db/firebase";
 import debug from "debug";
-import firebase from "firebase";
+import firebase, { ServiceAccount } from "firebase-admin";
 
 // debug logger
 const debugLog = debug("BotBoi:Main");
@@ -24,7 +24,10 @@ const debugLog = debug("BotBoi:Main");
 const main = async (token: string): Promise<Client> => {
   debugLog("Initializing Bot Boi");
   // firebase initialization
-  firebase.initializeApp(FIREBASE_CONFIG);
+  firebase.initializeApp({
+    credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+    databaseURL: FIREBASE_CONFIG.databaseURL,
+  });
   const db = firebase.database();
   await getBaseStore(db);
   // discord initialization
