@@ -3,6 +3,12 @@ import _ from "lodash";
 import { MockResponse } from "./mock.interace";
 import MOCK_RESPONSE from "./response";
 
+/**
+ * get a mock version from a provided phrase
+ *
+ * @param {string} sentence original query
+ * @returns {string} mocked query
+ */
 const toMockSentence = (sentence: string): string => {
   const response: string[] = sentence.split("");
   let lowerCaseToggle = true;
@@ -25,6 +31,14 @@ const toMockSentence = (sentence: string): string => {
   return mockSentence;
 };
 
+/**
+ * get a mock response based from user that will be mocked and the mock message
+ *
+ * @param {string} mockeeID ID of the mocked user
+ * @param {string} mockMessage mocked message
+ *
+ * @returns {Promise<MockResponse>} eventually return a response with mocked image attachment
+ */
 const getMockResponse = async (
   mockeeID: string,
   mockMessage: string,
