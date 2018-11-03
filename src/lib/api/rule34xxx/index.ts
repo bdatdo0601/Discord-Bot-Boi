@@ -1,3 +1,8 @@
+/**
+ * lib/api/rule34xxx/index.ts
+ *
+ * Function to interact with Rule34xxx API
+ */
 import axios from "axios";
 import parser, { JsonOptions } from "xml2json";
 import {

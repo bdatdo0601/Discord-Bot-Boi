@@ -1,3 +1,8 @@
+/**
+ * lib/api/rule34xxx/rule34xxx.interface.ts
+ *
+ * Type interface for rule34xxx API
+ */
 export interface Rule34XXXRawImageData {
   height: number;
   score: number;

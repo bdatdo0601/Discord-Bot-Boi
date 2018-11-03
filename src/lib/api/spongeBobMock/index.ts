@@ -1,3 +1,8 @@
+/**
+ * lib/api/spongeBobMock/index.ts
+ *
+ * Function to interact with spongeBobMock Image API
+ */
 import axios from "axios";
 
 const MOCK_URL =

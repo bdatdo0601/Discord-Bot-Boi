@@ -1,3 +1,8 @@
+/**
+ * lib/db/firebase/firebase.interface.ts
+ *
+ * Interface for firebase data
+ */
 import {
   ReadyToPlayStore,
   ReadyToPlayStoreInput,
