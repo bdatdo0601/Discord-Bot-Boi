@@ -1,5 +1,5 @@
 {
-  "name": "bot-boi",
+  "name": "discord-bot-boi",
   "version": "1.0.0",
   "description": "Discord Utility Bot",
   "main": "index.js",
@@ -21,8 +21,13 @@
     "clean": "rm -rf build && mkdir build",
     "build": "yarn clean && yarn build-server",
     "start-production": "cross-env NODE_ENV=production node -r ts-node/register -r tsconfig-paths/register ./build/index.js",
-    "deploy": "yarn build && yarn start-production"
+    "deploy": "yarn build && yarn start-production",
+    "doc-generate": "typedoc --theme minimal --out ./doc ./src"
   },
+  "pre-commit": [
+    "test-local",
+    "doc-generate"
+  ],
   "nyc": {
     "include": [
       "src/**/*.ts"
@@ -79,6 +84,7 @@
     "mocha": "^5.2.0",
     "nodemon": "^1.17.3",
     "nyc": "^13.1.0",
+    "pre-commit": "^1.2.2",
     "ts-node": "^7.0.1",
     "tsconfig-paths": "^3.6.0",
     "tslint": "^5.11.0",
