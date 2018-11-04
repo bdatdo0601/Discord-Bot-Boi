@@ -22,7 +22,7 @@
     "build": "yarn clean && yarn build-server",
     "start-production": "cross-env NODE_ENV=production node -r ts-node/register -r tsconfig-paths/register ./build/index.js",
     "deploy": "yarn build && yarn start-production",
-    "doc-generate": "typedoc --theme minimal --out ./doc ./src"
+    "doc-generate": "typedoc --theme minimal --out ./doc ./src && git subtree push --prefix doc origin gh-pages"
   },
   "pre-commit": [
     "test-local",
