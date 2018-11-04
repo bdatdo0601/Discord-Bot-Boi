@@ -1,13 +1,20 @@
 import { expect } from "chai";
 import { Client, Message } from "discord.js";
 
-import firebase from "firebase";
-import { FIREBASE_CONFIG } from "../../../src/config";
+import firebase, { ServiceAccount } from "firebase-admin";
+
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 import messageEvent from "../../../src/events/message";
 
 describe("Message Event", () => {
   // firebase initialization
-  const app = firebase.initializeApp(FIREBASE_CONFIG, "messageEventTestEnv");
+  const app = firebase.initializeApp(
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
+    "MessageEventTestEnv",
+  );
   const FireDB = app.database();
   let client: Client;
   beforeEach(() => {

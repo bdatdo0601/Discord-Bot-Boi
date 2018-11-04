@@ -1,4 +1,3 @@
-import chai, { expect } from "chai";
 import dotenv from "dotenv";
 dotenv.config();
 

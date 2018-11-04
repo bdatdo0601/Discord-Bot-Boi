@@ -3,6 +3,7 @@ import { Rule34XXXImage } from "@lib/api/rule34xxx/rule34xxx.interface.js";
 import { getGuildStore, updateGuildStore } from "@lib/db/firebase";
 import { GuildStore } from "@lib/db/firebase/firebase.interface";
 import { TextChannel } from "discord.js";
+import firebase from "firebase-admin";
 import _ from "lodash";
 import RULE34_RESPONSES from "./response";
 import { Rule34Keyword, Rule34KeywordList } from "./rule34.interface";

@@ -76,11 +76,15 @@ const rule34SearchCommand: Command = {
               .rule34xxx,
           );
       const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
-        searchString,
+        searchString as string,
         1,
       );
       await message.channel.send(
-        Rule34CommandHelper.getRule34ImagesResponse(searchString, images, true),
+        Rule34CommandHelper.getRule34ImagesResponse(
+          searchString as string,
+          images,
+          true,
+        ),
       );
     } catch (err) {
       debugLog(err);
@@ -109,12 +113,12 @@ const rule34SearchRecurringCommand: Command = {
             )).rule34xxx,
           );
           const images = await Rule34CommandHelper.getLewlImagesFromRule34XXX(
-            searchString,
+            searchString as string,
             10,
           );
           await nsfwRecurringChannel.send(
             Rule34CommandHelper.getRule34ImagesResponse(
-              searchString,
+              searchString as string,
               images,
               false,
             ),

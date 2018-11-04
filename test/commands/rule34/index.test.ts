@@ -8,14 +8,14 @@ import {
   Message,
   TextChannel,
 } from "discord.js";
-import firebase from "firebase";
+import firebase, { ServiceAccount } from "firebase-admin";
 import _ from "lodash";
 import rule34CommandList, {
   rule34CommandKeyList,
 } from "../../../src/commands/rule34";
 import rule34HelperFunction from "../../../src/commands/rule34/helper";
 import RULE34_RESPONSES from "../../../src/commands/rule34/response";
-import { FIREBASE_CONFIG } from "../../../src/config";
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 import {
   getGuildStore,
   initGuildStore,
@@ -30,7 +30,13 @@ chai.use(chaiAsPromised);
 
 describe("Rule34 Commands", () => {
   // firebase initialization
-  const app = firebase.initializeApp(FIREBASE_CONFIG, "Rule34TestEnv");
+  const app = firebase.initializeApp(
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
+    "Rule34CommandsTestEnv",
+  );
   const FireDB = app.database();
   const mockGuildID = "1";
   const initMockGuildData: GuildStoreDataInput = {

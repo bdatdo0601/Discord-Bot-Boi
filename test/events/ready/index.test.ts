@@ -1,9 +1,9 @@
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client, Collection, Guild, GuildChannel } from "discord.js";
-import firebase from "firebase";
+import firebase, { ServiceAccount } from "firebase-admin";
 import sinon from "sinon";
-import { FIREBASE_CONFIG } from "../../../src/config";
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 import { Context } from "../../../src/events/event.interface";
 import readyEvent, { RULE34_INTERVAL } from "../../../src/events/ready";
 
@@ -11,7 +11,13 @@ chai.use(chaiAsPromised);
 
 describe("Ready Event", () => {
   // firebase initialization
-  const app = firebase.initializeApp(FIREBASE_CONFIG, "readyEventTestEnv");
+  const app = firebase.initializeApp(
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
+    "ReadyEventTestEnv",
+  );
   const FireDB = app.database();
   const client: Client = new Client();
   let clock: any;

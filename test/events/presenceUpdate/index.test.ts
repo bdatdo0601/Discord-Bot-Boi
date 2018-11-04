@@ -7,15 +7,18 @@ import {
   Role,
   TextChannel,
 } from "discord.js";
-import firebase from "firebase";
-import { FIREBASE_CONFIG } from "../../../src/config";
+import firebase, { ServiceAccount } from "firebase-admin";
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 import presenceUpdateEvent from "../../../src/events/presenceUpdate";
 import { initGuildStore, updateGuildStore } from "../../../src/lib/db/firebase";
 
 describe("PresenceUpdate Event", () => {
   // firebase initialization
   const app = firebase.initializeApp(
-    FIREBASE_CONFIG,
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
     "PresenceUpdateEventTestEnv",
   );
   const FireDB = app.database();

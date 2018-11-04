@@ -1,5 +1,10 @@
+/**
+ * lib/db/firebase/index.ts
+ *
+ * Function to directly interact with Firebase
+ */
 import debug from "debug";
-import firebase from "firebase";
+import firebase from "firebase-admin";
 import _ from "lodash";
 import { BaseStore, GuildStore, GuildStoreInput } from "./firebase.interface";
 

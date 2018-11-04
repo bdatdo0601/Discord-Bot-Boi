@@ -3,7 +3,7 @@ import { getGuildStore, updateGuildStore } from "@lib/db/firebase";
 import { GuildStore } from "@lib/db/firebase/firebase.interface";
 import debug from "debug";
 import { Message, Role } from "discord.js";
-import firebase from "firebase";
+import firebase from "firebase-admin";
 import R2PCommandHelper from "./helper";
 import { ReadyToPlayCommandKeyList } from "./readytoplay.interface";
 import R2P_RESPONSES from "./response";

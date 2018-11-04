@@ -1,3 +1,8 @@
+/**
+ * lib/api/rule34xxx/index.ts
+ *
+ * Function to interact with Rule34xxx API
+ */
 import axios from "axios";
 import parser, { JsonOptions } from "xml2json";
 import {
@@ -14,6 +19,12 @@ const xmlToJsonConfig: JsonOptions = {
   trim: true,
 };
 
+/**
+ * return a list of rule 34 images related to a given keyword
+ *
+ * @param {string} query a keyword to search for
+ * @returns {Promise<Rule34XXXImage[]>} a list of rule 34 xxx images
+ */
 const getRule34XXXImgs = async (query: string): Promise<Rule34XXXImage[]> => {
   const response = await axios.get<string>(RULE_34_XXX_API, {
     params: {
