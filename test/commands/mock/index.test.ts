@@ -8,18 +8,22 @@ import {
   TextChannel,
   User,
 } from "discord.js";
-import firebase from "firebase";
-import fb from "firebase-admin";
-import { Context } from "vm";
+import firebase, { ServiceAccount } from "firebase-admin";
 import mockCommandList, {
   mockCommandKeyList,
 } from "../../../src/commands/mock";
-import { FIREBASE_CONFIG } from "../../../src/config";
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 
 describe("Mock Commands", () => {
   // firebase initialization
-  const app = firebase.initializeApp(FIREBASE_CONFIG, "MockCommandTestEnv");
-  const FireDB = (app.database() as unknown) as fb.database.Database;
+  const app = firebase.initializeApp(
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
+    "MockCommandTestEnv",
+  );
+  const FireDB = app.database();
   before(async () => {
     await FireDB.goOnline();
   });

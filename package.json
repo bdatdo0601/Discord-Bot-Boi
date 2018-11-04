@@ -76,7 +76,6 @@
     "coveralls": "^3.0.2",
     "cross-env": "^5.2.0",
     "firebase": "^5.5.7",
-    "firebase-server": "^1.0.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.3",
     "nyc": "^13.1.0",

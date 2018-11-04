@@ -1,12 +1,11 @@
 import { expect } from "chai";
 import { Client, Collection, GuildMember, Message, Role } from "discord.js";
-import firebase from "firebase";
-import fb from "firebase-admin";
+import firebase, { ServiceAccount } from "firebase-admin";
 import readyToPlayCommand, {
   r2pCommandKeyList,
 } from "../../../src/commands/readytoplay";
 import R2P_RESPONSE from "../../../src/commands/readytoplay/response";
-import { FIREBASE_CONFIG } from "../../../src/config";
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 import {
   getGuildStore,
   initGuildStore,
@@ -17,10 +16,13 @@ import { GuildStore } from "../../../src/lib/db/firebase/firebase.interface";
 describe("Ready To Play Commands", () => {
   // firebase initialization
   const app = firebase.initializeApp(
-    FIREBASE_CONFIG,
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
     "ReadyToPlayCommandTestEnv",
   );
-  const FireDB = (app.database() as unknown) as fb.database.Database;
+  const FireDB = app.database();
   before(async () => {
     await FireDB.goOnline();
   });
