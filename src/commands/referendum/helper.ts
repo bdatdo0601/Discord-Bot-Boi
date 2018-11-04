@@ -118,7 +118,9 @@ export const getTallyResponse = (voteResults: VoteResult[]): string => {
   _.each(voteResults, (obj: any) => {
     responses.push(`${obj.key} had ${obj.value} votes.`);
   });
-  responses.push(`The winner is ${winner.key} with ${winner.value} votes!`);
+  responses.push(
+    `The winner is **${winner.key}** with **${winner.value} vote(s)**!`,
+  );
   return responses.join("\n");
 };
 

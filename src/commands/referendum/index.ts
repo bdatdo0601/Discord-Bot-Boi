@@ -58,15 +58,16 @@ const vote: Command = {
   commandCallback: async (context, message: Message, query: string) => {
     try {
       pollValidation(message);
+      const voteOption = _.trim(query);
       if (hasVoted(message.author, voted)) {
         await message.reply(REFERENDUM_RESPONSE.ALREADY_VOTED());
         return;
       }
-      if (!votes[query]) {
+      if (_.isUndefined(votes[voteOption])) {
         await message.reply(REFERENDUM_RESPONSE.INVALID_QUERY(query));
         return;
       }
-      const response = registerVote(message.author, query, voted, votes);
+      const response = registerVote(message.author, voteOption, voted, votes);
       await message.channel.send(response);
     } catch (err) {
       debugLog(err);
