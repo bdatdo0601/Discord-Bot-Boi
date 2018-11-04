@@ -12,7 +12,7 @@ import { VoteOptions, VoteResult } from "./referendum.interface";
  */
 export const hasVoted = (user: User, voted: string[]): boolean => {
   // has user voted?
-  return _.includes(voted, user.username + user.discriminator);
+  return _.includes(voted, user.id);
 };
 
 /**
@@ -82,7 +82,7 @@ export const registerVote = (
   votes: VoteOptions,
 ): string => {
   votes[query] += 1;
-  voted.push(user.username + user.discriminator);
+  voted.push(user.id);
   return `${user.username} voted for ${query}!`;
 };
 

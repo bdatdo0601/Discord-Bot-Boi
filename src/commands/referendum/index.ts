@@ -57,14 +57,14 @@ const poll: Command = {
 const vote: Command = {
   commandCallback: async (context, message: Message, query: string) => {
     try {
-      pollValidation(message);
+      await pollValidation(message);
       const voteOption = _.trim(query);
-      if (hasVoted(message.author, voted)) {
-        await message.reply(REFERENDUM_RESPONSE.ALREADY_VOTED());
-        return;
-      }
       if (_.isUndefined(votes[voteOption])) {
         await message.reply(REFERENDUM_RESPONSE.INVALID_QUERY(query));
+        return;
+      }
+      if (hasVoted(message.author, voted)) {
+        await message.reply(REFERENDUM_RESPONSE.ALREADY_VOTED());
         return;
       }
       const response = registerVote(message.author, voteOption, voted, votes);
@@ -79,7 +79,7 @@ const vote: Command = {
 const tally: Command = {
   commandCallback: async (context, message: Message) => {
     try {
-      pollValidation(message);
+      await pollValidation(message);
       // maps the votes object properties to objects
       const voteResults: VoteResult[] = getPollResult(votes);
       await message.channel.send(getTallyResponse(voteResults));
