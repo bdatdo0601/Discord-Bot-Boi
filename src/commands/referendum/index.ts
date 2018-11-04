@@ -1,35 +1,53 @@
-import { Client, Message } from "discord.js";
-import firebase from "firebase";
+import debug from "debug";
+import { Message } from "discord.js";
 import _ from "lodash";
 import { Command } from "../command.interface";
-import { hasVoted, isPoll } from "./helper";
+import {
+  clearCurrentPollData,
+  getPollResponse,
+  getPollResult,
+  getTallyResponse,
+  hasVoted,
+  initVoteOptions,
+  isPoll,
+  registerVote,
+} from "./helper";
 import {
   ReferendumCommandKeyList,
   VoteOptions,
   VoteResult,
 } from "./referendum.interface";
+import REFERENDUM_RESPONSE from "./response";
+
+const debugLog = debug("BotBoi:Referendum");
+
 // only one poll at a time
 const voted: string[] = [];
 const votes: VoteOptions = {};
+
+const pollValidation = async (message: Message): Promise<void> => {
+  if (!isPoll(votes)) {
+    // vote already in progress
+    await message.reply(REFERENDUM_RESPONSE.POLL_NOT_CREATED());
+    throw new Error(REFERENDUM_RESPONSE.POLL_NOT_CREATED());
+  }
+};
+
 const poll: Command = {
   // starts vote, must supply options
-  commandCallback: (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): void => {
-    if (isPoll(votes)) {
-      // vote already in progress
-      message.reply("You need to tally before you can start another poll");
-    } else {
-      const args = query.split(","); // candidates should be separated by commas
-      _.each(args, (candidate: string) => {
-        candidate = _.trim(candidate);
-        votes[candidate] = 0;
-      });
-      message.channel.send(`${message.author.username} started a poll!`);
-      message.channel.send(`Your choices are [ **${args.join(" ")}** ].`);
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      if (isPoll(votes)) {
+        // vote already in progress
+        await message.reply(REFERENDUM_RESPONSE.POLL_ALREADY_EXIST());
+        return;
+      }
+      const candidateList = initVoteOptions(query, votes);
+      await message.channel.send(
+        getPollResponse(message.author.id, candidateList),
+      );
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription:
@@ -37,59 +55,36 @@ const poll: Command = {
 };
 
 const vote: Command = {
-  commandCallback: (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): void => {
-    if (!isPoll(votes)) {
-      message.reply("Bitch you gotta start a poll first!");
-    } else if (hasVoted(message.author, voted)) {
-      message.reply("Bitch you already voted!");
-    } else if (votes[query] === undefined) {
-      message.reply(`You can't vote for ${query}, bitch!`);
-    } else {
-      votes[query] += 1;
-      voted.push(message.author.username + message.author.discriminator);
-      message.channel.send(`${message.author.username} voted for ${query}!`);
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      pollValidation(message);
+      if (hasVoted(message.author, voted)) {
+        await message.reply(REFERENDUM_RESPONSE.ALREADY_VOTED());
+        return;
+      }
+      if (!votes[query]) {
+        await message.reply(REFERENDUM_RESPONSE.INVALID_QUERY(query));
+        return;
+      }
+      const response = registerVote(message.author, query, voted, votes);
+      await message.channel.send(response);
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "votes for a single candidate. only one vote per poll",
 };
 
 const tally: Command = {
-  commandCallback: (
-    client: Client,
-    db: firebase.database.Database,
-    query: string,
-    message: Message,
-  ): void => {
-    if (isPoll(votes)) {
+  commandCallback: async (context, message: Message) => {
+    try {
+      pollValidation(message);
       // maps the votes object properties to objects
-      const voteResult: VoteResult[] = _.sortBy(
-        Object.keys(votes).map((key) => ({
-          key,
-          value: votes[key],
-        })),
-        (obj) => {
-          return obj.value;
-        },
-      );
-      const winner = voteResult.pop() as VoteResult; // sorted ascending, winner at end
-      _.each(voteResult, (obj: any) => {
-        message.channel.send(`${obj.key} had ${obj.value} votes.`);
-      });
-      message.channel.send(
-        `The winner is ${winner.key} with ${winner.value} votes!`,
-      );
-      // clear the object while keeping its immutability
-      for (const voteOption of Object.keys(votes)) {
-        delete votes[voteOption];
-      }
-      voted.length = 0; // clear the array while keeping its immutability
-    } else {
-      message.reply("Bitch you gotta start a poll first!");
+      const voteResults: VoteResult[] = getPollResult(votes);
+      await message.channel.send(getTallyResponse(voteResults));
+      clearCurrentPollData(votes, voted);
+    } catch (err) {
+      debugLog(err);
     }
   },
   commandDescription: "tallies votes and resets everything",
