@@ -138,9 +138,9 @@ const activateReadyToPlayFeature: Command = {
 };
 
 export const r2pCommandKeyList: ReadyToPlayCommandKeyList = {
-  ACTIVATE_RDP_FEATURE: "~activateRDPFeature",
-  ADD_USER_TO_RDP: "~addUsersToRDP",
-  REMOVE_USER_FROM_RDP: "~removeUsersFromRDP",
+  ACTIVATE_RDP_FEATURE: "~activateR2PFeature",
+  ADD_USER_TO_RDP: "~r2p",
+  REMOVE_USER_FROM_RDP: "~!r2p",
 };
 
 export default {

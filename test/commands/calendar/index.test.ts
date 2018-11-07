@@ -28,10 +28,15 @@ describe("Calendar Commands", () => {
     id: "foo123",
     name: "foo123",
   };
+  const mockGuildWithoutDB = {
+    id: "baz",
+    name: "bazaar",
+  };
   const db = app.database();
   before(async () => {
     jwtClient = await initGoogleAPIS();
     await initGuildStore(mockGuild.id, db);
+    await initGuildStore(mockGuildWithoutDB.id, db);
   });
   describe("createCalendar Command", () => {
     it("should notify success if calendar is created new", async () => {
@@ -96,9 +101,7 @@ describe("Calendar Commands", () => {
     });
     it("should notify if no calendar exsit", async () => {
       const mockMessage = ({
-        guild: {
-          id: "baz",
-        },
+        guild: mockGuildWithoutDB,
         reply: (result) => {
           expect(result).to.eql(CALENDAR_RESPONSE.CALENDAR_NOT_FOUND());
         },
