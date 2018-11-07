@@ -6,11 +6,15 @@
 import {
   ReadyToPlayStore,
   ReadyToPlayStoreInput,
-} from "../../../commands/readytoplay/readytoplay.interface";
+} from "@commands/readytoplay/readytoplay.interface";
 import {
   Rule34Store,
   Rule34StoreInput,
-} from "../../../commands/rule34/rule34.interface";
+} from "@commands/rule34/rule34.interface";
+import {
+  GoogleAPIStore,
+  GoogleAPIStoreInput,
+} from "@lib/api/googleapis/googleapis.interface";
 
 export interface BaseStoreInput {
   guilds?: GuildStoreInput[];
@@ -34,11 +38,13 @@ export interface GuildStoreInput {
 export interface GuildStoreDataInput {
   rule34Store?: Rule34StoreInput;
   readyToPlayStore?: ReadyToPlayStoreInput;
+  googleStore?: GoogleAPIStoreInput;
 }
 
 export interface GuildStoreData {
   rule34Store: Rule34Store;
   readyToPlayStore: ReadyToPlayStore;
+  googleStore: GoogleAPIStore;
 }
 
 export interface GuildStore {

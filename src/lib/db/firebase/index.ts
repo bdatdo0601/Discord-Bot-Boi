@@ -18,6 +18,9 @@ export const DEFAULT_BASE_STORE = Object.freeze<BaseStore>({
 // default guild store
 export const DEFAULT_GUILD_STORE = Object.freeze<GuildStore>({
   data: {
+    googleStore: {
+      calendarID: "",
+    },
     readyToPlayStore: {
       isActivated: false,
       readyToPlayRoleID: "",
@@ -42,6 +45,9 @@ const formatBaseStore = (data: BaseStore): BaseStore =>
 const formatGuildStore = (data: GuildStore): GuildStore =>
   Object.freeze({
     data: {
+      googleStore: {
+        calendarID: data.data.googleStore.calendarID,
+      },
       readyToPlayStore: {
         isActivated: data.data.readyToPlayStore.isActivated,
         readyToPlayRoleID: data.data.readyToPlayStore.readyToPlayRoleID,

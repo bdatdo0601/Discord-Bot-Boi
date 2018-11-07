@@ -1,6 +1,7 @@
 import debug from "debug";
 import { Message } from "discord.js";
 import _ from "lodash";
+import calendarCommandList, { calendarCommandKeyList } from "./calendar";
 import { Command, CommandList } from "./command.interface";
 import mockCommandList, { mockCommandKeyList } from "./mock";
 import readyToPlayCommandList, { r2pCommandKeyList } from "./readytoplay";
@@ -40,6 +41,7 @@ const generalCommandList = {
 };
 
 export const COMMANDS = {
+  CALENDAR: calendarCommandKeyList,
   GENERAL: generalCommandKeyList,
   MOCK: mockCommandKeyList,
   READY_TO_PLAY: r2pCommandKeyList,
@@ -53,6 +55,7 @@ const commandList: CommandList = {
   ...rule34CommandList,
   ...readyToPlayCommandList,
   ...referendumCommandList,
+  ...calendarCommandList,
 };
 
 export default commandList;

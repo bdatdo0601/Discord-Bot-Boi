@@ -3,7 +3,7 @@ import debug from "debug";
 import { Attachment, Message } from "discord.js";
 import { Command, CommandList } from "../command.interface";
 import MockCommandHelper from "./helper";
-import { MockCommandKeyList } from "./mock.interace";
+import { MockCommandKeyList } from "./mock.interface";
 import MOCK_RESPONSE from "./response";
 
 const debugLog = debug("BotBoi:MockCommands");
