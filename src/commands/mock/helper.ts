@@ -1,6 +1,6 @@
 import { Attachment } from "discord.js";
 import _ from "lodash";
-import { MockResponse } from "./mock.interace";
+import { MockResponse } from "./mock.interface";
 import MOCK_RESPONSE from "./response";
 
 /**

@@ -17,7 +17,7 @@
     "lint": "tslint --project .",
     "start": "cross-env DEBUG=BotBoi:* NODE_ENV=development nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "test:specific": "mocha --exit -r ts-node/register -r tsconfig-paths/register --timeout 15000",
-    "test-local": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts'",
+    "test:local": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts'",
     "test": "nyc --reporter=lcov mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts' && yarn coverage",
     "build-server": "tsc --project ./tsconfig.json",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
@@ -28,7 +28,7 @@
     "doc-generate": "typedoc --theme minimal --out ./doc ./src && git subtree push --prefix doc origin gh-pages"
   },
   "pre-commit": [
-    "test-local",
+    "test:local",
     "doc-generate"
   ],
   "nyc": {
@@ -56,12 +56,11 @@
     "debug": "^4.1.0",
     "discord.js": "^11.4.2",
     "dotenv": "^6.0.0",
-    "ffmpeg-binaries": "^4.0.0",
     "firebase-admin": "^6.1.0",
+    "googleapis": "^34.0.0",
     "lodash": "^4.17.10",
     "lolex": "^3.0.0",
     "moment": "^2.22.2",
-    "node-opus": "^0.3.0",
     "node-wit": "^5.0.0",
     "sinon": "^7.0.0",
     "xml2json": "^0.11.2"

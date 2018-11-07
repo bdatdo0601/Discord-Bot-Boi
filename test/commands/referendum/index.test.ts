@@ -6,6 +6,7 @@ import referendumCommandList, {
 } from "../../../src/commands/referendum";
 import REFERENDUM_RESPONSE from "../../../src/commands/referendum/response";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
+import { EventContext } from "../../../src/events/event.interface";
 
 describe("Referendum Commands", () => {
   // firebase initialization
@@ -43,7 +44,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_POLL
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockPollingMessage as unknown) as Message,
         mockVoteOptions.join(","),
       );
@@ -57,7 +58,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_POLL
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         mockVoteOptions.join(","),
       );
@@ -66,7 +67,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_POLL
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         ({} as unknown) as Message,
         mockVoteOptions.join(","),
       );
@@ -86,7 +87,10 @@ describe("Referendum Commands", () => {
       };
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_TALLY
-      ].commandCallback({ client, db }, (mockMessage as unknown) as Message);
+      ].commandCallback(
+        ({ client, db } as unknown) as EventContext,
+        (mockMessage as unknown) as Message,
+      );
     });
     it("should notify if no poll were created", async () => {
       const mockMessage = {
@@ -97,12 +101,18 @@ describe("Referendum Commands", () => {
       };
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_TALLY
-      ].commandCallback({ client, db }, (mockMessage as unknown) as Message);
+      ].commandCallback(
+        ({ client, db } as unknown) as EventContext,
+        (mockMessage as unknown) as Message,
+      );
     });
     it("should do nothing if an error occur", async () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_TALLY
-      ].commandCallback({ client, db }, ({} as unknown) as Message);
+      ].commandCallback(
+        ({ client, db } as unknown) as EventContext,
+        ({} as unknown) as Message,
+      );
     });
   });
   describe("~vote command", () => {
@@ -116,7 +126,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_VOTE
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         "1",
       );
@@ -125,7 +135,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_POLL
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockPollingMessage as unknown) as Message,
         mockVoteOptions.join(","),
       );
@@ -137,7 +147,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_VOTE
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         "foo",
       );
@@ -155,7 +165,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_VOTE
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         "1",
       );
@@ -172,7 +182,7 @@ describe("Referendum Commands", () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_VOTE
       ].commandCallback(
-        { client, db },
+        ({ client, db } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         "1",
       );
@@ -180,7 +190,10 @@ describe("Referendum Commands", () => {
     it("should do nothing if an error occur", async () => {
       await referendumCommandList[
         referendumCommandKeyList.REFERENDUM_VOTE
-      ].commandCallback({ client, db }, ({} as unknown) as Message);
+      ].commandCallback(
+        ({ client, db } as unknown) as EventContext,
+        ({} as unknown) as Message,
+      );
     });
   });
   after(async () => {

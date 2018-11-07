@@ -6,6 +6,7 @@ import readyToPlayCommand, {
 } from "../../../src/commands/readytoplay";
 import R2P_RESPONSE from "../../../src/commands/readytoplay/response";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
+import { EventContext } from "../../../src/events/event.interface";
 import {
   getGuildStore,
   initGuildStore,
@@ -59,10 +60,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ACTIVATE_RDP_FEATURE
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
       const guildStore = (await getGuildStore(
@@ -105,10 +106,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ACTIVATE_RDP_FEATURE
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
       const guildStore = (await getGuildStore(
@@ -124,10 +125,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ACTIVATE_RDP_FEATURE
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         ({} as unknown) as Message,
       );
     });
@@ -182,10 +183,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -204,10 +205,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -257,10 +258,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         "foos",
       );
@@ -298,10 +299,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -333,10 +334,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.ADD_USER_TO_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -391,10 +392,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -413,10 +414,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -475,10 +476,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
         "foos",
       );
@@ -516,7 +517,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        { client, db: FireDB },
+        ({
+          client,
+          db: FireDB,
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -549,7 +553,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        { client, db: FireDB },
+        ({
+          client,
+          db: FireDB,
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -580,10 +587,10 @@ describe("Ready To Play Commands", () => {
       await readyToPlayCommand[
         r2pCommandKeyList.REMOVE_USER_FROM_RDP
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });

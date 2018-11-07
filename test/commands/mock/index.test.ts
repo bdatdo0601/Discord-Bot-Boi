@@ -13,6 +13,7 @@ import mockCommandList, {
   mockCommandKeyList,
 } from "../../../src/commands/mock";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
+import { EventContext } from "../../../src/events/event.interface";
 
 describe("Mock Commands", () => {
   // firebase initialization
@@ -24,6 +25,7 @@ describe("Mock Commands", () => {
     "MockCommandTestEnv",
   );
   const FireDB = app.database();
+
   before(async () => {
     await FireDB.goOnline();
   });
@@ -71,10 +73,10 @@ describe("Mock Commands", () => {
         },
       };
       await mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (input as unknown) as Message,
       );
     });
@@ -95,19 +97,19 @@ describe("Mock Commands", () => {
         },
       };
       await mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (input as unknown) as Message,
       );
     });
     it("should do nothing if an error occur", async () => {
       mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         ({} as unknown) as Message,
       );
     });
@@ -128,10 +130,10 @@ describe("Mock Commands", () => {
         content: "foo bar",
       };
       mockCommandList[mockCommandKeyList.SAY_MOCK].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (input as unknown) as Message,
         input.content,
       );

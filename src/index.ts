@@ -9,9 +9,11 @@ import { Client } from "discord.js";
 
 import { DISCORD_CONFIG, FIREBASE_CONFIG, GOOGLE_CONFIG } from "@config";
 import botEventList from "@events";
+import { initGoogleAPIS } from "@lib/api/googleapis";
 import { getBaseStore } from "@lib/db/firebase";
 import debug from "debug";
 import firebase, { ServiceAccount } from "firebase-admin";
+import { JWT } from "google-auth-library";
 
 // debug logger
 const debugLog = debug("BotBoi:Main");
@@ -28,13 +30,18 @@ const main = async (token: string): Promise<Client> => {
     credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
     databaseURL: FIREBASE_CONFIG.databaseURL,
   });
+  // googleapi initialization
+  const googleAPIJWTClient = (await initGoogleAPIS()) as JWT;
   const db = firebase.database();
   await getBaseStore(db);
   // discord initialization
   const client: Client = new Client();
   // setup events
   botEventList.forEach((event) => {
-    client.on(event.eventName, event.eventActionCallback({ client, db }));
+    client.on(
+      event.eventName,
+      event.eventActionCallback({ client, db, googleAPIJWTClient }),
+    );
   });
   // start the bot
   await client.login(token);

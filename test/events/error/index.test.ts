@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import firebase, { ServiceAccount } from "firebase-admin";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
 import errorEvent from "../../../src/events/error";
+import { EventContext } from "../../../src/events/event.interface";
 
 describe("Error Event", () => {
   // firebase initialization
@@ -20,7 +21,10 @@ describe("Error Event", () => {
   });
   it("should trigger when error event got emitted", (done) => {
     client.on(errorEvent.eventName, (error: Error) => {
-      errorEvent.eventActionCallback({ client, db: FireDB })(error);
+      errorEvent.eventActionCallback(({
+        client,
+        db: FireDB,
+      } as unknown) as EventContext)(error);
       done();
     });
     client.emit(errorEvent.eventName, new Error("Test Error"));

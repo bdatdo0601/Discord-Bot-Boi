@@ -16,6 +16,7 @@ import rule34CommandList, {
 import rule34HelperFunction from "../../../src/commands/rule34/helper";
 import RULE34_RESPONSES from "../../../src/commands/rule34/response";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
+import { EventContext } from "../../../src/events/event.interface";
 import {
   getGuildStore,
   initGuildStore,
@@ -99,7 +100,10 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+      );
     });
     it("should delete if keyword exist and send back updated list", async () => {
       const responses: string[] = [];
@@ -118,10 +122,10 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         mockMessage as Message,
         mockMessage.content,
       );
@@ -132,10 +136,10 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_KEYWORD
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
@@ -159,7 +163,10 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+      );
     });
     it("should notify if no words was provided", (done) => {
       const mockMessage = {
@@ -173,7 +180,11 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "   ");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "   ",
+      );
     });
     it("should return updated list if words are provided in nsfw channel", async () => {
       const responses: string[] = [];
@@ -190,7 +201,11 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_ADD_KEYWORD
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "foos");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "foos",
+      );
       const expectedData = await getExpectedResponse();
       expect(responses[0]).to.eql(expectedData.join("\n"));
     });
@@ -213,10 +228,10 @@ describe("Rule34 Commands", () => {
         await rule34CommandList[
           rule34CommandKeyList.RULE34_ADD_KEYWORD
         ].commandCallback(
-          {
+          ({
             client,
             db: FireDB,
-          },
+          } as unknown) as EventContext,
           {} as Message,
         );
       });
@@ -260,10 +275,10 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         mockMessage as Message,
         "test",
       );
@@ -281,7 +296,7 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
       ].commandCallback(
-        { client, db: FireDB },
+        ({ client, db: FireDB } as unknown) as EventContext,
         mockMessage as Message,
         "naruto",
       );
@@ -300,10 +315,10 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         mockMessage as Message,
         "asfasdgfasfhlakshf;;",
       );
@@ -326,7 +341,10 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+      );
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should notify if no query provided an no keyword associated with guild found", async () => {
@@ -344,17 +362,20 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+      );
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should do nothing if an error occur", async () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
@@ -431,7 +452,7 @@ describe("Rule34 Commands", () => {
       client.guilds = guilds;
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback({ client, db: FireDB });
+      ].commandCallback(({ client, db: FireDB } as unknown) as EventContext);
       expect(responses.length).to.be.greaterThan(0);
     });
     it("should post images if a request is provided", async () => {
@@ -449,16 +470,19 @@ describe("Rule34 Commands", () => {
       };
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message);
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+      );
     });
     it("should do nothing if an error occur", async () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
       ].commandCallback(
-        {
+        ({
           client: ({} as unknown) as Client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
@@ -477,10 +501,10 @@ describe("Rule34 Commands", () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SEARCH_RECURRING
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         (mockMessage as unknown) as Message,
       );
     });
@@ -509,10 +533,10 @@ describe("Rule34 Commands", () => {
         },
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         mockMessage as Message,
         "test",
       );
@@ -531,10 +555,10 @@ describe("Rule34 Commands", () => {
         },
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         mockMessage as Message,
         "test",
       );
@@ -567,20 +591,20 @@ describe("Rule34 Commands", () => {
         },
       };
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         mockMessage as Message,
         "test",
       );
     });
     it("should do nothing if an error occur", async () => {
       await rule34CommandList[rule34CommandKeyList.RULE34_LIST].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
@@ -615,7 +639,11 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "meh",
+      );
     });
     it("should notify success if the channel is now set to recurring", (done) => {
       const mockMessage = {
@@ -635,16 +663,20 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "meh",
+      );
     });
     it("should do nothing if an error occur", async () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_SET_RECURRING
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
@@ -700,7 +732,11 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "meh",
+      );
     });
     it("should notify if it can't find recurring channel", (done) => {
       const mockMessage = {
@@ -719,7 +755,11 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "meh",
+      );
     });
     it("should tell which channel is recurring if it existed", (done) => {
       const mockMessage = {
@@ -739,16 +779,20 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "meh",
+      );
     });
     it("should do nothing if an error occur", async () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_GET_RECURRING
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
@@ -786,16 +830,20 @@ describe("Rule34 Commands", () => {
       };
       rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_RECURRING
-      ].commandCallback({ client, db: FireDB }, mockMessage as Message, "meh");
+      ].commandCallback(
+        ({ client, db: FireDB } as unknown) as EventContext,
+        mockMessage as Message,
+        "meh",
+      );
     });
     it("should do nothing if an error occur", async () => {
       await rule34CommandList[
         rule34CommandKeyList.RULE34_DELETE_RECURRING
       ].commandCallback(
-        {
+        ({
           client,
           db: FireDB,
-        },
+        } as unknown) as EventContext,
         {} as Message,
       );
     });
