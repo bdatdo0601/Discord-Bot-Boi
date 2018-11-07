@@ -1,9 +1,9 @@
 import { Command, CommandList } from "@commands/command.interface";
-import { createNewCalendar } from "@lib/api/googleapis/calendar";
-import { updateGuildStore } from "@lib/db/firebase";
 import debug from "debug";
 import { Message } from "discord.js";
 import { CalendarCommandKeyList } from "./calendar.interface";
+import { initializeCalendar } from "./helper";
+import CALENDAR_RESPONSE from "./response";
 
 const debugLog = debug("BotBoi:CalendarCommands");
 
@@ -11,29 +11,12 @@ const createCalendarCommand: Command = {
   commandCallback: async (context, message: Message) => {
     try {
       const { googleAPIJWTClient, db } = context;
-      // create calendar command
-      const calendar = await createNewCalendar(
-        googleAPIJWTClient,
-        message.guild.id,
-      );
-      if (calendar.id) {
-        await updateGuildStore(
-          {
-            data: {
-              googleStore: {
-                calendarID: calendar.id,
-              },
-            },
-            guildMetadata: {
-              guildID: message.guild.id,
-            },
-          },
-          db,
-        );
-        message.reply(`Calendar is initialized`);
-        return;
-      }
+      await message.reply(CALENDAR_RESPONSE.INIT_CALENDAR_PENDING());
+      // initialize calendar
+      await initializeCalendar(message.guild, googleAPIJWTClient, db);
+      await message.reply(CALENDAR_RESPONSE.INIT_CALENDAR_SUCCESS());
     } catch (err) {
+      await message.reply(CALENDAR_RESPONSE.INIT_CALENDAR_FAILED());
       debugLog(err);
     }
   },
@@ -41,7 +24,7 @@ const createCalendarCommand: Command = {
 };
 
 export const calendarCommandKeyList: CalendarCommandKeyList = {
-  CREATE_NEW_CALENDAR: "~createCalendar",
+  CREATE_NEW_CALENDAR: "~initCalendar",
 };
 
 export default {

@@ -1,10 +1,10 @@
-import { Context } from "@events/event.interface";
+import { EventContext } from "@events/event.interface";
 import { Client, Message } from "discord.js";
 
 export interface Command {
   commandDescription: string;
   commandCallback: (
-    context: Context,
+    context: EventContext,
     message?: Message,
     query?: string,
   ) => Promise<void>;

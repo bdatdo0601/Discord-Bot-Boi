@@ -4,6 +4,7 @@ import { Client, Message } from "discord.js";
 import firebase, { ServiceAccount } from "firebase-admin";
 
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
+import { EventContext } from "../../../src/events/event.interface";
 import messageEvent from "../../../src/events/message";
 
 describe("Message Event", () => {
@@ -34,7 +35,10 @@ describe("Message Event", () => {
       },
     };
     client.on(messageEvent.eventName, (message) => {
-      messageEvent.eventActionCallback({ client, db: FireDB })(message);
+      messageEvent.eventActionCallback(({
+        client,
+        db: FireDB,
+      } as unknown) as EventContext)(message);
       done();
     });
     client.emit(messageEvent.eventName, mockMessage);
@@ -49,9 +53,10 @@ describe("Message Event", () => {
         expect(result).to.be.a("string");
       },
     };
-    await messageEvent.eventActionCallback({ client, db: FireDB })(
-      (mockMessage as unknown) as Message,
-    );
+    await messageEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)((mockMessage as unknown) as Message);
   });
   it("should ignore command when invalid command arrive", async () => {
     const mockMessage = {
@@ -63,9 +68,10 @@ describe("Message Event", () => {
         expect(result).to.be.a("string");
       },
     };
-    await messageEvent.eventActionCallback({ client, db: FireDB })(
-      (mockMessage as unknown) as Message,
-    );
+    await messageEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)((mockMessage as unknown) as Message);
   });
   it("should ignore bot message when it arrive", async () => {
     const mockMessage = {
@@ -77,15 +83,17 @@ describe("Message Event", () => {
         expect(result).to.be.a("string");
       },
     };
-    await messageEvent.eventActionCallback({ client, db: FireDB })(
-      (mockMessage as unknown) as Message,
-    );
+    await messageEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)((mockMessage as unknown) as Message);
   });
   it("should do nothing if an error occured", async () => {
     const mockMessage = {};
-    await messageEvent.eventActionCallback({ client, db: FireDB })(
-      (mockMessage as unknown) as Message,
-    );
+    await messageEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)((mockMessage as unknown) as Message);
   });
   afterEach(async () => {
     await client.destroy();

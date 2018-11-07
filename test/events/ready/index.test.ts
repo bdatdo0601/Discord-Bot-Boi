@@ -4,7 +4,7 @@ import { Client, Collection, Guild, GuildChannel } from "discord.js";
 import firebase, { ServiceAccount } from "firebase-admin";
 import sinon from "sinon";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
-import { Context } from "../../../src/events/event.interface";
+import { EventContext } from "../../../src/events/event.interface";
 import readyEvent, { RULE34_INTERVAL } from "../../../src/events/ready";
 
 chai.use(chaiAsPromised);
@@ -47,15 +47,19 @@ describe("Ready Event", () => {
     guilds.set("2", nonExistingGuild);
     client.guilds = guilds;
     readyEvent
-      .eventActionCallback({ client, db: FireDB })()
+      .eventActionCallback(({
+        client,
+        db: FireDB,
+      } as unknown) as EventContext)()
       .then(() => {
         clock.tick(RULE34_INTERVAL);
         done();
       });
   });
   it("should throw error if error occured", async () => {
-    await expect(readyEvent.eventActionCallback(({} as unknown) as Context)())
-      .to.eventually.be.rejected;
+    await expect(
+      readyEvent.eventActionCallback(({} as unknown) as EventContext)(),
+    ).to.eventually.be.rejected;
   });
   after(async () => {
     await clock.restore();

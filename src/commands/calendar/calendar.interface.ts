@@ -1,3 +1,3 @@
 export interface CalendarCommandKeyList {
-  CREATE_NEW_CALENDAR: "~createCalendar";
+  CREATE_NEW_CALENDAR: "~initCalendar";
 }

@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import firebase, { ServiceAccount } from "firebase-admin";
 import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../../src/config";
+import { EventContext } from "../../../src/events/event.interface";
 import presenceUpdateEvent from "../../../src/events/presenceUpdate";
 import { initGuildStore, updateGuildStore } from "../../../src/lib/db/firebase";
 
@@ -31,12 +32,12 @@ describe("PresenceUpdate Event", () => {
     await FireDB.ref("/").remove();
   });
   it("should do nothing if new presence of user is online", async () => {
-    await presenceUpdateEvent.eventActionCallback({ client, db: FireDB })(
-      ({} as unknown) as GuildMember,
-      {
-        presence: { status: "online" },
-      },
-    );
+    await presenceUpdateEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)(({} as unknown) as GuildMember, {
+      presence: { status: "online" },
+    });
   });
   it("should do nothing when user become idle/offline/dnd but RDP feature is not activated", async () => {
     await initGuildStore(mockGuildID, FireDB);
@@ -53,15 +54,15 @@ describe("PresenceUpdate Event", () => {
       },
       FireDB,
     );
-    await presenceUpdateEvent.eventActionCallback({ client, db: FireDB })(
-      ({} as unknown) as GuildMember,
-      {
-        guild: {
-          id: mockGuildID,
-        },
-        presence: { status: "idle" },
+    await presenceUpdateEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)(({} as unknown) as GuildMember, {
+      guild: {
+        id: mockGuildID,
       },
-    );
+      presence: { status: "idle" },
+    });
   });
   it("should remove try to user from RDP if user become idle/offline/dnd and RDP feature is activated", async () => {
     const mockRDPID = "f1231234";
@@ -115,13 +116,19 @@ describe("PresenceUpdate Event", () => {
       mockNewMember.id,
       (mockNewMember as unknown) as GuildMember,
     );
-    await presenceUpdateEvent.eventActionCallback({ client, db: FireDB })(
+    await presenceUpdateEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)(
       ({} as unknown) as GuildMember,
       mockNewMember,
     );
   });
   it("should do nothing if an error occured", async () => {
-    await presenceUpdateEvent.eventActionCallback({ client, db: FireDB })(
+    await presenceUpdateEvent.eventActionCallback(({
+      client,
+      db: FireDB,
+    } as unknown) as EventContext)(
       ({} as unknown) as GuildMember,
       ({} as unknown) as GuildMember,
     );
