@@ -17,7 +17,7 @@
     "lint": "tslint --project .",
     "start": "cross-env DEBUG=BotBoi:* NODE_ENV=development nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "test:specific": "mocha --exit -r ts-node/register -r tsconfig-paths/register --timeout 15000",
-    "test-local": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts'",
+    "test:local": "nyc --reporter=html mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts'",
     "test": "nyc --reporter=lcov mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts' && yarn coverage",
     "build-server": "tsc --project ./tsconfig.json",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
@@ -28,7 +28,7 @@
     "doc-generate": "typedoc --theme minimal --out ./doc ./src && git subtree push --prefix doc origin gh-pages"
   },
   "pre-commit": [
-    "test-local",
+    "test:local",
     "doc-generate"
   ],
   "nyc": {

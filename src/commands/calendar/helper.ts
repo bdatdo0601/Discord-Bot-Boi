@@ -7,6 +7,7 @@ import { GuildStore } from "@lib/db/firebase/firebase.interface";
 import { Guild } from "discord.js";
 import firebase from "firebase-admin";
 import { JWT } from "google-auth-library";
+import CALENDAR_RESPONSE from "./response";
 
 export const initializeCalendar = async (
   guild: Guild,
@@ -32,4 +33,17 @@ export const initializeCalendar = async (
     },
     db,
   );
+};
+
+export const getCalendarLink = async (
+  guildID: string,
+  db: firebase.database.Database,
+): Promise<string> => {
+  const guildStore = (await getGuildStore(guildID, db)) as GuildStore;
+  if (!guildStore.data.googleStore.calendarID) {
+    return CALENDAR_RESPONSE.CALENDAR_NOT_FOUND();
+  }
+  return `https://calendar.google.com/calendar/r?cid=${
+    guildStore.data.googleStore.calendarID
+  }`;
 };
