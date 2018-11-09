@@ -8,6 +8,7 @@ import { Client } from "discord.js";
 // https://discordapp.com/oauth2/authorize?client_id=482244091518779402&scope=bot&permissions=8
 
 import { DISCORD_CONFIG, FIREBASE_CONFIG, GOOGLE_CONFIG } from "@config";
+import DialogFlow from "@dialogflow";
 import botEventList from "@events";
 import { initGoogleAPIS } from "@lib/api/googleapis";
 import { getBaseStore } from "@lib/db/firebase";
@@ -32,6 +33,8 @@ const main = async (token: string): Promise<Client> => {
   });
   // googleapi initialization
   const googleAPIJWTClient = (await initGoogleAPIS()) as JWT;
+  // dialogflow initialization
+  const dialogFlow = new DialogFlow(GOOGLE_CONFIG);
   const db = firebase.database();
   await getBaseStore(db);
   // discord initialization
@@ -40,7 +43,7 @@ const main = async (token: string): Promise<Client> => {
   botEventList.forEach((event) => {
     client.on(
       event.eventName,
-      event.eventActionCallback({ client, db, googleAPIJWTClient }),
+      event.eventActionCallback({ client, db, googleAPIJWTClient, dialogFlow }),
     );
   });
   // start the bot

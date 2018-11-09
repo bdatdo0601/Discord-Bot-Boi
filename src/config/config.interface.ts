@@ -1,4 +1,5 @@
 export interface EnvironmentVariables {
+  DIALOGFLOW_CONFIG: DialogFlowConfiguration;
   FIREBASE_CONFIG: FirebaseConfiguration;
   DISCORD_CONFIG: DiscordConfiguration;
   WIT_AI_CONFIG: WitAIConfiguration;
@@ -9,6 +10,11 @@ export interface EnvironmentVariables {
 
 export interface Rule34Configuration {
   RECURRING_INTERVAL: number;
+}
+
+export interface DialogFlowConfiguration {
+  CONFIDENCE_TOLERANCE: number;
+  LANGUAGE_CODE: string;
 }
 
 export interface DiscordConfiguration {

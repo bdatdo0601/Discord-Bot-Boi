@@ -1,3 +1,4 @@
+import { EventContext } from "@events/event.interface";
 import debug from "debug";
 import { Message } from "discord.js";
 import _ from "lodash";
@@ -56,6 +57,26 @@ const commandList: CommandList = {
   ...readyToPlayCommandList,
   ...referendumCommandList,
   ...calendarCommandList,
+};
+
+/**
+ * process message that is a command
+ *
+ * @param {EventContext} context current event context
+ * @param {Message} message message object
+ *
+ */
+export const processCommand = async (
+  context: EventContext,
+  message: Message,
+): Promise<void> => {
+  debugLog("Processing Commands");
+  const [command, ...rest] = message.content.split(" ");
+  const query: string = rest.join(" ");
+  if (commandList[command]) {
+    await commandList[command].commandCallback(context, message, query);
+  }
+  debugLog("Finish Processing Commands");
 };
 
 export default commandList;

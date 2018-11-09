@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import {
+  DialogFlowConfiguration,
   DiscordConfiguration,
   EnvironmentVariables,
   FirebaseConfiguration,
@@ -45,6 +46,11 @@ export const WIT_AI_CONFIG: WitAIConfiguration = {
   ),
 };
 
+export const DIALOGFLOW_CONFIG: DialogFlowConfiguration = {
+  CONFIDENCE_TOLERANCE: 0.8,
+  LANGUAGE_CODE: "en-US",
+};
+
 export const RULE_34_CONFIG: Rule34Configuration = {
   RECURRING_INTERVAL: parseInt(
     (process.env.RECURRING_INTERVAL as string) || "60000*30",
@@ -59,6 +65,7 @@ export const HEROKU_DATA: HerokuData = {
 };
 
 const ENV_VAR: EnvironmentVariables = {
+  DIALOGFLOW_CONFIG,
   DISCORD_CONFIG,
   FIREBASE_CONFIG,
   GOOGLE_CONFIG,

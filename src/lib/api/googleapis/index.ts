@@ -4,7 +4,10 @@ import { google } from "googleapis";
 
 const debugLog = debug("BotBoi:GoogleAPIS");
 
-const SCOPES = ["https://www.googleapis.com/auth/calendar"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/cloud-platform",
+];
 
 /**
  * initialize a google api jwt credential

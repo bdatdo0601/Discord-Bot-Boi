@@ -13,6 +13,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {
+      "@dialogflow": ["src/dialogflow"],
+      "@dialogflow/": ["src/dialogflow/*"],
       "@lib/*": ["src/lib/*"],
       "@commands": ["src/commands"],
       "@commands/*": ["src/commands/*"],
