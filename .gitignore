@@ -60,3 +60,5 @@ build/
 doc/
 .coveralls.yml
 env.txt
+
+dabotboi-deploy-credential.json
