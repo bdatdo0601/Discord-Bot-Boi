@@ -37,6 +37,12 @@ class DialogFlow {
     this.sessionClient = new dialogflow.v2beta1.SessionsClient(config);
   }
 
+  /**
+   * format and process message that request NLP from the bot
+   *
+   * @param {EventContext} context event context
+   * @param {Message} message message associated
+   */
   public async processMessage(
     context: EventContext,
     message: Message,
@@ -59,14 +65,16 @@ class DialogFlow {
       await message.reply("I don't understand what chu sayin' fam");
       return;
     }
-    debugLog(intent.queryResult.parameters.fields.searchQuery);
-    await message.reply(intent.queryResult.fulfillmentText);
+    if (intent.queryResult.fulfillmentText) {
+      await message.reply(intent.queryResult.fulfillmentText);
+    }
   }
 
   /**
+   * get responses back from dialogflow
    *
-   * @param {string} textRequest
-   * @param {string} sessionID
+   * @param {string} textRequest requesting query
+   * @param {string} sessionID session ID for the current conversation
    */
   private async getResponses(
     textRequest: string,

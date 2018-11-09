@@ -1,10 +1,28 @@
 import { expect } from "chai";
-import { Message } from "discord.js";
+import { Client, ClientUser, Message } from "discord.js";
+import firebase, { ServiceAccount } from "firebase-admin";
 import _ from "lodash";
-import commandList, { COMMANDS } from "../../src/commands";
+import commandList, { COMMANDS, processCommand } from "../../src/commands";
+import { FIREBASE_CONFIG, GOOGLE_CONFIG } from "../../src/config";
 import { EventContext } from "../../src/events/event.interface";
 
 describe("Command List Wrapper", () => {
+  // firebase initialization
+  const app = firebase.initializeApp(
+    {
+      credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
+      databaseURL: FIREBASE_CONFIG.databaseURL,
+    },
+    "GeneralCommandsTestEnv",
+  );
+  const FireDB = app.database();
+  let client: Client;
+  beforeEach(() => {
+    client = new Client();
+  });
+  before(async () => {
+    await FireDB.goOnline();
+  });
   describe("General Command", () => {
     const response: string[] = [];
     for (const commandType of Object.keys(COMMANDS)) {
@@ -37,8 +55,53 @@ describe("Command List Wrapper", () => {
       );
     });
   });
+  describe("processCommand Function", () => {
+    it("should process command when a command arrive", async () => {
+      const mockMessage = {
+        author: {
+          bot: false,
+        },
+        content: "~sayMock test",
+        send: (result) => {
+          expect(result).to.be.a("string");
+        },
+      };
+      await processCommand(
+        ({
+          client,
+          db: FireDB,
+        } as unknown) as EventContext,
+        (mockMessage as unknown) as Message,
+      );
+    });
+    it("should ignore command when invalid command arrive", async () => {
+      const mockMessage = {
+        author: {
+          bot: false,
+        },
+        content: "~sayMsafasock test",
+        send: (result) => {
+          expect(result).to.be.a("string");
+        },
+      };
+      await processCommand(
+        ({
+          client,
+          db: FireDB,
+        } as unknown) as EventContext,
+        (mockMessage as unknown) as Message,
+      );
+    });
+  });
   it("should return an object", () => {
     expect(COMMANDS).to.be.an("object");
     expect(commandList).to.be.an("object");
+  });
+  afterEach(async () => {
+    await client.destroy();
+  });
+  after(async () => {
+    await FireDB.goOffline();
+    await app.delete();
   });
 });
