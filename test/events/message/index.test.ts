@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Client, Message } from "discord.js";
+import { Client, ClientUser, Message } from "discord.js";
 
 import firebase, { ServiceAccount } from "firebase-admin";
 
@@ -24,7 +24,7 @@ describe("Message Event", () => {
   before(async () => {
     await FireDB.goOnline();
   });
-  it("should trigger when a message event arrive", (done) => {
+  it("should trigger when a message event arrive", async () => {
     const mockMessage = {
       author: {
         bot: false,
@@ -34,45 +34,12 @@ describe("Message Event", () => {
         expect(result).to.be.a("string");
       },
     };
-    client.on(messageEvent.eventName, (message) => {
-      messageEvent.eventActionCallback(({
-        client,
-        db: FireDB,
-      } as unknown) as EventContext)(message);
-      done();
-    });
-    client.emit(messageEvent.eventName, mockMessage);
-  });
-  it("should process command when a command arrive", async () => {
-    const mockMessage = {
-      author: {
-        bot: false,
-      },
-      content: "~sayMock test",
-      send: (result) => {
-        expect(result).to.be.a("string");
-      },
-    };
     await messageEvent.eventActionCallback(({
-      client,
+      client: { user: { id: "foo" } },
       db: FireDB,
     } as unknown) as EventContext)((mockMessage as unknown) as Message);
   });
-  it("should ignore command when invalid command arrive", async () => {
-    const mockMessage = {
-      author: {
-        bot: false,
-      },
-      content: "~sayMsafasock test",
-      send: (result) => {
-        expect(result).to.be.a("string");
-      },
-    };
-    await messageEvent.eventActionCallback(({
-      client,
-      db: FireDB,
-    } as unknown) as EventContext)((mockMessage as unknown) as Message);
-  });
+
   it("should ignore bot message when it arrive", async () => {
     const mockMessage = {
       author: {
@@ -85,6 +52,36 @@ describe("Message Event", () => {
     };
     await messageEvent.eventActionCallback(({
       client,
+      db: FireDB,
+    } as unknown) as EventContext)((mockMessage as unknown) as Message);
+  });
+  it("should call process command if first character is `~`", async () => {
+    const mockMessage = {
+      author: {
+        bot: false,
+      },
+      content: "~sayMoasfck test",
+      send: (result) => {
+        expect(result).to.be.a("string");
+      },
+    };
+    await messageEvent.eventActionCallback(({
+      client: { user: { id: "foo" } },
+      db: FireDB,
+    } as unknown) as EventContext)((mockMessage as unknown) as Message);
+  });
+  it("should call dialogflow process if message start with client userID", async () => {
+    const mockMessage = {
+      author: {
+        bot: false,
+      },
+      content: "<@foo> test",
+      send: (result) => {
+        expect(result).to.be.a("string");
+      },
+    };
+    await messageEvent.eventActionCallback(({
+      client: { user: { id: "foo" } },
       db: FireDB,
     } as unknown) as EventContext)((mockMessage as unknown) as Message);
   });

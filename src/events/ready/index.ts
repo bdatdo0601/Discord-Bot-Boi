@@ -1,7 +1,6 @@
 import debug from "debug";
 import { Event } from "../event.interface";
 
-import { createNewCalendar } from "@lib/api/googleapis/calendar";
 import commandList, { COMMANDS } from "../../commands";
 import { getBaseStore, initGuildStore } from "../../lib/db/firebase";
 
@@ -13,7 +12,7 @@ const readyEvent: Event = {
   eventActionCallback: (context) => async (): Promise<void> => {
     debugLog("Ready Event triggered");
     try {
-      const { client, db, googleAPIJWTClient } = context;
+      const { client, db } = context;
       // get base guild or init if it does not exist
       const baseStore = await getBaseStore(db);
       // add guild to baseStore if guild does not exist

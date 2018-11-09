@@ -108,10 +108,7 @@ describe("Mock Commands", () => {
     });
     it("should do nothing if an error occur", async () => {
       mockCommandList[mockCommandKeyList.MOCK].commandCallback(
-        ({
-          client,
-          db: FireDB,
-        } as unknown) as EventContext,
+        ({} as unknown) as EventContext,
         ({} as unknown) as Message,
       );
     });
@@ -138,6 +135,12 @@ describe("Mock Commands", () => {
         } as unknown) as EventContext,
         (input as unknown) as Message,
         input.content,
+      );
+    });
+    it("should do nothing if an error occur", async () => {
+      mockCommandList[mockCommandKeyList.SAY_MOCK].commandCallback(
+        ({} as unknown) as EventContext,
+        ({} as unknown) as Message,
       );
     });
   });
