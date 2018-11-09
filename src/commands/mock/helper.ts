@@ -1,3 +1,4 @@
+import { getMockImage } from "@lib/api/spongeBobMock";
 import { Attachment } from "discord.js";
 import _ from "lodash";
 import { MockResponse } from "./mock.interface";
@@ -43,8 +44,8 @@ const getMockResponse = async (
   mockeeID: string,
   mockMessage: string,
 ): Promise<MockResponse> => {
-  const imageData = await mockMessage;
-  const attachment = new Attachment(imageData, "mocking.jpg");
+  const imageData = await getMockImage(mockMessage);
+  const attachment = new Attachment(Buffer.from(imageData), "mocking.jpg");
   return {
     attachment,
     message: MOCK_RESPONSE.MOCKING(mockeeID, mockMessage),

@@ -33,6 +33,7 @@ describe("Mock Commands", () => {
     const client: Client = new Client();
     client.user = new User(client, { id: 1 }) as ClientUser;
     it("should send a mock message based on mentioned user last message", async () => {
+      const response: string[] = [];
       const users = new Collection<string, User>();
       const newUser = new User(client, { id: 1 });
       newUser.lastMessage = new Message(
@@ -65,7 +66,7 @@ describe("Mock Commands", () => {
         },
         channel: {
           send: (result) => {
-            expect(result).to.be.a("string");
+            response.push(result);
           },
         },
         mentions: {
@@ -79,6 +80,7 @@ describe("Mock Commands", () => {
         } as unknown) as EventContext,
         (input as unknown) as Message,
       );
+      expect(response.length).to.be.greaterThan(0);
     });
     it("should send a warning message if mentions user does not have last message", async () => {
       const users = new Collection<string, User>();
