@@ -20,7 +20,7 @@
     "test:local": "nyc --reporter=html --reporter=text mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts'",
     "test": "nyc --reporter=lcov mocha --timeout 15000 --exit -r ts-node/register -r tsconfig-paths/register './test/**/*.test.ts' && yarn coverage",
     "build:compile": "tsc --project ./tsconfig.json",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov",
     "clean": "rm -rf build && mkdir build",
     "build": "yarn clean && yarn build:compile",
     "production:start": "node -r ts-node/register -r tsconfig-paths/register ./index.js",

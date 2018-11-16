@@ -1,18 +1,18 @@
 language: node_js
-
 node_js:
   - 10.12.0
 before_script:
   - yarn global add nyc
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
-
+  - "./cc-test-reporter before-build"
 script:
   - yarn test
-
 after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-
+  - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
 notifications:
   email: true
+deploy:
+  provider: heroku
+  api_key:
+    secure: LBIoI7epmDtaNDCamTrCwrbq1qd7AI4EfiorQt8MeV1iSN2S0p8/iKmtqrCmewZaLQy6aL5pUfi5ujiCWBafU4eHqTKS1r7Rls57tgQiiU7gyn/Zs12XqHTIbB/scMxIiK9xVT0WoCNX2tSQkSTF0B3VOwJj4ByzOsbg/NvyE+49DCQkz870QmHVv3Gy1lc0s0+p1s6XFE/sN2cF5ch0DKDUgW63qg3mpXw0JnbKNEvgK4SIK+iDl+Z1W6Sq3QyIxC88WYu3sJ5YHWW1SAOZvMLClXbxSpjiHaJvfPVbUh3ElwEnuTKYrGRIVb099XbsWGY8Sv6sQXyRx+3jKRRiRavezAfzj+/afDzSTsFzpul+B5V8q0Jtkk0lQRLH3qNrjs9nkl3/O3fwwKLqJcBZxqiqo1d1m63HSi0xNyhS24BSLE3ZxqOA3B73M85stSt9wMEFufkHd/gPb//Sy291bf7obAWFPdOJJgpu3j+Pt5x3O4Plye/zByr1Hf0oWRvVpkFuQgUiH3K6qQz/pA2adWcjcl5NsGPn/kwRk909owrRPSoBrDaCkbzEnLdD/QpsrSyI9YJorYst1nzFC0V8j2CJJ9N2jghN21XWDZwgx9+3WI0oFp5jyC7363P8aqarmL3mNsEN8+BbPvCNi+ll23cStYVdW3B2A+ERSxZJ1iM=
