@@ -65,6 +65,7 @@ class DialogFlow {
       await message.reply("I don't understand what chu sayin' fam");
       return;
     }
+    // process intent here
     if (intent.queryResult.fulfillmentText) {
       await message.reply(intent.queryResult.fulfillmentText);
     }
