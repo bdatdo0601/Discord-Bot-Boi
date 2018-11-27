@@ -12,7 +12,7 @@ import { debuglog } from "util";
 const DATE_REGEX = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
 
 const convertEventTimeToReadableString = (eventTimeObject) => {
-  eventTimeObject && eventTimeObject.dateTime
+  return eventTimeObject.dateTime
     ? moment(eventTimeObject.dateTime).format("hh:mm a MMM Do YYYY")
     : "unknown";
 };
@@ -22,8 +22,8 @@ const convertEventToReadableString = (
 ): string => {
   const title = event.summary;
   const location = event.location ? event.location.trim() : "unknown";
-  const startTime = convertEventTimeToReadableString(event.start);
-  const endTime = convertEventTimeToReadableString(event.end);
+  const startTime = event.start ? convertEventTimeToReadableString(event.start) : "unknown";
+  const endTime = event.end ? convertEventTimeToReadableString(event.end) : "unknown";
   return `- **${title}** from **${startTime}** to **${endTime}** at *${location}*`;
 };
 
