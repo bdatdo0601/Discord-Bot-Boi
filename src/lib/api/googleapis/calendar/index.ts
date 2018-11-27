@@ -131,29 +131,29 @@ export const getCalendarEvents = async (
   );
 };
 
-/**
- * insert an event to calendar
- *
- * @param {string} calendarID
- * @param {JWT} jwtCredential
- * @param {EventInsertQuery} insertEventInput
- *
- * @returns {calendar_v3.Schema$Event} eventually return the new event
- */
-export const insertCalendarEvent = async (
-  calendarID: string,
-  jwtCredential: JWT,
-  insertEventInput: EventInsertQuery,
-): Promise<calendar_v3.Schema$Event> => {
-  debugLog("insert calendar event");
-  const calendarAPI = google.calendar("v3");
-  const calendarEvent = await calendarAPI.events.insert({
-    auth: jwtCredential,
-    calendarId: calendarID,
-    requestBody: insertEventInput,
-  });
-  return calendarEvent.data;
-};
+// /**
+//  * insert an event to calendar
+//  *
+//  * @param {string} calendarID
+//  * @param {JWT} jwtCredential
+//  * @param {EventInsertQuery} insertEventInput
+//  *
+//  * @returns {calendar_v3.Schema$Event} eventually return the new event
+//  */
+// export const insertCalendarEvent = async (
+//   calendarID: string,
+//   jwtCredential: JWT,
+//   insertEventInput: EventInsertQuery,
+// ): Promise<calendar_v3.Schema$Event> => {
+//   debugLog("insert calendar event");
+//   const calendarAPI = google.calendar("v3");
+//   const calendarEvent = await calendarAPI.events.insert({
+//     auth: jwtCredential,
+//     calendarId: calendarID,
+//     requestBody: insertEventInput,
+//   });
+//   return calendarEvent.data;
+// };
 
 /**
  * quick add an event from text (using google api)
