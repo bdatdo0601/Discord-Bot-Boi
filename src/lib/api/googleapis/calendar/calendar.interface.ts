@@ -24,7 +24,7 @@ export interface EventAttendeeInput {
   displayName: string;
   additionalGuests?: number;
   comment: string;
-  email?: string;
+  email: string;
   optional?: boolean;
   responseStatus?: string;
 }

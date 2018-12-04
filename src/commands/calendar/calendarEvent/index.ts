@@ -7,7 +7,12 @@ import { Message } from "discord.js";
 // import { getCalendarLink, initializeCalendar } from "./helper";
 import CALENDAR_RESPONSE from "../response";
 import { CalendarEventCommandKeyList } from "./calendarEvent.interface";
-import { listCalendarEvents, quickAddEventToCalendarFromQuery } from "./helper";
+import {
+  addAttendeeToEvent,
+  deleteEventFromCalendar,
+  listCalendarEvents,
+  quickAddEventToCalendarFromQuery,
+} from "./helper";
 import CALENDAR_EVENT_RESPONSE from "./response";
 
 const debugLog = debug("BotBoi:CalendarEventCommand");
@@ -69,12 +74,73 @@ const addCalendarEventCommand: Command = {
   commandDescription: "add an event to the calendar",
 };
 
+const deleteCalendarEventCommand: Command = {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const calendarID = await calendarEventValidation(context, message);
+      const response = await deleteEventFromCalendar(
+        calendarID,
+        context.googleAPIJWTClient,
+        query,
+      );
+      message.reply(response);
+    } catch (err) {
+      message.reply(err.message);
+      debugLog(err);
+    }
+  },
+  commandDescription: "delete most recent event match with query",
+};
+
+const addAttendeeToEventCommand: Command = {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const calendarID = await calendarEventValidation(context, message);
+      const response = await addAttendeeToEvent(
+        calendarID,
+        message.member,
+        context.googleAPIJWTClient,
+        query,
+      );
+      message.reply(response);
+    } catch (err) {
+      message.reply(err.message);
+      debugLog(err);
+    }
+  },
+  commandDescription: "add yourself to an event you specified",
+};
+
+// const removeAttendeeFromEventCommand: Command = {
+//   commandCallback: async (context, message: Message, query: string) => {
+//     try {
+//       const calendarID = await calendarEventValidation(context, message);
+//       const response = await removeAttendeeFromEvent(
+//         calendarID,
+//         message.member,
+//         context.googleAPIJWTClient,
+//         query,
+//       );
+//       message.reply(response);
+//     } catch (err) {
+//       message.reply(err.message);
+//       debugLog(err);
+//     }
+//   },
+// };
+
 export const calendarEventCommandKeyList: CalendarEventCommandKeyList = {
+  ADD_ATTENDEE_TO_EVENT: "~goingTo",
   CREATE_NEW_EVENT: "~createEvent",
+  DELETE_EVENT: "~deleteEvent",
   LIST_EVENT: "~listEvent",
+  REMOVE_ATTENDEE_FROM_EVENT: "~notGoingTo",
 };
 
 export default {
   [calendarEventCommandKeyList.LIST_EVENT]: listCalendarEventCommand,
   [calendarEventCommandKeyList.CREATE_NEW_EVENT]: addCalendarEventCommand,
+  [calendarEventCommandKeyList.DELETE_EVENT]: deleteCalendarEventCommand,
+  [calendarEventCommandKeyList.ADD_ATTENDEE_TO_EVENT]: addAttendeeToEventCommand,
+  // [calendarEventCommandKeyList.REMOVE_ATTENDEE_FROM_EVENT]: {},
 } as CommandList;
