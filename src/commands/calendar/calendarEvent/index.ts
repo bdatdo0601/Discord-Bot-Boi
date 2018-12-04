@@ -134,7 +134,7 @@ export const calendarEventCommandKeyList: CalendarEventCommandKeyList = {
   CREATE_NEW_EVENT: "~createEvent",
   DELETE_EVENT: "~deleteEvent",
   LIST_EVENT: "~listEvent",
-  REMOVE_ATTENDEE_FROM_EVENT: "~notGoingTo",
+  // REMOVE_ATTENDEE_FROM_EVENT: "~notGoingTo",
 };
 
 export default {
