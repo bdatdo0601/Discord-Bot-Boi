@@ -2,11 +2,14 @@ import debug from "debug";
 import { Guild } from "discord.js";
 import { JWT } from "google-auth-library";
 import { calendar_v3, google } from "googleapis";
+import _ from "lodash";
 import moment, { Moment } from "moment";
 import {
   AccessControlRole,
+  EventAttendeeInput,
   EventInsertQuery,
   EventSearchQuery,
+  EventStatus,
 } from "./calendar.interface";
 
 const debugLog = debug("BotBoi:GoogleAPIS:Calendar");
@@ -110,25 +113,62 @@ export const getCalendarEvents = async (
   jwtCredential: JWT,
   searchInput: EventSearchQuery,
 ): Promise<calendar_v3.Schema$Event[]> => {
-  debugLog(getCalendarEvents);
+  debugLog("getCalendarEvents");
   const calendarAPI = google.calendar("v3");
   const { stringQuery, timeMax, timeMin } = searchInput;
   // get calendar events
   const calendarEvents = await calendarAPI.events.list({
     auth: jwtCredential,
     calendarId: calendarID,
+    orderBy: "startTime",
+    singleEvents: true,
     timeMax: timeMax ? timeMax.format() : undefined,
     timeMin: timeMin ? timeMin.format() : undefined,
   });
   if (!calendarEvents.data.items) {
     return [];
   }
+  const result = calendarEvents.data.items;
   if (!stringQuery) {
-    return calendarEvents.data.items;
+    return result;
   }
-  return calendarEvents.data.items.filter((event) =>
+  return result.filter((event) =>
     (event.summary as string).includes(stringQuery),
   );
+};
+
+export const getInstancesFromRecurringEvents = async (
+  calendarID: string,
+  eventID: string,
+  jwtCredential: JWT,
+): Promise<calendar_v3.Schema$Event[]> => {
+  const calendarAPI = google.calendar("v3");
+  const events = await calendarAPI.events.instances({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: eventID,
+  });
+  if (!events.data.items) {
+    return [];
+  }
+  return events.data.items;
+};
+
+export const getFirstCalendarEvent = async (
+  calendarID: string,
+  jwtCredential: JWT,
+  query: string,
+): Promise<calendar_v3.Schema$Event> => {
+  const currentTime = moment();
+  debugLog(currentTime.format());
+  const events = await getCalendarEvents(calendarID, jwtCredential, {
+    stringQuery: query,
+    timeMin: currentTime,
+  });
+  if (events.length === 0) {
+    throw new Error("No event found");
+  }
+  return events[0];
 };
 
 // /**
@@ -177,4 +217,89 @@ export const quickAddCalendarEvent = async (
     text: query,
   });
   return calendarEvent.data;
+};
+
+export const deleteCalendarEvent = async (
+  calendarID: string,
+  // shouldDeleteAllRecurring: boolean,
+  jwtCredential: JWT,
+  query: string,
+): Promise<calendar_v3.Schema$Event> => {
+  const calendarAPI = google.calendar("v3");
+  const deletingEvent = await getFirstCalendarEvent(
+    calendarID,
+    jwtCredential,
+    query,
+  );
+  debugLog(deletingEvent);
+  await calendarAPI.events.delete({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: deletingEvent.id,
+  });
+  return deletingEvent;
+};
+
+export const addAttendeeToCalendarEvent = async (
+  calendarID: string,
+  attendee: EventAttendeeInput,
+  jwtCredential: JWT,
+  query: string,
+): Promise<calendar_v3.Schema$Event> => {
+  const event = await getFirstCalendarEvent(calendarID, jwtCredential, query);
+  const calendarAPI = google.calendar("v3");
+  const updatedEvent = await calendarAPI.events.patch({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: event.id,
+    requestBody: {
+      attendees: [...(event.attendees ? event.attendees : []), attendee],
+    },
+  });
+  return updatedEvent.data;
+};
+
+export const removeAttendeeFromCalendarEvent = async (
+  calendarID: string,
+  userID: string,
+  jwtCredential: JWT,
+  query: string,
+): Promise<calendar_v3.Schema$Event> => {
+  const event = await getFirstCalendarEvent(calendarID, jwtCredential, query);
+  const calendarAPI = google.calendar("v3");
+  const updatedEvent = await calendarAPI.events.patch({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: event.id,
+    requestBody: {
+      attendees: event.attendees
+        ? event.attendees.filter(
+            (attendee) => attendee.comment !== `<@${userID}>`,
+          )
+        : [],
+    },
+  });
+  return updatedEvent.data;
+};
+
+export const updateCalendarEventLocation = async (
+  calendarID: string,
+  jwtCredential: JWT,
+  event: calendar_v3.Schema$Event,
+  newLocation: string,
+) => {
+  const calendarAPI = google.calendar("v3");
+  const updatedEvent = await calendarAPI.events.patch({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: event.id,
+    requestBody: {
+      location: newLocation,
+      summary: (event.summary as string).replace(
+        /(?=at).*$/,
+        `at ${newLocation}`,
+      ),
+    },
+  });
+  return updatedEvent.data;
 };

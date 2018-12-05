@@ -27,17 +27,21 @@ const debugLog = debug("BotBoi:Main");
 const main = async (token: string): Promise<Client> => {
   debugLog("Initializing Bot Boi");
   // firebase initialization
+  debugLog("Firebase Initialization");
   firebase.initializeApp({
     credential: firebase.credential.cert(GOOGLE_CONFIG as ServiceAccount),
     databaseURL: FIREBASE_CONFIG.databaseURL,
   });
   // googleapi initialization
+  debugLog("GoogleAPI Initialization");
   const googleAPIJWTClient = (await initGoogleAPIS()) as JWT;
   // dialogflow initialization
+  debugLog("DialogFlow Initialization");
   const dialogFlow = new DialogFlow(GOOGLE_CONFIG);
   const db = firebase.database();
   await getBaseStore(db);
   // discord initialization
+  debugLog("Discord Initialization");
   const client: Client = new Client();
   // setup events
   botEventList.forEach((event) => {

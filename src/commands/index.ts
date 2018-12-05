@@ -46,7 +46,7 @@ const generalCommandList = {
 
 export const COMMANDS = {
   CALENDAR: calendarCommandKeyList,
-  CALENDAR_EVENT: calendarCommandKeyList,
+  CALENDAR_EVENT: calendarEventCommandKeyList,
   GENERAL: generalCommandKeyList,
   MOCK: mockCommandKeyList,
   READY_TO_PLAY: r2pCommandKeyList,
