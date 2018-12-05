@@ -120,7 +120,7 @@ export const addAttendeeToEvent = async (
     const newAttendee: EventAttendeeInput = {
       comment: `<@${user.id}>`,
       displayName: user.displayName,
-      email: `${user.displayName}@${user.guild.name.replace(" ", "")}.discord`,
+      email: `${user.displayName.replace(" ","")}@${user.guild.name.replace(" ", "")}.discord`,
     };
     debugLog(newAttendee);
 
