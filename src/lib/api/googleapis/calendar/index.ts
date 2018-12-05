@@ -2,12 +2,14 @@ import debug from "debug";
 import { Guild } from "discord.js";
 import { JWT } from "google-auth-library";
 import { calendar_v3, google } from "googleapis";
+import _ from "lodash";
 import moment, { Moment } from "moment";
 import {
   AccessControlRole,
   EventAttendeeInput,
   EventInsertQuery,
   EventSearchQuery,
+  EventStatus,
 } from "./calendar.interface";
 
 const debugLog = debug("BotBoi:GoogleAPIS:Calendar");
@@ -118,16 +120,19 @@ export const getCalendarEvents = async (
   const calendarEvents = await calendarAPI.events.list({
     auth: jwtCredential,
     calendarId: calendarID,
+    orderBy: "startTime",
+    singleEvents: true,
     timeMax: timeMax ? timeMax.format() : undefined,
     timeMin: timeMin ? timeMin.format() : undefined,
   });
   if (!calendarEvents.data.items) {
     return [];
   }
+  const result = calendarEvents.data.items;
   if (!stringQuery) {
-    return calendarEvents.data.items;
+    return result;
   }
-  return calendarEvents.data.items.filter((event) =>
+  return result.filter((event) =>
     (event.summary as string).includes(stringQuery),
   );
 };
@@ -149,12 +154,13 @@ export const getInstancesFromRecurringEvents = async (
   return events.data.items;
 };
 
-const getFirstCalendarEvent = async (
+export const getFirstCalendarEvent = async (
   calendarID: string,
   jwtCredential: JWT,
   query: string,
 ): Promise<calendar_v3.Schema$Event> => {
   const currentTime = moment();
+  debugLog(currentTime.format());
   const events = await getCalendarEvents(calendarID, jwtCredential, {
     stringQuery: query,
     timeMin: currentTime,
@@ -162,19 +168,7 @@ const getFirstCalendarEvent = async (
   if (events.length === 0) {
     throw new Error("No event found");
   }
-  const mostRecentEvent = events[0];
-  if (mostRecentEvent.recurringEventId) {
-    const eventInstances = await getInstancesFromRecurringEvents(
-      calendarID,
-      mostRecentEvent.recurringEventId,
-      jwtCredential,
-    );
-
-    return eventInstances.find((event) =>
-      currentTime.isBefore(event.start as string),
-    ) as calendar_v3.Schema$Event;
-  }
-  return mostRecentEvent;
+  return events[0];
 };
 
 // /**
@@ -237,9 +231,7 @@ export const deleteCalendarEvent = async (
     jwtCredential,
     query,
   );
-  if (deletingEvent.recurringEventId) {
-    throw new Error("I can't delete recurring event");
-  }
+  debugLog(deletingEvent);
   await calendarAPI.events.delete({
     auth: jwtCredential,
     calendarId: calendarID,
@@ -262,6 +254,51 @@ export const addAttendeeToCalendarEvent = async (
     eventId: event.id,
     requestBody: {
       attendees: [...(event.attendees ? event.attendees : []), attendee],
+    },
+  });
+  return updatedEvent.data;
+};
+
+export const removeAttendeeFromCalendarEvent = async (
+  calendarID: string,
+  userID: string,
+  jwtCredential: JWT,
+  query: string,
+): Promise<calendar_v3.Schema$Event> => {
+  const event = await getFirstCalendarEvent(calendarID, jwtCredential, query);
+  const calendarAPI = google.calendar("v3");
+  const updatedEvent = await calendarAPI.events.patch({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: event.id,
+    requestBody: {
+      attendees: event.attendees
+        ? event.attendees.filter(
+            (attendee) => attendee.comment !== `<@${userID}>`,
+          )
+        : [],
+    },
+  });
+  return updatedEvent.data;
+};
+
+export const updateCalendarEventLocation = async (
+  calendarID: string,
+  jwtCredential: JWT,
+  event: calendar_v3.Schema$Event,
+  newLocation: string,
+) => {
+  const calendarAPI = google.calendar("v3");
+  const updatedEvent = await calendarAPI.events.patch({
+    auth: jwtCredential,
+    calendarId: calendarID,
+    eventId: event.id,
+    requestBody: {
+      location: newLocation,
+      summary: (event.summary as string).replace(
+        /(?=at).*$/,
+        `at ${newLocation}`,
+      ),
     },
   });
   return updatedEvent.data;

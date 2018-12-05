@@ -2,17 +2,22 @@ import {
   addAttendeeToCalendarEvent,
   deleteCalendarEvent,
   getCalendarEvents,
+  getFirstCalendarEvent,
   quickAddCalendarEvent,
+  removeAttendeeFromCalendarEvent,
+  updateCalendarEventLocation,
 } from "@lib/api/googleapis/calendar";
 import {
   EventAttendeeInput,
   EventSearchQuery,
+  EventStatus,
 } from "@lib/api/googleapis/calendar/calendar.interface";
 import debug from "debug";
 import { GuildMember, User } from "discord.js";
 import { JWT } from "google-auth-library";
 import { calendar_v3 } from "googleapis";
 import moment = require("moment");
+import response from "../response";
 
 const debugLog = debug("BotBoi:CalendarEventCommandHelper");
 
@@ -36,7 +41,10 @@ const convertEventToReadableString = (
   const endTime = event.end
     ? convertEventTimeToReadableString(event.end)
     : "unknown";
-  return `- **${title}** from **${startTime}** to **${endTime}** at *${location}*`;
+  const isDelete = event.status === EventStatus.CANCELLED ? "~~" : "";
+  return isDelete
+    ? `- ${isDelete} ${title} from ${startTime} to ${endTime} ${isDelete}`
+    : `- **${title}** from **${startTime}** to **${endTime}**`;
 };
 
 export const listCalendarEvents = async (
@@ -56,6 +64,7 @@ export const listCalendarEvents = async (
     if (eventList.length === 0) {
       return "I found none";
     }
+    debugLog(eventList);
     const stringifyEventList = eventList.map((event) =>
       convertEventToReadableString(event),
     );
@@ -110,17 +119,90 @@ export const addAttendeeToEvent = async (
   try {
     const newAttendee: EventAttendeeInput = {
       comment: `<@${user.id}>`,
-      displayName: user.nickname,
-      email: `${user.displayName}@${user.guild.name}.discord`,
+      displayName: user.displayName,
+      email: `${user.displayName}@${user.guild.name.replace(" ", "")}.discord`,
     };
+    debugLog(newAttendee);
+
     const event = await addAttendeeToCalendarEvent(
       calendarID,
       newAttendee,
       jwtCredentials,
       query,
     );
-    return `mark ya down as attending ${event.summary}`;
+    return `mark ya down as attending ${event.summary} on ${
+      event.start ? convertEventTimeToReadableString(event.start) : "unknown"
+    }`;
   } catch (err) {
     throw new Error(err.message);
+  }
+};
+
+export const removeAttendeeFromEvent = async (
+  calendarID: string,
+  user: GuildMember,
+  jwtCredentials: JWT,
+  query: string,
+) => {
+  try {
+    const event = await removeAttendeeFromCalendarEvent(
+      calendarID,
+      user.id,
+      jwtCredentials,
+      query,
+    );
+    return `mark ya down as not attending ${event.summary} on ${
+      event.start ? convertEventTimeToReadableString(event.start) : "unknown"
+    }`;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+export const getEventInfoResponse = async (
+  calendarID: string,
+  jwtCredentials: JWT,
+  query: string,
+) => {
+  try {
+    const event = await getFirstCalendarEvent(
+      calendarID,
+      jwtCredentials,
+      query,
+    );
+    const responses: string[] = [];
+    responses.push(`This is the most recent **${query}** event I found: `);
+    responses.push(`**Summary**: ${convertEventToReadableString(event)}`);
+    if (!event.attendees) {
+      responses.push("*No one rspv'ed yet :(*");
+    } else {
+      responses.push(
+        `**Attendees**: ${event.attendees
+          .map((attendee) => attendee.displayName)
+          .join(", ")}`,
+      );
+    }
+    return responses.join("\n");
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+export const updateEventLocation = async (
+  calendarID: string,
+  jwtCredential: JWT,
+  event: calendar_v3.Schema$Event,
+  newLocation: string,
+) => {
+  try {
+    const updatedEvent = await updateCalendarEventLocation(
+      calendarID,
+      jwtCredential,
+      event,
+      newLocation,
+    );
+    return `Updated ${convertEventToReadableString(updatedEvent)}`;
+  } catch (err) {
+    return err.message;
   }
 };

@@ -1,17 +1,20 @@
 import { Command, CommandList } from "@commands/command.interface";
 import { EventContext } from "@events/event.interface";
+import { getFirstCalendarEvent } from "@lib/api/googleapis/calendar";
 import { getGuildStore } from "@lib/db/firebase";
 import { GuildStore } from "@lib/db/firebase/firebase.interface";
 import debug from "debug";
-import { Message } from "discord.js";
-// import { getCalendarLink, initializeCalendar } from "./helper";
+import { Message, MessageCollector } from "discord.js";
 import CALENDAR_RESPONSE from "../response";
 import { CalendarEventCommandKeyList } from "./calendarEvent.interface";
 import {
   addAttendeeToEvent,
   deleteEventFromCalendar,
+  getEventInfoResponse,
   listCalendarEvents,
   quickAddEventToCalendarFromQuery,
+  removeAttendeeFromEvent,
+  updateEventLocation,
 } from "./helper";
 import CALENDAR_EVENT_RESPONSE from "./response";
 
@@ -111,30 +114,84 @@ const addAttendeeToEventCommand: Command = {
   commandDescription: "add yourself to an event you specified",
 };
 
-// const removeAttendeeFromEventCommand: Command = {
-//   commandCallback: async (context, message: Message, query: string) => {
-//     try {
-//       const calendarID = await calendarEventValidation(context, message);
-//       const response = await removeAttendeeFromEvent(
-//         calendarID,
-//         message.member,
-//         context.googleAPIJWTClient,
-//         query,
-//       );
-//       message.reply(response);
-//     } catch (err) {
-//       message.reply(err.message);
-//       debugLog(err);
-//     }
-//   },
-// };
+const removeAttendeeFromEventCommand: Command = {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const calendarID = await calendarEventValidation(context, message);
+      const response = await removeAttendeeFromEvent(
+        calendarID,
+        message.member,
+        context.googleAPIJWTClient,
+        query,
+      );
+      message.reply(response);
+    } catch (err) {
+      message.reply(err.message);
+      debugLog(err);
+    }
+  },
+  commandDescription: "remove yourself from an event you specified",
+};
+
+const getEventInfoCommand: Command = {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const calendarID = await calendarEventValidation(context, message);
+      const response = await getEventInfoResponse(
+        calendarID,
+        context.googleAPIJWTClient,
+        query,
+      );
+      message.reply(response);
+    } catch (err) {
+      message.reply(err.message);
+      debugLog(err);
+    }
+  },
+  commandDescription: "get detailed info about an event",
+};
+
+const eventUpdateLocationCommand: Command = {
+  commandCallback: async (context, message: Message, query: string) => {
+    try {
+      const calendarID = await calendarEventValidation(context, message);
+      const event = await getFirstCalendarEvent(
+        calendarID,
+        context.googleAPIJWTClient,
+        query,
+      );
+      message.reply("What is the new event location?");
+      const collector = new MessageCollector(
+        message.channel,
+        (msg) => msg.author.id === message.author.id,
+        { time: 10000 },
+      );
+      collector.on("collect", async (msg) => {
+        const response = await updateEventLocation(
+          calendarID,
+          context.googleAPIJWTClient,
+          event,
+          msg.cleanContent,
+        );
+        msg.reply(response);
+        collector.emit("end");
+      });
+    } catch (err) {
+      message.reply(err.message);
+      debugLog(err);
+    }
+  },
+  commandDescription: "update an event location",
+};
 
 export const calendarEventCommandKeyList: CalendarEventCommandKeyList = {
   ADD_ATTENDEE_TO_EVENT: "~goingTo",
   CREATE_NEW_EVENT: "~createEvent",
   DELETE_EVENT: "~deleteEvent",
+  EVENT_INFO: "~event",
+  EVENT_UPDATE_LOCATION: "~updateEventLocation",
   LIST_EVENT: "~listEvent",
-  // REMOVE_ATTENDEE_FROM_EVENT: "~notGoingTo",
+  REMOVE_ATTENDEE_FROM_EVENT: "~notGoingTo",
 };
 
 export default {
@@ -142,5 +199,7 @@ export default {
   [calendarEventCommandKeyList.CREATE_NEW_EVENT]: addCalendarEventCommand,
   [calendarEventCommandKeyList.DELETE_EVENT]: deleteCalendarEventCommand,
   [calendarEventCommandKeyList.ADD_ATTENDEE_TO_EVENT]: addAttendeeToEventCommand,
-  // [calendarEventCommandKeyList.REMOVE_ATTENDEE_FROM_EVENT]: {},
+  [calendarEventCommandKeyList.REMOVE_ATTENDEE_FROM_EVENT]: removeAttendeeFromEventCommand,
+  [calendarEventCommandKeyList.EVENT_INFO]: getEventInfoCommand,
+  [calendarEventCommandKeyList.EVENT_UPDATE_LOCATION]: eventUpdateLocationCommand,
 } as CommandList;
