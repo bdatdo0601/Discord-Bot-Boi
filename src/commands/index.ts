@@ -78,8 +78,10 @@ export const processCommand = async (
   debugLog("Processing Commands");
   const [command, ...rest] = message.content.split(" ");
   const query: string = rest.join(" ");
-  if (commandList[command]) {
-    await commandList[command].commandCallback(context, message, query);
+  for (const commandKey of Object.keys(commandList)) {
+    if (command.toLowerCase() === commandKey.toLowerCase()) {
+      await commandList[commandKey].commandCallback(context, message, query);
+    }
   }
   debugLog("Finish Processing Commands");
 };

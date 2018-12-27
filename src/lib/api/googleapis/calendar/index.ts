@@ -133,7 +133,7 @@ export const getCalendarEvents = async (
     return result;
   }
   return result.filter((event) =>
-    (event.summary as string).includes(stringQuery),
+    (event.summary as string).toLowerCase().includes(stringQuery.toLowerCase()),
   );
 };
 
